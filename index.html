@@ -1,2 +1,1837 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ruplast | Gestão de Frotas</title>
+
+<style>
+*{box-sizing:border-box}
+
+body{
+    margin:0;
+    font-family:Arial,Helvetica,sans-serif;
+    background:#f3f6fa;
+    color:#172033;
+}
+
+button,input,select{
+    font:inherit;
+}
+
+/* LOGIN */
+.login{
+    position:fixed;
+    inset:0;
+    background:linear-gradient(135deg,#07182d,#174b83);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+}
+
+.login-box{
+    width:390px;
+    max-width:92%;
+    background:#fff;
+    padding:38px;
+    border-radius:18px;
+    box-shadow:0 25px 70px rgba(0,0,0,.3);
+}
+
+.logo-login{
+    text-align:center;
+    font-size:30px;
+    font-weight:800;
+    color:#09213d;
+    margin-bottom:8px;
+}
+
+.logo-icon{
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    width:45px;
+    height:45px;
+    background:#126cff;
+    color:#fff;
+    border-radius:10px;
+    margin-right:8px;
+}
+
+.login-sub{
+    text-align:center;
+    color:#718096;
+    margin-bottom:28px;
+}
+
+.campo{
+    margin:15px 0;
+}
+
+.campo label{
+    display:block;
+    font-size:12px;
+    font-weight:bold;
+    margin-bottom:6px;
+}
+
+.campo input,
+.campo select{
+    width:100%;
+    padding:12px;
+    border:1px solid #e1e7ef;
+    border-radius:8px;
+}
+
+.btn{
+    border:0;
+    border-radius:8px;
+    padding:11px 16px;
+    background:#126cff;
+    color:white;
+    font-weight:bold;
+    cursor:pointer;
+}
+
+.btn:hover{
+    background:#075bd8;
+}
+
+.login-btn{
+    width:100%;
+    margin-top:8px;
+}
+
+.erro{
+    display:none;
+    color:#dc3545;
+    font-size:12px;
+    text-align:center;
+    margin-top:12px;
+}
+
+/* SISTEMA */
+.app{
+    display:none;
+}
+
+.sidebar{
+    position:fixed;
+    top:0;
+    bottom:0;
+    left:0;
+    width:245px;
+    background:#09213d;
+    color:white;
+    padding:20px 14px;
+}
+
+.marca{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    padding:0 10px 22px;
+    border-bottom:1px solid rgba(255,255,255,.12);
+}
+
+.marca-icon{
+    width:40px;
+    height:40px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    background:#126cff;
+    border-radius:9px;
+    font-weight:bold;
+    font-size:20px;
+}
+
+.marca strong{
+    font-size:21px;
+}
+
+.marca small{
+    display:block;
+    color:#9fb0c8;
+    font-size:9px;
+}
+
+.menu{
+    margin-top:22px;
+}
+
+.menu-item{
+    padding:12px 13px;
+    border-radius:8px;
+    color:#b8c5d7;
+    cursor:pointer;
+    margin:4px 0;
+}
+
+.menu-item:hover,
+.menu-item.active{
+    background:#173962;
+    color:#fff;
+}
+
+.main{
+    margin-left:245px;
+}
+
+.topbar{
+    height:68px;
+    background:white;
+    border-bottom:1px solid #e5eaf0;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    padding:0 28px;
+    position:sticky;
+    top:0;
+    z-index:5;
+}
+
+.conteudo{
+    padding:25px;
+}
+
+.pagina{
+    display:none;
+}
+
+.pagina.active{
+    display:block;
+}
+
+h1{
+    margin-bottom:5px;
+}
+
+.subtitulo{
+    color:#718096;
+    font-size:13px;
+}
+
+/* CARDS */
+.kpis{
+    display:grid;
+    grid-template-columns:repeat(4,1fr);
+    gap:16px;
+    margin:20px 0;
+}
+
+.kpi,
+.card,
+.veiculo{
+    background:#fff;
+    border-radius:12px;
+    box-shadow:0 5px 20px rgba(15,31,52,.07);
+}
+
+.kpi{
+    padding:18px;
+    cursor:pointer;
+}
+
+.kpi:hover{
+    box-shadow:0 7px 25px rgba(15,31,52,.13);
+}
+
+.kpi span{
+    color:#718096;
+    font-size:12px;
+}
+
+.kpi strong{
+    display:block;
+    font-size:25px;
+    margin:8px 0;
+}
+
+.verde{
+    color:#13a36a;
+    font-size:11px;
+}
+
+.vermelho{
+    color:#dc3545;
+    font-size:11px;
+}
+
+.grid{
+    display:grid;
+    grid-template-columns:1.4fr 1fr;
+    gap:18px;
+    margin-bottom:18px;
+}
+
+.card{
+    padding:20px;
+}
+
+.card-header{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-bottom:15px;
+}
+
+.grafico{
+    height:280px;
+}
+
+canvas{
+    max-width:100%;
+}
+
+/* TABELAS */
+.tabela{
+    overflow:auto;
+}
+
+table{
+    width:100%;
+    border-collapse:collapse;
+}
+
+th,td{
+    padding:12px;
+    border-bottom:1px solid #e5eaf0;
+    text-align:left;
+    font-size:12px;
+}
+
+th{
+    color:#718096;
+    font-size:10px;
+}
+
+tr.clicavel{
+    cursor:pointer;
+}
+
+tr.clicavel:hover{
+    background:#f7faff;
+}
+
+/* STATUS */
+.status{
+    padding:5px 9px;
+    border-radius:20px;
+    font-size:10px;
+    font-weight:bold;
+}
+
+.status-ok{
+    background:#e6f8ef;
+    color:#087a4b;
+}
+
+.status-alerta{
+    background:#fff3dc;
+    color:#a66a00;
+}
+
+.status-erro{
+    background:#ffe8ea;
+    color:#c72535;
+}
+
+/* VEICULOS */
+.veiculos{
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    gap:16px;
+}
+
+.veiculo{
+    padding:18px;
+    cursor:pointer;
+}
+
+.veiculo:hover{
+    outline:1px solid #bcd6fa;
+}
+
+.veiculo h3{
+    margin:0;
+    font-size:16px;
+}
+
+.veiculo small{
+    color:#718096;
+}
+
+.veiculo-top{
+    display:flex;
+    justify-content:space-between;
+}
+
+.dados-veiculo{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:15px;
+    margin-top:18px;
+}
+
+.dados-veiculo span{
+    display:block;
+    color:#718096;
+    font-size:10px;
+}
+
+.dados-veiculo strong{
+    font-size:13px;
+}
+
+/* ALERTAS */
+.alerta{
+    padding:14px;
+    margin:9px 0;
+    border-left:4px solid #f59e0b;
+    background:#fff8e9;
+    border-radius:7px;
+    font-size:12px;
+}
+
+.alerta.red{
+    border-color:#dc3545;
+    background:#fff0f1;
+}
+
+.alerta.green{
+    border-color:#13a36a;
+    background:#ecfaf3;
+}
+
+/* MODAL */
+.modal{
+    display:none;
+    position:fixed;
+    inset:0;
+    background:rgba(7,24,45,.65);
+    align-items:center;
+    justify-content:center;
+    padding:20px;
+    z-index:20;
+}
+
+.modal.aberto{
+    display:flex;
+}
+
+.modal-box{
+    background:white;
+    border-radius:14px;
+    padding:25px;
+    width:650px;
+    max-width:100%;
+    max-height:90vh;
+    overflow:auto;
+}
+
+.fechar{
+    float:right;
+    border:0;
+    background:#eee;
+    border-radius:50%;
+    width:30px;
+    height:30px;
+    cursor:pointer;
+}
+
+/* RESPONSIVO */
+@media(max-width:1050px){
+    .kpis{
+        grid-template-columns:repeat(2,1fr);
+    }
+
+    .grid{
+        grid-template-columns:1fr;
+    }
+
+    .veiculos{
+        grid-template-columns:repeat(2,1fr);
+    }
+}
+
+@media(max-width:700px){
+    .sidebar{
+        width:65px;
+    }
+
+    .marca strong,
+    .marca small,
+    .menu-item span{
+        display:none;
+    }
+
+    .marca{
+        justify-content:center;
+    }
+
+    .main{
+        margin-left:65px;
+    }
+
+    .conteudo{
+        padding:15px;
+    }
+
+    .kpis,
+    .veiculos{
+        grid-template-columns:1fr;
+    }
+}
+</style>
+</head>
+
+<body>
+
+<!-- LOGIN -->
+<div class="login" id="login">
+
+    <div class="login-box">
+
+        <div class="logo-login">
+            <span class="logo-icon">R</span>
+            RUPLAST
+        </div>
+
+        <div class="login-sub">
+            Gestão de Manutenção de Frotas
+        </div>
+
+        <div class="campo">
+            <label>Usuário</label>
+            <input id="usuario" value="admin">
+        </div>
+
+        <div class="campo">
+            <label>Senha</label>
+            <input id="senha" type="password" placeholder="Digite a senha">
+        </div>
+
+        <button class="btn login-btn" onclick="entrar()">
+            Entrar na plataforma
+        </button>
+
+        <div class="erro" id="erro">
+            Usuário ou senha incorretos.
+        </div>
+
+    </div>
+</div>
+
+
+<!-- SISTEMA -->
+<div class="app" id="app">
+
+    <aside class="sidebar">
+
+        <div class="marca">
+            <div class="marca-icon">R</div>
+
+            <div>
+                <strong>RUPLAST</strong>
+                <small>GESTÃO DE FROTAS</small>
+            </div>
+        </div>
+
+        <div class="menu">
+
+            <div class="menu-item active" onclick="abrirPagina('dashboard',this)">
+                📊 <span>Dashboard</span>
+            </div>
+
+            <div class="menu-item" onclick="abrirPagina('veiculos',this)">
+                🚛 <span>Veículos</span>
+            </div>
+
+            <div class="menu-item" onclick="abrirPagina('manutencao',this)">
+                🔧 <span>Manutenções</span>
+            </div>
+
+            <div class="menu-item" onclick="abrirPagina('ordens',this)">
+                📋 <span>Ordens de Serviço</span>
+            </div>
+
+            <div class="menu-item" onclick="abrirPagina('indicadores',this)">
+                📈 <span>Indicadores</span>
+            </div>
+
+            <div class="menu-item" onclick="abrirPagina('alertas',this)">
+                ⚠️ <span>Alertas</span>
+            </div>
+
+        </div>
+
+    </aside>
+
+
+    <main class="main">
+
+        <header class="topbar">
+            <strong id="titulo">Dashboard</strong>
+            <div>🔔 &nbsp; <b>Administrador</b></div>
+        </header>
+
+        <div class="conteudo">
+
+
+<!-- DASHBOARD -->
+<section class="pagina active" id="dashboard">
+
+<h1>Dashboard da Frota</h1>
+<p class="subtitulo">
+Visão geral da manutenção dos 15 ativos Ruplast.
+</p>
+
+
+<div class="kpis">
+
+<div class="kpi" onclick="mostrarIndicador('Custo total de manutenção','R$ 48.720')">
+<span>Custo total de manutenção</span>
+<strong>R$ 48.720</strong>
+<i class="verde">▲ 8,4% vs. mês anterior</i>
+</div>
+
+<div class="kpi" onclick="mostrarIndicador('Custo médio por veículo','R$ 3.248')">
+<span>Custo médio / veículo</span>
+<strong>R$ 3.248</strong>
+<i class="verde">▼ 3,2%</i>
+</div>
+
+<div class="kpi" onclick="mostrarIndicador('Horas de manutenção','186 h')">
+<span>Horas de manutenção</span>
+<strong>186 h</strong>
+<i class="vermelho">▲ 12 h</i>
+</div>
+
+<div class="kpi" onclick="mostrarIndicador('Disponibilidade da frota','93,8%')">
+<span>Disponibilidade da frota</span>
+<strong>93,8%</strong>
+<i class="verde">▲ 1,6%</i>
+</div>
+
+</div>
+
+
+<div class="grid">
+
+<div class="card">
+
+<div class="card-header">
+<div>
+<b>Custo de manutenção</b>
+<div class="subtitulo">Últimos 6 meses</div>
+</div>
+</div>
+
+<div class="grafico">
+<canvas id="graficoCusto"></canvas>
+</div>
+
+</div>
+
+
+<div class="card">
+
+<div class="card-header">
+<b>Status da frota</b>
+</div>
+
+<div class="grafico">
+<canvas id="graficoStatus"></canvas>
+</div>
+
+</div>
+
+</div>
+
+
+<div class="card tabela">
+
+<div class="card-header">
+
+<div>
+<b>Veículos com maior custo</b>
+<div class="subtitulo">
+Clique no veículo para abrir os detalhes
+</div>
+</div>
+
+<button class="btn" onclick="abrirPagina('veiculos')">
+Ver todos
+</button>
+
+</div>
+
+<table>
+
+<thead>
+<tr>
+<th>Veículo</th>
+<th>Tipo</th>
+<th>Custo</th>
+<th>Horas</th>
+<th>Status</th>
+</tr>
+</thead>
+
+<tbody id="tabelaTop"></tbody>
+
+</table>
+
+</div>
+
+</section>
+
+
+<!-- VEICULOS -->
+<section class="pagina" id="veiculos">
+
+<h1>Frota Ruplast</h1>
+
+<p class="subtitulo">
+15 veículos cadastrados: 9 trucks VW Constellation, 3 VW Delivery 11-180 e 3 carretas LS.
+</p>
+
+<div class="veiculos" id="listaVeiculos"></div>
+
+</section>
+
+
+<!-- DETALHE -->
+<section class="pagina" id="detalhe">
+
+<button class="btn" onclick="abrirPagina('veiculos')">
+← Voltar
+</button>
+
+<h1 id="detalheTitulo"></h1>
+
+<div class="kpis">
+
+<div class="kpi">
+<span>Custo acumulado</span>
+<strong id="detalheCusto"></strong>
+</div>
+
+<div class="kpi">
+<span>Horas de manutenção</span>
+<strong id="detalheHoras"></strong>
+</div>
+
+<div class="kpi">
+<span>Quilometragem</span>
+<strong id="detalheKm"></strong>
+</div>
+
+<div class="kpi">
+<span>Disponibilidade</span>
+<strong id="detalheDisponibilidade"></strong>
+</div>
+
+</div>
+
+
+<div class="grid">
+
+<div class="card">
+
+<b>Custo mensal</b>
+
+<div class="grafico">
+<canvas id="graficoVeiculo"></canvas>
+</div>
+
+</div>
+
+
+<div class="card">
+
+<b>Dados do veículo</b>
+
+<p id="dadosDetalhe"></p>
+
+</div>
+
+</div>
+
+
+<div class="card tabela">
+
+<h3>Histórico de manutenção</h3>
+
+<table>
+
+<thead>
+<tr>
+<th>Data</th>
+<th>Tipo</th>
+<th>Serviço</th>
+<th>Horas</th>
+<th>Custo</th>
+<th>Status</th>
+</tr>
+</thead>
+
+<tbody>
+
+<tr>
+<td>22/08/2026</td>
+<td>Preventiva</td>
+<td>Óleo e filtros</td>
+<td>3 h</td>
+<td>R$ 820</td>
+<td><span class="status status-ok">Concluída</span></td>
+</tr>
+
+<tr>
+<td>13/08/2026</td>
+<td>Corretiva</td>
+<td>Sistema de freios</td>
+<td>6 h</td>
+<td>R$ 1.950</td>
+<td><span class="status status-ok">Concluída</span></td>
+</tr>
+
+<tr>
+<td>01/07/2026</td>
+<td>Preventiva</td>
+<td>Revisão geral</td>
+<td>4 h</td>
+<td>R$ 1.240</td>
+<td><span class="status status-ok">Concluída</span></td>
+</tr>
+
+</tbody>
+</table>
+
+</div>
+
+</section>
+
+
+<!-- MANUTENCAO -->
+<section class="pagina" id="manutencao">
+
+<h1>Manutenções</h1>
+
+<p class="subtitulo">
+Programação preventiva e corretiva.
+</p>
+
+
+<div class="kpis">
+
+<div class="kpi">
+<span>Preventivas no mês</span>
+<strong>24</strong>
+<i class="verde">92% no prazo</i>
+</div>
+
+<div class="kpi">
+<span>Corretivas</span>
+<strong>11</strong>
+<i class="vermelho">+2 este mês</i>
+</div>
+
+<div class="kpi">
+<span>Tempo médio de reparo</span>
+<strong>7,4 h</strong>
+<i class="verde">▼ 0,8 h</i>
+</div>
+
+<div class="kpi">
+<span>Custo médio OS</span>
+<strong>R$ 1.392</strong>
+<i class="verde">▼ 4,1%</i>
+</div>
+
+</div>
+
+
+<div class="card tabela">
+
+<div class="card-header">
+
+<b>Programação de manutenção</b>
+
+<button class="btn" onclick="novaOS()">
++ Nova manutenção
+</button>
+
+</div>
+
+<table>
+
+<thead>
+<tr>
+<th>Veículo</th>
+<th>Tipo</th>
+<th>Serviço</th>
+<th>Data</th>
+<th>Prioridade</th>
+<th>Status</th>
+</tr>
+</thead>
+
+<tbody>
+
+<tr>
+<td>VW-Constellation-04</td>
+<td>Preventiva</td>
+<td>Revisão 20.000 km</td>
+<td>28/08/2026</td>
+<td><span class="status status-erro">Alta</span></td>
+<td><span class="status status-alerta">Pendente</span></td>
+</tr>
+
+<tr>
+<td>VW-Delivery-02</td>
+<td>Preventiva</td>
+<td>Troca de óleo</td>
+<td>29/08/2026</td>
+<td><span class="status status-alerta">Média</span></td>
+<td><span class="status status-alerta">Agendada</span></td>
+</tr>
+
+<tr>
+<td>Carreta LS-03</td>
+<td>Preventiva</td>
+<td>Inspeção de freios</td>
+<td>01/09/2026</td>
+<td><span class="status status-alerta">Média</span></td>
+<td><span class="status status-alerta">Agendada</span></td>
+</tr>
+
+</tbody>
+</table>
+
+</div>
+
+</section>
+
+
+<!-- ORDENS -->
+<section class="pagina" id="ordens">
+
+<h1>Ordens de Serviço</h1>
+
+<p class="subtitulo">
+Controle das ordens de serviço da frota.
+</p>
+
+<div class="card tabela">
+
+<div class="card-header">
+
+<b>Ordens recentes</b>
+
+<button class="btn" onclick="novaOS()">
++ Criar OS
+</button>
+
+</div>
+
+<table>
+
+<thead>
+<tr>
+<th>OS</th>
+<th>Veículo</th>
+<th>Serviço</th>
+<th>Responsável</th>
+<th>Custo</th>
+<th>Status</th>
+</tr>
+</thead>
+
+<tbody>
+
+<tr>
+<td>#OS-2026-0018</td>
+<td>VW-Constellation-01</td>
+<td>Sistema de freios</td>
+<td>Oficina Central</td>
+<td>R$ 2.850</td>
+<td><span class="status status-ok">Concluída</span></td>
+</tr>
+
+<tr>
+<td>#OS-2026-0019</td>
+<td>VW-Delivery-03</td>
+<td>Troca de embreagem</td>
+<td>Oficina Central</td>
+<td>R$ 4.200</td>
+<td><span class="status status-alerta">Em andamento</span></td>
+</tr>
+
+</tbody>
+
+</table>
+
+</div>
+
+</section>
+
+
+<!-- INDICADORES -->
+<section class="pagina" id="indicadores">
+
+<h1>Indicadores</h1>
+
+<p class="subtitulo">
+KPIs de eficiência da manutenção.
+</p>
+
+
+<div class="kpis">
+
+<div class="kpi" onclick="mostrarIndicador('MTBF','412 h')">
+<span>MTBF — tempo entre falhas</span>
+<strong>412 h</strong>
+<i class="verde">▲ 6,8%</i>
+</div>
+
+<div class="kpi" onclick="mostrarIndicador('MTTR','7,4 h')">
+<span>MTTR — tempo de reparo</span>
+<strong>7,4 h</strong>
+<i class="verde">▼ 9,2%</i>
+</div>
+
+<div class="kpi" onclick="mostrarIndicador('Custo por km','R$ 0,42')">
+<span>Custo manutenção / km</span>
+<strong>R$ 0,42</strong>
+<i class="verde">▼ 2,1%</i>
+</div>
+
+<div class="kpi" onclick="mostrarIndicador('Índice de preventiva','84%')">
+<span>Índice de preventiva</span>
+<strong>84%</strong>
+<i class="verde">▲ 5,4%</i>
+</div>
+
+</div>
+
+
+<div class="grid">
+
+<div class="card">
+
+<b>Horas de manutenção por veículo</b>
+
+<div class="grafico">
+<canvas id="graficoHoras"></canvas>
+</div>
+
+</div>
+
+
+<div class="card">
+
+<b>Distribuição dos custos</b>
+
+<div class="grafico">
+<canvas id="graficoCategorias"></canvas>
+</div>
+
+</div>
+
+</div>
+
+</section>
+
+
+<!-- ALERTAS -->
+<section class="pagina" id="alertas">
+
+<h1>Central de Alertas</h1>
+
+<p class="subtitulo">
+Pendências que exigem atenção.
+</p>
+
+
+<div class="card">
+
+<div class="alerta red">
+<b>🔴 VW Constellation 04</b>
+<br>
+Revisão preventiva atrasada.
+</div>
+
+<div class="alerta">
+<b>🟠 VW Delivery 02</b>
+<br>
+Troca de óleo prevista para os próximos 500 km.
+</div>
+
+<div class="alerta">
+<b>🟠 Carreta LS 03</b>
+<br>
+Inspeção de freios programada.
+</div>
+
+<div class="alerta green">
+<b>🟢 Preventivas em dia</b>
+<br>
+92% das preventivas executadas no prazo.
+</div>
+
+</div>
+
+</section>
+
+        </div>
+
+    </main>
+
+</div>
+
+
+<!-- MODAL -->
+<div class="modal" id="modal">
+
+<div class="modal-box">
+
+<button class="fechar" onclick="fecharModal()">×</button>
+
+<h2 id="modalTitulo"></h2>
+
+<div id="modalConteudo"></div>
+
+</div>
+
+</div>
+
+
+<script>
+
+/* LOGIN */
+
+function entrar(){
+
+    const usuario=document.getElementById("usuario").value;
+    const senha=document.getElementById("senha").value;
+
+    if(usuario==="admin" && senha==="ruplast123"){
+
+        document.getElementById("login").style.display="none";
+        document.getElementById("app").style.display="block";
+
+    }else{
+
+        document.getElementById("erro").style.display="block";
+
+    }
+
+}
+
+document.getElementById("senha").addEventListener("keydown",function(e){
+
+    if(e.key==="Enter"){
+        entrar();
+    }
+
+});
+
+
+/* VEICULOS */
+
+const veiculos=[];
+
+
+/* 9 TRUCKS VW CONSTELLATION */
+
+for(let i=1;i<=9;i++){
+
+    veiculos.push({
+
+        id:"VW-Constellation-"+String(i).padStart(2,"0"),
+
+        modelo:"VW Constellation",
+
+        tipo:"Truck",
+
+        ano:2024,
+
+        km:126000+(i*4300),
+
+        custo:2300+(i*310),
+
+        horas:12+(i*2),
+
+        disponibilidade:94-(i%4),
+
+        status:i===4?"Manutenção":"Operando"
+
+    });
+
+}
+
+
+/* 3 DELIVERY */
+
+for(let i=1;i<=3;i++){
+
+    veiculos.push({
+
+        id:"VW-Delivery-"+String(i).padStart(2,"0"),
+
+        modelo:"VW Delivery 11-180",
+
+        tipo:"Delivery",
+
+        ano:2024,
+
+        km:83000+(i*3200),
+
+        custo:1900+(i*260),
+
+        horas:10+(i*2),
+
+        disponibilidade:95,
+
+        status:i===2?"Manutenção":"Operando"
+
+    });
+
+}
+
+
+/* 3 CARRETAS LS */
+
+for(let i=1;i<=3;i++){
+
+    veiculos.push({
+
+        id:"Carreta LS-"+String(i).padStart(2,"0"),
+
+        modelo:"Semirreboque LS",
+
+        tipo:"Carreta",
+
+        ano:2024,
+
+        km:180000+(i*5000),
+
+        custo:1600+(i*230),
+
+        horas:7+i,
+
+        disponibilidade:97,
+
+        status:i===3?"Manutenção":"Operando"
+
+    });
+
+}
+
+
+/* NAVEGAÇÃO */
+
+const titulos={
+
+    dashboard:"Dashboard",
+
+    veiculos:"Veículos",
+
+    detalhe:"Detalhes do Veículo",
+
+    manutencao:"Manutenções",
+
+    ordens:"Ordens de Serviço",
+
+    indicadores:"Indicadores",
+
+    alertas:"Alertas"
+
+};
+
+
+function abrirPagina(id,elemento){
+
+    document.querySelectorAll(".pagina").forEach(function(p){
+
+        p.classList.remove("active");
+
+    });
+
+    document.getElementById(id).classList.add("active");
+
+    document.getElementById("titulo").textContent=titulos[id];
+
+    if(elemento){
+
+        document.querySelectorAll(".menu-item").forEach(function(item){
+
+            item.classList.remove("active");
+
+        });
+
+        elemento.classList.add("active");
+
+    }
+
+    window.scrollTo(0,0);
+
+}
+
+
+/* LISTA DE VEICULOS */
+
+function renderizarVeiculos(){
+
+    const lista=document.getElementById("listaVeiculos");
+
+    lista.innerHTML="";
+
+    veiculos.forEach(function(v){
+
+        lista.innerHTML+=`
+
+        <div class="veiculo" onclick="abrirVeiculo('${v.id}')">
+
+            <div class="veiculo-top">
+
+                <div>
+
+                    <h3>${v.id}</h3>
+
+                    <small>${v.modelo}</small>
+
+                </div>
+
+                <span class="status ${v.status==="Operando"?"status-ok":"status-alerta"}">
+
+                    ${v.status}
+
+                </span>
+
+            </div>
+
+            <div class="dados-veiculo">
+
+                <div>
+                    <span>Quilometragem</span>
+                    <strong>${v.km.toLocaleString("pt-BR")} km</strong>
+                </div>
+
+                <div>
+                    <span>Custo</span>
+                    <strong>R$ ${v.custo.toLocaleString("pt-BR")}</strong>
+                </div>
+
+                <div>
+                    <span>Horas manutenção</span>
+                    <strong>${v.horas} h</strong>
+                </div>
+
+                <div>
+                    <span>Disponibilidade</span>
+                    <strong>${v.disponibilidade}%</strong>
+                </div>
+
+            </div>
+
+        </div>
+
+        `;
+
+    });
+
+}
+
+
+/* TOP VEICULOS */
+
+function renderizarTabela(){
+
+    const tabela=document.getElementById("tabelaTop");
+
+    const ordenados=[...veiculos]
+        .sort((a,b)=>b.custo-a.custo)
+        .slice(0,5);
+
+    tabela.innerHTML="";
+
+    ordenados.forEach(function(v){
+
+        tabela.innerHTML+=`
+
+        <tr class="clicavel" onclick="abrirVeiculo('${v.id}')">
+
+            <td>
+                <b>${v.id}</b>
+                <br>
+                <small>${v.modelo}</small>
+            </td>
+
+            <td>${v.tipo}</td>
+
+            <td>R$ ${v.custo.toLocaleString("pt-BR")}</td>
+
+            <td>${v.horas} h</td>
+
+            <td>
+                <span class="status ${v.status==="Operando"?"status-ok":"status-alerta"}">
+                    ${v.status}
+                </span>
+            </td>
+
+        </tr>
+
+        `;
+
+    });
+
+}
+
+
+/* DETALHE */
+
+let graficoVeiculoAtual=null;
+
+
+function abrirVeiculo(id){
+
+    const v=veiculos.find(function(x){
+
+        return x.id===id;
+
+    });
+
+    abrirPagina("detalhe");
+
+    document.getElementById("detalheTitulo").textContent=v.id;
+
+    document.getElementById("detalheCusto").textContent=
+        "R$ "+v.custo.toLocaleString("pt-BR");
+
+    document.getElementById("detalheHoras").textContent=
+        v.horas+" h";
+
+    document.getElementById("detalheKm").textContent=
+        v.km.toLocaleString("pt-BR")+" km";
+
+    document.getElementById("detalheDisponibilidade").textContent=
+        v.disponibilidade+"%";
+
+    document.getElementById("dadosDetalhe").innerHTML=`
+
+        <b>Modelo:</b> ${v.modelo}<br>
+        <b>Categoria:</b> ${v.tipo}<br>
+        <b>Ano:</b> ${v.ano}<br>
+        <b>Quilometragem:</b> ${v.km.toLocaleString("pt-BR")} km<br>
+        <b>Status:</b> ${v.status}<br>
+        <b>Disponibilidade:</b> ${v.disponibilidade}%
+
+    `;
+
+
+    if(graficoVeiculoAtual){
+
+        graficoVeiculoAtual.destroy();
+
+    }
+
+
+    graficoVeiculoAtual=new Chart(
+
+        document.getElementById("graficoVeiculo"),
+
+        {
+
+            type:"line",
+
+            data:{
+
+                labels:["Mar","Abr","Mai","Jun","Jul","Ago"],
+
+                datasets:[{
+
+                    data:[1100,1800,1300,2400,1900,v.custo],
+
+                    borderColor:"#126cff",
+
+                    backgroundColor:"rgba(18,108,255,.12)",
+
+                    fill:true,
+
+                    tension:.4
+
+                }]
+
+            },
+
+            options:{
+
+                responsive:true,
+
+                maintainAspectRatio:false,
+
+                plugins:{
+
+                    legend:{display:false}
+
+                }
+
+            }
+
+        }
+
+    );
+
+}
+
+
+/* MODAL INDICADOR */
+
+function mostrarIndicador(titulo,valor){
+
+    document.getElementById("modalTitulo").textContent=titulo;
+
+    document.getElementById("modalConteudo").innerHTML=`
+
+        <div style="font-size:32px;font-weight:bold;margin:15px 0">
+
+            ${valor}
+
+        </div>
+
+        <p style="color:#718096">
+
+            Indicador da operação de manutenção da frota Ruplast.
+
+            Acompanhe este KPI para analisar custos, disponibilidade,
+
+            produtividade e eficiência da manutenção.
+
+        </p>
+
+    `;
+
+    document.getElementById("modal").classList.add("aberto");
+
+}
+
+
+function novaOS(){
+
+    document.getElementById("modalTitulo").textContent=
+        "Nova Ordem de Serviço";
+
+    document.getElementById("modalConteudo").innerHTML=`
+
+        <div class="campo">
+
+            <label>Veículo</label>
+
+            <select>
+
+                ${veiculos.map(v=>`<option>${v.id}</option>`).join("")}
+
+            </select>
+
+        </div>
+
+        <div class="campo">
+
+            <label>Tipo</label>
+
+            <select>
+
+                <option>Preventiva</option>
+
+                <option>Corretiva</option>
+
+                <option>Preditiva</option>
+
+            </select>
+
+        </div>
+
+        <div class="campo">
+
+            <label>Descrição do serviço</label>
+
+            <input placeholder="Informe o serviço">
+
+        </div>
+
+        <div class="campo">
+
+            <label>Custo estimado</label>
+
+            <input type="number" placeholder="R$">
+
+        </div>
+
+        <button class="btn" onclick="criarOS()">
+
+            Criar Ordem de Serviço
+
+        </button>
+
+    `;
+
+    document.getElementById("modal").classList.add("aberto");
+
+}
+
+
+function criarOS(){
+
+    alert("Ordem de Serviço criada com sucesso!");
+
+    fecharModal();
+
+}
+
+
+function fecharModal(){
+
+    document.getElementById("modal").classList.remove("aberto");
+
+}
+
+
+/* INICIALIZAÇÃO */
+
+renderizarVeiculos();
+
+renderizarTabela();
+
+</script>
+
+
+<!-- CHART.JS -->
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+
+/* GRAFICO DE CUSTO */
+
+new Chart(
+
+    document.getElementById("graficoCusto"),
+
+    {
+
+        type:"bar",
+
+        data:{
+
+            labels:["Mar","Abr","Mai","Jun","Jul","Ago"],
+
+            datasets:[{
+
+                data:[38600,41200,39800,45700,44900,48720],
+
+                backgroundColor:"#126cff",
+
+                borderRadius:5
+
+            }]
+
+        },
+
+        options:{
+
+            responsive:true,
+
+            maintainAspectRatio:false,
+
+            plugins:{
+
+                legend:{display:false}
+
+            }
+
+        }
+
+    }
+
+);
+
+
+/* STATUS */
+
+new Chart(
+
+    document.getElementById("graficoStatus"),
+
+    {
+
+        type:"doughnut",
+
+        data:{
+
+            labels:["Operando","Manutenção","Parado"],
+
+            datasets:[{
+
+                data:[12,2,1],
+
+                backgroundColor:[
+
+                    "#13a36a",
+
+                    "#f59e0b",
+
+                    "#dc3545"
+
+                ],
+
+                borderWidth:0
+
+            }]
+
+        },
+
+        options:{
+
+            responsive:true,
+
+            maintainAspectRatio:false,
+
+            plugins:{
+
+                legend:{
+
+                    position:"bottom"
+
+                }
+
+            }
+
+        }
+
+    }
+
+);
+
+
+/* HORAS */
+
+new Chart(
+
+    document.getElementById("graficoHoras"),
+
+    {
+
+        type:"bar",
+
+        data:{
+
+            labels:veiculos.map(v=>v.id),
+
+            datasets:[{
+
+                data:veiculos.map(v=>v.horas),
+
+                backgroundColor:"#126cff"
+
+            }]
+
+        },
+
+        options:{
+
+            responsive:true,
+
+            maintainAspectRatio:false,
+
+            plugins:{
+
+                legend:{display:false}
+
+            }
+
+        }
+
+    }
+
+);
+
+
+/* CATEGORIAS */
+
+new Chart(
+
+    document.getElementById("graficoCategorias"),
+
+    {
+
+        type:"doughnut",
+
+        data:{
+
+            labels:[
+
+                "Peças",
+
+                "Mão de obra",
+
+                "Pneus",
+
+                "Lubrificantes",
+
+                "Outros"
+
+            ],
+
+            datasets:[{
+
+                data:[42,25,16,10,7],
+
+                backgroundColor:[
+
+                    "#126cff",
+
+                    "#13a36a",
+
+                    "#f59e0b",
+
+                    "#8b5cf6",
+
+                    "#94a3b8"
+
+                ],
+
+                borderWidth:0
+
+            }]
+
+        },
+
+        options:{
+
+            responsive:true,
+
+            maintainAspectRatio:false,
+
+            plugins:{
+
+                legend:{
+
+                    position:"bottom"
+
+                }
+
+            }
+
+        }
+
+    }
+
+);
+
+</script>
+
+</body>
+</html>
