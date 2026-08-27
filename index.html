@@ -19,174 +19,6 @@ button,input,select{
     font:inherit;
 }
 
-/* AUTENTICAÇÃO E ACESSOS */
-
-const CHAVE_USUARIOS="ruplast_usuarios_v1";
-const CHAVE_SESSAO="ruplast_sessao_v1";
-
-const permissoesDisponiveis={
-    dashboard:"Ver dashboard",
-    veiculos:"Ver veículos",
-    veiculos_editar:"Cadastrar/editar veículos",
-    veiculos_excluir:"Excluir veículos",
-    manutencao:"Ver manutenções",
-    manutencao_editar:"Registrar/editar manutenção",
-    ordens:"Ver ordens de serviço",
-    ordens_criar:"Criar ordens de serviço",
-    ordens_finalizar:"Finalizar ordens de serviço",
-    indicadores:"Ver indicadores",
-    alertas:"Ver alertas",
-    acessos:"Gerenciar usuários e acessos"
-};
-
-const perfis={
-    Administrador:Object.keys(permissoesDisponiveis),
-    Gestor:["dashboard","veiculos","veiculos_editar","manutencao","manutencao_editar","ordens","ordens_criar","ordens_finalizar","indicadores","alertas"],
-    Operador:["dashboard","veiculos","manutencao","manutencao_editar","ordens","ordens_criar","alertas"],
-    Consulta:["dashboard","veiculos","indicadores","alertas"]
-};
-
-function usuariosPadrao(){
-    return [{
-        id:"USR-001",nome:"Administrador Ruplast",usuario:"admin",
-        email:"admin@ruplast.com.br",senha:"ruplast123",
-        perfil:"Administrador",status:"Ativo",
-        permissoes:perfis.Administrador
-    }];
-}
-
-function carregarUsuarios(){
-    const salvo=localStorage.getItem(CHAVE_USUARIOS);
-    if(!salvo){
-        const lista=usuariosPadrao();
-        localStorage.setItem(CHAVE_USUARIOS,JSON.stringify(lista));
-        return lista;
-    }
-    try{return JSON.parse(salvo)}catch(e){return usuariosPadrao()}
-}
-
-function salvarUsuarios(lista){
-    localStorage.setItem(CHAVE_USUARIOS,JSON.stringify(lista));
-}
-
-let usuarios=carregarUsuarios();
-let usuarioLogado=null;
-
-function temPermissao(p){
-    return !!usuarioLogado && usuarioLogado.permissoes.includes(p);
-}
-
-function salvarSessao(u){
-    localStorage.setItem(CHAVE_SESSAO,JSON.stringify({
-        id:u.id,nome:u.nome,usuario:u.usuario,email:u.email,
-        perfil:u.perfil,permissoes:u.permissoes
-    }));
-}
-
-function atualizarCabecalho(){
-    if(!usuarioLogado)return;
-    document.getElementById("nomeUsuarioTopo").textContent=usuarioLogado.nome;
-    document.getElementById("perfilUsuarioTopo").textContent=usuarioLogado.perfil;
-    document.getElementById("avatarUsuario").textContent=usuarioLogado.nome.charAt(0).toUpperCase();
-    document.querySelectorAll(".somente-admin").forEach(function(el){
-        el.style.display=temPermissao("acessos")?"block":"none";
-    });
-}
-
-function entrar(){
-    const login=document.getElementById("usuario").value.trim().toLowerCase();
-    const senha=document.getElementById("senha").value;
-    const erro=document.getElementById("erro");
-
-    const u=usuarios.find(function(item){
-        return item.usuario.toLowerCase()===login &&
-               item.senha===senha &&
-               item.status==="Ativo";
-    });
-
-    if(!u){
-        erro.textContent="Usuário, senha ou status de acesso inválido.";
-        erro.style.display="block";
-        return;
-    }
-
-    usuarioLogado=u;
-    salvarSessao(u);
-    erro.style.display="none";
-    document.getElementById("login").style.display="none";
-    document.getElementById("app").style.display="block";
-    atualizarCabecalho();
-    abrirPagina("dashboard");
-}
-
-document.getElementById("senha").addEventListener("keydown",function(e){
-    if(e.key==="Enter")entrar();
-});
-
-function iniciarSessao(){
-    const salvo=localStorage.getItem(CHAVE_SESSAO);
-    if(!salvo)return;
-    try{
-        const sessao=JSON.parse(salvo);
-        const u=usuarios.find(item=>item.id===sessao.id && item.status==="Ativo");
-        if(u){
-            usuarioLogado=u;
-            document.getElementById("login").style.display="none";
-            document.getElementById("app").style.display="block";
-            atualizarCabecalho();
-        }
-    }catch(e){}
-}
-
-function toggleMenuUsuario(){
-    document.getElementById("menuUsuario").classList.toggle("aberto");
-}
-
-function sair(e){
-    if(e)e.stopPropagation();
-    localStorage.removeItem(CHAVE_SESSAO);
-    usuarioLogado=null;
-    document.getElementById("app").style.display="none";
-    document.getElementById("login").style.display="flex";
-    document.getElementById("senha").value="";
-}
-
-function abrirMeuPerfil(e){
-    e.stopPropagation();
-    document.getElementById("menuUsuario").classList.remove("aberto");
-    mostrarIndicador("Meu perfil",usuarioLogado.nome+" · "+usuarioLogado.perfil);
-}
-
-function alterarSenha(e){
-    e.stopPropagation();
-    document.getElementById("menuUsuario").classList.remove("aberto");
-    document.getElementById("modalTitulo").textContent="Alterar senha";
-    document.getElementById("modalConteudo").innerHTML=`
-        <div class="campo"><label>Senha atual</label><input id="senhaAtual" type="password"></div>
-        <div class="campo"><label>Nova senha</label><input id="senhaNova" type="password"></div>
-        <div class="campo"><label>Confirmar nova senha</label><input id="senhaConfirmacao" type="password"></div>
-        <button class="btn" onclick="salvarNovaSenha()">Salvar nova senha</button>`;
-    document.getElementById("modal").classList.add("aberto");
-}
-
-function salvarNovaSenha(){
-    const atual=document.getElementById("senhaAtual").value;
-    const nova=document.getElementById("senhaNova").value;
-    const conf=document.getElementById("senhaConfirmacao").value;
-
-    if(atual!==usuarioLogado.senha){alert("Senha atual incorreta.");return}
-    if(nova.length<6){alert("A nova senha deve ter pelo menos 6 caracteres.");return}
-    if(nova!==conf){alert("As senhas não conferem.");return}
-
-    const i=usuarios.findIndex(u=>u.id===usuarioLogado.id);
-    usuarios[i].senha=nova;
-    usuarioLogado=usuarios[i];
-    salvarUsuarios(usuarios);
-    salvarSessao(usuarioLogado);
-    fecharModal();
-    alert("Senha alterada com sucesso.");
-}
-
 /* VEICULOS */
 .veiculos{
     display:grid;
@@ -1050,34 +882,175 @@ Inspeção de freios programada.
 
 <script>
 
-/* LOGIN */
+/* AUTENTICAÇÃO E ACESSOS */
+
+const CHAVE_USUARIOS="ruplast_usuarios_v1";
+const CHAVE_SESSAO="ruplast_sessao_v1";
+
+const permissoesDisponiveis={
+    dashboard:"Ver dashboard",
+    veiculos:"Ver veículos",
+    veiculos_editar:"Cadastrar/editar veículos",
+    veiculos_excluir:"Excluir veículos",
+    manutencao:"Ver manutenções",
+    manutencao_editar:"Registrar/editar manutenção",
+    ordens:"Ver ordens de serviço",
+    ordens_criar:"Criar ordens de serviço",
+    ordens_finalizar:"Finalizar ordens de serviço",
+    indicadores:"Ver indicadores",
+    alertas:"Ver alertas",
+    acessos:"Gerenciar usuários e acessos"
+};
+
+const perfis={
+    Administrador:Object.keys(permissoesDisponiveis),
+    Gestor:["dashboard","veiculos","veiculos_editar","manutencao","manutencao_editar","ordens","ordens_criar","ordens_finalizar","indicadores","alertas"],
+    Operador:["dashboard","veiculos","manutencao","manutencao_editar","ordens","ordens_criar","alertas"],
+    Consulta:["dashboard","veiculos","indicadores","alertas"]
+};
+
+function usuariosPadrao(){
+    return [{
+        id:"USR-001",nome:"Administrador Ruplast",usuario:"admin",
+        email:"admin@ruplast.com.br",senha:"ruplast123",
+        perfil:"Administrador",status:"Ativo",
+        permissoes:perfis.Administrador
+    }];
+}
+
+function carregarUsuarios(){
+    const salvo=localStorage.getItem(CHAVE_USUARIOS);
+    if(!salvo){
+        const lista=usuariosPadrao();
+        localStorage.setItem(CHAVE_USUARIOS,JSON.stringify(lista));
+        return lista;
+    }
+    try{return JSON.parse(salvo)}catch(e){return usuariosPadrao()}
+}
+
+function salvarUsuarios(lista){
+    localStorage.setItem(CHAVE_USUARIOS,JSON.stringify(lista));
+}
+
+let usuarios=carregarUsuarios();
+let usuarioLogado=null;
+
+function temPermissao(p){
+    return !!usuarioLogado && usuarioLogado.permissoes.includes(p);
+}
+
+function salvarSessao(u){
+    localStorage.setItem(CHAVE_SESSAO,JSON.stringify({
+        id:u.id,nome:u.nome,usuario:u.usuario,email:u.email,
+        perfil:u.perfil,permissoes:u.permissoes
+    }));
+}
+
+function atualizarCabecalho(){
+    if(!usuarioLogado)return;
+    document.getElementById("nomeUsuarioTopo").textContent=usuarioLogado.nome;
+    document.getElementById("perfilUsuarioTopo").textContent=usuarioLogado.perfil;
+    document.getElementById("avatarUsuario").textContent=usuarioLogado.nome.charAt(0).toUpperCase();
+    document.querySelectorAll(".somente-admin").forEach(function(el){
+        el.style.display=temPermissao("acessos")?"block":"none";
+    });
+}
 
 function entrar(){
-
-    const usuario=document.getElementById("usuario").value;
+    const login=document.getElementById("usuario").value.trim().toLowerCase();
     const senha=document.getElementById("senha").value;
+    const erro=document.getElementById("erro");
 
-    if(usuario==="admin" && senha==="ruplast123"){
+    const u=usuarios.find(function(item){
+        return item.usuario.toLowerCase()===login &&
+               item.senha===senha &&
+               item.status==="Ativo";
+    });
 
-        document.getElementById("login").style.display="none";
-        document.getElementById("app").style.display="block";
-
-    }else{
-
-        document.getElementById("erro").style.display="block";
-
+    if(!u){
+        erro.textContent="Usuário, senha ou status de acesso inválido.";
+        erro.style.display="block";
+        return;
     }
 
+    usuarioLogado=u;
+    salvarSessao(u);
+    erro.style.display="none";
+    document.getElementById("login").style.display="none";
+    document.getElementById("app").style.display="block";
+    atualizarCabecalho();
+    abrirPagina("dashboard");
 }
 
 document.getElementById("senha").addEventListener("keydown",function(e){
-
-    if(e.key==="Enter"){
-        entrar();
-    }
-
+    if(e.key==="Enter")entrar();
 });
 
+function iniciarSessao(){
+    const salvo=localStorage.getItem(CHAVE_SESSAO);
+    if(!salvo)return;
+    try{
+        const sessao=JSON.parse(salvo);
+        const u=usuarios.find(item=>item.id===sessao.id && item.status==="Ativo");
+        if(u){
+            usuarioLogado=u;
+            document.getElementById("login").style.display="none";
+            document.getElementById("app").style.display="block";
+            atualizarCabecalho();
+        }
+    }catch(e){}
+}
+
+function toggleMenuUsuario(){
+    document.getElementById("menuUsuario").classList.toggle("aberto");
+}
+
+function sair(e){
+    if(e)e.stopPropagation();
+    localStorage.removeItem(CHAVE_SESSAO);
+    usuarioLogado=null;
+    document.getElementById("app").style.display="none";
+    document.getElementById("login").style.display="flex";
+    document.getElementById("senha").value="";
+}
+
+function abrirMeuPerfil(e){
+    e.stopPropagation();
+    document.getElementById("menuUsuario").classList.remove("aberto");
+    mostrarIndicador("Meu perfil",usuarioLogado.nome+" · "+usuarioLogado.perfil);
+}
+
+function alterarSenha(e){
+    e.stopPropagation();
+    document.getElementById("menuUsuario").classList.remove("aberto");
+    document.getElementById("modalTitulo").textContent="Alterar senha";
+    document.getElementById("modalConteudo").innerHTML=`
+        <div class="campo"><label>Senha atual</label><input id="senhaAtual" type="password"></div>
+        <div class="campo"><label>Nova senha</label><input id="senhaNova" type="password"></div>
+        <div class="campo"><label>Confirmar nova senha</label><input id="senhaConfirmacao" type="password"></div>
+        <button class="btn" onclick="salvarNovaSenha()">Salvar nova senha</button>`;
+    document.getElementById("modal").classList.add("aberto");
+}
+
+function salvarNovaSenha(){
+    const atual=document.getElementById("senhaAtual").value;
+    const nova=document.getElementById("senhaNova").value;
+    const conf=document.getElementById("senhaConfirmacao").value;
+
+    if(atual!==usuarioLogado.senha){alert("Senha atual incorreta.");return}
+    if(nova.length<6){alert("A nova senha deve ter pelo menos 6 caracteres.");return}
+    if(nova!==conf){alert("As senhas não conferem.");return}
+
+    const i=usuarios.findIndex(u=>u.id===usuarioLogado.id);
+    usuarios[i].senha=nova;
+    usuarioLogado=usuarios[i];
+    salvarUsuarios(usuarios);
+    salvarSessao(usuarioLogado);
+    fecharModal();
+    alert("Senha alterada com sucesso.");
+}
+
+/* LOGIN */
 
 /* VEICULOS */
 
@@ -1187,7 +1160,9 @@ const titulos={
 
     indicadores:"Indicadores",
 
-    alertas:"Alertas"
+    alertas:"Alertas",
+
+    acessos:"Usuários e Acessos"
 
 };
 
