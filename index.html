@@ -353,6 +353,47 @@ tr.clicavel:hover{
     outline:1px solid #bcd6fa;
 }
 
+.veiculos-toolbar{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    gap:12px;
+    margin:18px 0;
+    flex-wrap:wrap;
+}
+.btn-primary{
+    border:0;
+    border-radius:8px;
+    padding:10px 15px;
+    background:#126cff;
+    color:#fff;
+    cursor:pointer;
+    font-weight:bold;
+}
+.btn-primary:hover{filter:brightness(.95)}
+.alert-summary{
+    display:flex;
+    gap:8px;
+    flex-wrap:wrap;
+}
+.alert-pill{
+    display:inline-block;
+    padding:6px 10px;
+    border-radius:18px;
+    font-size:11px;
+    font-weight:bold;
+    background:#fff3dc;
+    color:#a66a00;
+}
+.alert-pill.danger{
+    background:#ffe8ea;
+    color:#c72535;
+}
+.alert-pill.ok{
+    background:#e6f8ef;
+    color:#087a4b;
+}
+
 .veiculo h3{
     margin:0;
     font-size:16px;
@@ -629,37 +670,47 @@ tr.clicavel:hover{
 <section class="pagina active" id="dashboard">
 
 <h1>Dashboard da Frota</h1>
-<p class="subtitulo">
-Visão geral da manutenção dos 15 ativos Ruplast.
+<p class="subtitulo" id="subtituloDashboard">
+Visão geral calculada automaticamente a partir dos dados cadastrados da frota.
 </p>
-
 
 <div class="kpis">
 
-<div class="kpi" onclick="mostrarIndicador('Custo total de manutenção','R$ 48.720')">
+<div class="kpi" onclick="mostrarIndicador('Custo total de manutenção',document.getElementById('kpiCustoTotal').textContent)">
 <span>Custo total de manutenção</span>
-<strong>R$ 48.720</strong>
-<i class="verde">▲ 8,4% vs. mês anterior</i>
+<strong id="kpiCustoTotal">R$ 0,00</strong>
+<i id="kpiCustoTotalInfo">calculado pela frota atual</i>
 </div>
 
-<div class="kpi" onclick="mostrarIndicador('Custo médio por veículo','R$ 3.248')">
+<div class="kpi" onclick="mostrarIndicador('Custo médio por veículo',document.getElementById('kpiCustoMedio').textContent)">
 <span>Custo médio / veículo</span>
-<strong>R$ 3.248</strong>
-<i class="verde">▼ 3,2%</i>
+<strong id="kpiCustoMedio">R$ 0,00</strong>
+<i id="kpiCustoMedioInfo">calculado pela frota atual</i>
 </div>
 
-<div class="kpi" onclick="mostrarIndicador('Horas de manutenção','186 h')">
+<div class="kpi" onclick="mostrarIndicador('Horas de manutenção',document.getElementById('kpiHoras').textContent)">
 <span>Horas de manutenção</span>
-<strong>186 h</strong>
-<i class="vermelho">▲ 12 h</i>
+<strong id="kpiHoras">0 h</strong>
+<i id="kpiHorasInfo">calculado pela frota atual</i>
 </div>
 
-<div class="kpi" onclick="mostrarIndicador('Disponibilidade da frota','93,8%')">
+<div class="kpi" onclick="mostrarIndicador('Disponibilidade da frota',document.getElementById('kpiDisponibilidade').textContent)">
 <span>Disponibilidade da frota</span>
-<strong>93,8%</strong>
-<i class="verde">▲ 1,6%</i>
+<strong id="kpiDisponibilidade">0%</strong>
+<i id="kpiDisponibilidadeInfo">média dos veículos</i>
 </div>
 
+</div>
+
+<div class="card" style="margin-bottom:20px">
+    <div class="card-header">
+        <div>
+            <b>Alertas de manutenção</b>
+            <div class="subtitulo">Revisões calculadas automaticamente por KM e data.</div>
+        </div>
+        <button class="btn" onclick="abrirPagina('alertas')">Ver todos</button>
+    </div>
+    <div id="dashboardAlertas"></div>
 </div>
 
 
@@ -739,9 +790,14 @@ Ver todos
 
 <h1>Frota Ruplast</h1>
 
-<p class="subtitulo">
-15 veículos cadastrados: 9 trucks VW Constellation, 3 VW Delivery 11-180 e 3 carretas LS.
+<p class="subtitulo" id="resumoFrota">
+Veículos cadastrados e acompanhamento de quilometragem e revisões.
 </p>
+
+<div class="veiculos-toolbar">
+    <div class="alert-summary" id="resumoAlertasFrota"></div>
+    <button class="btn-primary" onclick="novoVeiculo()">＋ Cadastrar veículo</button>
+</div>
 
 <div class="veiculos" id="listaVeiculos"></div>
 
@@ -1036,30 +1092,37 @@ KPIs de eficiência da manutenção.
 
 <div class="kpis">
 
-<div class="kpi" onclick="mostrarIndicador('MTBF','412 h')">
-<span>MTBF — tempo entre falhas</span>
-<strong>412 h</strong>
-<i class="verde">▲ 6,8%</i>
+<div class="kpi" onclick="mostrarIndicador('Disponibilidade da frota',document.getElementById('indDisponibilidade').textContent)">
+<span>Disponibilidade da frota</span>
+<strong id="indDisponibilidade">0%</strong>
+<i>calculado automaticamente</i>
 </div>
 
-<div class="kpi" onclick="mostrarIndicador('MTTR','7,4 h')">
-<span>MTTR — tempo de reparo</span>
-<strong>7,4 h</strong>
-<i class="verde">▼ 9,2%</i>
+<div class="kpi" onclick="mostrarIndicador('Veículos em manutenção',document.getElementById('indManutencao').textContent)">
+<span>Veículos em manutenção</span>
+<strong id="indManutencao">0</strong>
+<i>status atual da frota</i>
 </div>
 
-<div class="kpi" onclick="mostrarIndicador('Custo por km','R$ 0,42')">
-<span>Custo manutenção / km</span>
-<strong>R$ 0,42</strong>
-<i class="verde">▼ 2,1%</i>
+<div class="kpi" onclick="mostrarIndicador('Custo médio por veículo',document.getElementById('indCustoMedio').textContent)">
+<span>Custo médio / veículo</span>
+<strong id="indCustoMedio">R$ 0,00</strong>
+<i>calculado automaticamente</i>
 </div>
 
-<div class="kpi" onclick="mostrarIndicador('Índice de preventiva','84%')">
-<span>Índice de preventiva</span>
-<strong>84%</strong>
-<i class="verde">▲ 5,4%</i>
+<div class="kpi" onclick="mostrarIndicador('Revisões atrasadas',document.getElementById('indAtrasadas').textContent)">
+<span>Revisões atrasadas</span>
+<strong id="indAtrasadas">0</strong>
+<i id="indAtrasadasInfo">controle por KM e data</i>
 </div>
 
+</div>
+
+<div class="card" style="margin-top:20px">
+    <b>Indicadores que dependem de histórico</b>
+    <p class="subtitulo" style="margin-top:8px">
+        MTBF, MTTR e índice de preventiva serão calculados automaticamente quando houver histórico de manutenções e ordens de serviço com datas, horas e status suficientes.
+    </p>
 </div>
 
 
@@ -1202,31 +1265,7 @@ Pendências que exigem atenção.
 
 
 <div class="card">
-
-<div class="alerta red">
-<b>🔴 VW Constellation 04</b>
-<br>
-Revisão preventiva atrasada.
-</div>
-
-<div class="alerta">
-<b>🟠 VW Delivery 02</b>
-<br>
-Troca de óleo prevista para os próximos 500 km.
-</div>
-
-<div class="alerta">
-<b>🟠 Carreta LS 03</b>
-<br>
-Inspeção de freios programada.
-</div>
-
-<div class="alerta green">
-<b>🟢 Preventivas em dia</b>
-<br>
-92% das preventivas executadas no prazo.
-</div>
-
+    <div id="listaAlertas"></div>
 </div>
 
 </section>
@@ -1582,6 +1621,309 @@ for(let i=1;i<=3;i++){
 
     });
 
+}
+
+
+
+/* DADOS E CONTROLE DA FROTA */
+
+const CHAVE_VEICULOS="ruplast_veiculos_v1";
+
+function inicializarDadosVeiculos(){
+    const salvos=localStorage.getItem(CHAVE_VEICULOS);
+
+    if(salvos){
+        try{
+            const dados=JSON.parse(salvos);
+            if(Array.isArray(dados) && dados.length){
+                veiculos.length=0;
+                dados.forEach(v=>veiculos.push(normalizarVeiculo(v)));
+                return;
+            }
+        }catch(e){}
+    }
+
+    veiculos.forEach(v=>{
+        Object.assign(v,{
+            placa:v.placa||"",
+            combustivel:v.combustivel||"Diesel",
+            centroCusto:v.centroCusto||"",
+            responsavel:v.responsavel||"",
+            ultimaRevisao:v.ultimaRevisao||"",
+            kmUltimaRevisao:v.kmUltimaRevisao||Math.max(0,v.km-10000),
+            proximaRevisaoKm:v.proximaRevisaoKm||v.km+10000,
+            proximaRevisaoData:v.proximaRevisaoData||"",
+            observacoes:v.observacoes||""
+        });
+    });
+
+    salvarVeiculos();
+}
+
+function normalizarVeiculo(v){
+    return Object.assign({
+        id:"",
+        modelo:"",
+        tipo:"Truck",
+        ano:new Date().getFullYear(),
+        km:0,
+        custo:0,
+        horas:0,
+        disponibilidade:100,
+        status:"Operando",
+        placa:"",
+        combustivel:"Diesel",
+        centroCusto:"",
+        responsavel:"",
+        ultimaRevisao:"",
+        kmUltimaRevisao:0,
+        proximaRevisaoKm:0,
+        proximaRevisaoData:"",
+        observacoes:""
+    },v);
+}
+
+function salvarVeiculos(){
+    localStorage.setItem(CHAVE_VEICULOS,JSON.stringify(veiculos));
+}
+
+function alertaVeiculo(v){
+    const kmRestante=(Number(v.proximaRevisaoKm)||0)-(Number(v.km)||0);
+
+    let porData="";
+    if(v.proximaRevisaoData){
+        const hoje=new Date();
+        const data=new Date(v.proximaRevisaoData+"T00:00:00");
+        const dias=Math.ceil((data-hoje)/86400000);
+        porData=dias;
+        if(dias<0)return {tipo:"danger",texto:"Revisão atrasada"};
+        if(dias<=30)return {tipo:"warning",texto:"Revisão em "+dias+" dias"};
+    }
+
+    if(kmRestante<0)return {tipo:"danger",texto:"Revisão atrasada"};
+    if(kmRestante<=1000)return {tipo:"warning",texto:"Revisão em "+kmRestante.toLocaleString("pt-BR")+" km"};
+
+    return {tipo:"ok",texto:"Manutenção em dia"};
+}
+
+function atualizarResumoFrota(){
+    const resumo=document.getElementById("resumoFrota");
+    const box=document.getElementById("resumoAlertasFrota");
+    if(!resumo||!box)return;
+
+    const atrasados=veiculos.filter(v=>alertaVeiculo(v).tipo==="danger").length;
+    const proximos=veiculos.filter(v=>alertaVeiculo(v).tipo==="warning").length;
+
+    resumo.textContent=veiculos.length+" veículo"+(veiculos.length===1?"":"s")+" cadastrado"+(veiculos.length===1?"":"s")+" • controle de revisão por KM e data.";
+
+    box.innerHTML="";
+    if(atrasados)box.innerHTML+=`<span class="alert-pill danger">🔴 ${atrasados} revisão(ões) atrasada(s)</span>`;
+    if(proximos)box.innerHTML+=`<span class="alert-pill">🟠 ${proximos} próxima(s) do vencimento</span>`;
+    if(!atrasados&&!proximos)box.innerHTML=`<span class="alert-pill ok">🟢 Frota em dia</span>`;
+}
+
+function novoVeiculo(){
+    if(!temPermissao("veiculos_editar")){
+        alert("Você não tem permissão para cadastrar veículos.");
+        return;
+    }
+
+    document.getElementById("modalTitulo").textContent="Cadastrar veículo";
+    document.getElementById("modalConteudo").innerHTML=formularioVeiculoHTML(null);
+    document.getElementById("modal").classList.add("aberto");
+}
+
+function formularioVeiculoHTML(v){
+    v=v||{};
+    return `
+        <div class="form-grid">
+            <div class="campo">
+                <label>Identificação / Frota</label>
+                <input id="veicId" value="${escapeHtml(v.id||"")}" placeholder="Ex.: TRUCK-001">
+            </div>
+            <div class="campo">
+                <label>Placa</label>
+                <input id="veicPlaca" value="${escapeHtml(v.placa||"")}" placeholder="Ex.: ABC1D23">
+            </div>
+            <div class="campo">
+                <label>Marca / Modelo</label>
+                <input id="veicModelo" value="${escapeHtml(v.modelo||"")}" placeholder="Ex.: VW Constellation">
+            </div>
+            <div class="campo">
+                <label>Tipo</label>
+                <select id="veicTipo">
+                    ${["Truck","Delivery","Carreta","Van","Utilitário","Outro"].map(x=>`<option ${v.tipo===x?"selected":""}>${x}</option>`).join("")}
+                </select>
+            </div>
+            <div class="campo">
+                <label>Ano</label>
+                <input id="veicAno" type="number" min="1990" max="2100" value="${v.ano||new Date().getFullYear()}">
+            </div>
+            <div class="campo">
+                <label>Quilometragem atual</label>
+                <input id="veicKm" type="number" min="0" value="${v.km||0}">
+            </div>
+            <div class="campo">
+                <label>Combustível</label>
+                <select id="veicCombustivel">
+                    ${["Diesel","Gasolina","Etanol","Elétrico","Híbrido","Outro"].map(x=>`<option ${v.combustivel===x?"selected":""}>${x}</option>`).join("")}
+                </select>
+            </div>
+            <div class="campo">
+                <label>Status</label>
+                <select id="veicStatus">
+                    ${["Operando","Manutenção","Parado","Baixado"].map(x=>`<option ${v.status===x?"selected":""}>${x}</option>`).join("")}
+                </select>
+            </div>
+            <div class="campo">
+                <label>Centro de custo</label>
+                <input id="veicCentro" value="${escapeHtml(v.centroCusto||"")}" placeholder="Ex.: Operação / Transporte">
+            </div>
+            <div class="campo">
+                <label>Responsável</label>
+                <input id="veicResponsavel" value="${escapeHtml(v.responsavel||"")}" placeholder="Nome do responsável">
+            </div>
+            <div class="campo">
+                <label>Última revisão</label>
+                <input id="veicUltimaRevisao" type="date" value="${v.ultimaRevisao||""}">
+            </div>
+            <div class="campo">
+                <label>KM da última revisão</label>
+                <input id="veicKmUltima" type="number" min="0" value="${v.kmUltimaRevisao||0}">
+            </div>
+            <div class="campo">
+                <label>Próxima revisão por KM</label>
+                <input id="veicProximaKm" type="number" min="0" value="${v.proximaRevisaoKm||0}">
+            </div>
+            <div class="campo">
+                <label>Próxima revisão por data</label>
+                <input id="veicProximaData" type="date" value="${v.proximaRevisaoData||""}">
+            </div>
+        </div>
+        <div class="campo">
+            <label>Observações</label>
+            <textarea id="veicObs" rows="3" style="width:100%;resize:vertical">${escapeHtml(v.observacoes||"")}</textarea>
+        </div>
+        <button class="btn-primary" onclick="${v.id?`salvarEdicaoVeiculo('${escapeHtml(v.id)}')`:"salvarNovoVeiculo()"}">
+            ${v.id?"Salvar alterações":"＋ Cadastrar veículo"}
+        </button>
+    `;
+}
+
+function lerFormularioVeiculo(){
+    return normalizarVeiculo({
+        id:document.getElementById("veicId").value.trim(),
+        placa:document.getElementById("veicPlaca").value.trim().toUpperCase(),
+        modelo:document.getElementById("veicModelo").value.trim(),
+        tipo:document.getElementById("veicTipo").value,
+        ano:Number(document.getElementById("veicAno").value)||new Date().getFullYear(),
+        km:Number(document.getElementById("veicKm").value)||0,
+        combustivel:document.getElementById("veicCombustivel").value,
+        status:document.getElementById("veicStatus").value,
+        centroCusto:document.getElementById("veicCentro").value.trim(),
+        responsavel:document.getElementById("veicResponsavel").value.trim(),
+        ultimaRevisao:document.getElementById("veicUltimaRevisao").value,
+        kmUltimaRevisao:Number(document.getElementById("veicKmUltima").value)||0,
+        proximaRevisaoKm:Number(document.getElementById("veicProximaKm").value)||0,
+        proximaRevisaoData:document.getElementById("veicProximaData").value,
+        observacoes:document.getElementById("veicObs").value.trim()
+    });
+}
+
+function validarVeiculo(v){
+    if(!v.id||!v.modelo){
+        alert("Informe a identificação da frota e o modelo.");
+        return false;
+    }
+    if(veiculos.some(x=>x.id===v.id)){
+        alert("Já existe um veículo com essa identificação.");
+        return false;
+    }
+    if(v.km<0){
+        alert("A quilometragem não pode ser negativa.");
+        return false;
+    }
+    return true;
+}
+
+function salvarNovoVeiculo(){
+    if(!temPermissao("veiculos_editar"))return;
+    const v=lerFormularioVeiculo();
+    if(!validarVeiculo(v))return;
+
+    veiculos.push(v);
+    salvarVeiculos();
+    renderizarVeiculos();
+    renderizarTabela();
+    atualizarResumoFrota();
+    atualizarDashboardAutomatico();
+    renderizarCentralAlertas();
+    fecharModal();
+    alert("Veículo cadastrado com sucesso.");
+}
+
+function editarVeiculo(id){
+    if(!temPermissao("veiculos_editar")){
+        alert("Você não tem permissão para editar veículos.");
+        return;
+    }
+    const v=veiculos.find(x=>x.id===id);
+    if(!v)return;
+
+    document.getElementById("modalTitulo").textContent="Editar veículo";
+    document.getElementById("modalConteudo").innerHTML=formularioVeiculoHTML(v);
+    document.getElementById("modal").classList.add("aberto");
+}
+
+function salvarEdicaoVeiculo(id){
+    if(!temPermissao("veiculos_editar"))return;
+
+    const atual=veiculos.find(x=>x.id===id);
+    if(!atual)return;
+
+    const novo=lerFormularioVeiculo();
+    if(!novo.id||!novo.modelo){
+        alert("Informe a identificação da frota e o modelo.");
+        return;
+    }
+
+    if(novo.id!==id && veiculos.some(x=>x.id===novo.id)){
+        alert("Já existe um veículo com essa identificação.");
+        return;
+    }
+
+    Object.assign(atual,novo);
+    salvarVeiculos();
+    renderizarVeiculos();
+    renderizarTabela();
+    atualizarResumoFrota();
+    atualizarDashboardAutomatico();
+    renderizarCentralAlertas();
+    fecharModal();
+    alert("Veículo atualizado com sucesso.");
+}
+
+function excluirVeiculo(id){
+    if(!temPermissao("veiculos_excluir")){
+        alert("Você não tem permissão para excluir veículos.");
+        return;
+    }
+
+    const v=veiculos.find(x=>x.id===id);
+    if(!v)return;
+
+    if(!confirm("Excluir o veículo "+v.id+"?"))return;
+
+    const idx=veiculos.indexOf(v);
+    if(idx>=0)veiculos.splice(idx,1);
+
+    salvarVeiculos();
+    renderizarVeiculos();
+    renderizarTabela();
+    atualizarResumoFrota();
+    atualizarDashboardAutomatico();
+    renderizarCentralAlertas();
+    abrirPagina("veiculos");
 }
 
 
@@ -2057,32 +2399,32 @@ function excluirUsuario(id){
 
 /* LISTA DE VEICULOS */
 
+/* LISTA DE VEICULOS */
+
 function renderizarVeiculos(){
 
     const lista=document.getElementById("listaVeiculos");
+    if(!lista)return;
 
     lista.innerHTML="";
 
     veiculos.forEach(function(v){
 
+        const alerta=alertaVeiculo(v);
+
         lista.innerHTML+=`
 
-        <div class="veiculo" onclick="abrirVeiculo('${v.id}')">
+        <div class="card veiculo" onclick="abrirVeiculo('${escapeHtml(v.id)}')">
 
             <div class="veiculo-top">
 
                 <div>
-
-                    <h3>${v.id}</h3>
-
-                    <small>${v.modelo}</small>
-
+                    <h3>${escapeHtml(v.id)}</h3>
+                    <small>${escapeHtml(v.modelo)} • ${escapeHtml(v.placa||"Sem placa")}</small>
                 </div>
 
-                <span class="status ${v.status==="Operando"?"status-ok":"status-alerta"}">
-
-                    ${v.status}
-
+                <span class="status ${v.status==="Operando"?"status-ok":v.status==="Manutenção"?"status-alerta":"status-erro"}">
+                    ${escapeHtml(v.status)}
                 </span>
 
             </div>
@@ -2091,17 +2433,12 @@ function renderizarVeiculos(){
 
                 <div>
                     <span>Quilometragem</span>
-                    <strong>${v.km.toLocaleString("pt-BR")} km</strong>
+                    <strong>${Number(v.km).toLocaleString("pt-BR")} km</strong>
                 </div>
 
                 <div>
-                    <span>Custo</span>
-                    <strong>R$ ${v.custo.toLocaleString("pt-BR")}</strong>
-                </div>
-
-                <div>
-                    <span>Horas manutenção</span>
-                    <strong>${v.horas} h</strong>
+                    <span>Próxima revisão</span>
+                    <strong>${Number(v.proximaRevisaoKm||0).toLocaleString("pt-BR")} km</strong>
                 </div>
 
                 <div>
@@ -2109,6 +2446,17 @@ function renderizarVeiculos(){
                     <strong>${v.disponibilidade}%</strong>
                 </div>
 
+                <div>
+                    <span>Alerta</span>
+                    <strong>${escapeHtml(alerta.texto)}</strong>
+                </div>
+
+            </div>
+
+            <div style="display:flex;gap:7px;margin-top:15px;flex-wrap:wrap" onclick="event.stopPropagation()">
+                <button class="btn-secondary" onclick="editarVeiculo('${escapeHtml(v.id)}')">✏️ Editar</button>
+                <button class="btn-secondary" onclick="abrirVeiculo('${escapeHtml(v.id)}')">👁️ Detalhes</button>
+                <button class="btn-danger" onclick="excluirVeiculo('${escapeHtml(v.id)}')">🗑️ Excluir</button>
             </div>
 
         </div>
@@ -2117,6 +2465,7 @@ function renderizarVeiculos(){
 
     });
 
+    atualizarResumoFrota();
 }
 
 
@@ -2200,8 +2549,16 @@ function abrirVeiculo(id){
         <b>Categoria:</b> ${v.tipo}<br>
         <b>Ano:</b> ${v.ano}<br>
         <b>Quilometragem:</b> ${v.km.toLocaleString("pt-BR")} km<br>
-        <b>Status:</b> ${v.status}<br>
-        <b>Disponibilidade:</b> ${v.disponibilidade}%
+        <b>Placa:</b> ${escapeHtml(v.placa||"Não informada")}<br>
+        <b>Combustível:</b> ${escapeHtml(v.combustivel||"Não informado")}<br>
+        <b>Centro de custo:</b> ${escapeHtml(v.centroCusto||"Não informado")}<br>
+        <b>Responsável:</b> ${escapeHtml(v.responsavel||"Não informado")}<br>
+        <b>Última revisão:</b> ${v.ultimaRevisao?new Date(v.ultimaRevisao+"T00:00:00").toLocaleDateString("pt-BR"):"Não informada"}<br>
+        <b>Próxima revisão (KM):</b> ${Number(v.proximaRevisaoKm||0).toLocaleString("pt-BR")} km<br>
+        <b>Próxima revisão (data):</b> ${v.proximaRevisaoData?new Date(v.proximaRevisaoData+"T00:00:00").toLocaleDateString("pt-BR"):"Não informada"}<br>
+        <b>Status:</b> ${escapeHtml(v.status)}<br>
+        <b>Disponibilidade:</b> ${v.disponibilidade}%<br>
+        <b>Alerta:</b> ${escapeHtml(alertaVeiculo(v).texto)}
 
     `;
 
@@ -2373,17 +2730,134 @@ function fecharModal(){
 }
 
 
+
+/* INDICADORES E ALERTAS AUTOMÁTICOS */
+
+function calcularIndicadoresFrota(){
+    const total=veiculos.length;
+    const custo=veiculos.reduce((s,v)=>s+(Number(v.custo)||0),0);
+    const horas=veiculos.reduce((s,v)=>s+(Number(v.horas)||0),0);
+    const disponibilidade=total ? veiculos.reduce((s,v)=>s+(Number(v.disponibilidade)||0),0)/total : 0;
+    const manutencao=veiculos.filter(v=>v.status==="Manutenção").length;
+    const alertas=veiculos.map(alertaVeiculo);
+    const atrasadas=alertas.filter(a=>a.tipo==="danger").length;
+    const proximas=alertas.filter(a=>a.tipo==="warning").length;
+
+    return {
+        total,custo,horas,disponibilidade,manutencao,atrasadas,proximas,
+        custoMedio:total?custo/total:0
+    };
+}
+
+function atualizarDashboardAutomatico(){
+    const d=calcularIndicadoresFrota();
+
+    const custo=document.getElementById("kpiCustoTotal");
+    const medio=document.getElementById("kpiCustoMedio");
+    const horas=document.getElementById("kpiHoras");
+    const disp=document.getElementById("kpiDisponibilidade");
+
+    if(custo)custo.textContent="R$ "+d.custo.toLocaleString("pt-BR",{minimumFractionDigits:2});
+    if(medio)medio.textContent="R$ "+d.custoMedio.toLocaleString("pt-BR",{minimumFractionDigits:2});
+    if(horas)horas.textContent=d.horas.toLocaleString("pt-BR")+" h";
+    if(disp)disp.textContent=d.disponibilidade.toLocaleString("pt-BR",{minimumFractionDigits:1,maximumFractionDigits:1})+"%";
+
+    const sub=document.getElementById("subtituloDashboard");
+    if(sub)sub.textContent="Visão geral calculada automaticamente de "+d.total+" veículo"+(d.total===1?"":"s")+" cadastrados.";
+
+    atualizarDashboardAlertas();
+    atualizarIndicadores();
+    atualizarGraficoStatus();
+}
+
+function atualizarDashboardAlertas(){
+    const box=document.getElementById("dashboardAlertas");
+    if(!box)return;
+
+    const itens=veiculos
+        .map(v=>({v,a:alertaVeiculo(v)}))
+        .filter(x=>x.a.tipo!=="ok")
+        .sort((a,b)=>(a.a.tipo==="danger"?0:1)-(b.a.tipo==="danger"?0:1))
+        .slice(0,5);
+
+    if(!itens.length){
+        box.innerHTML=`<div class="alerta green"><b>🟢 Frota em dia</b><br>Nenhuma revisão atrasada ou próxima do vencimento.</div>`;
+        return;
+    }
+
+    box.innerHTML=itens.map(x=>`
+        <div class="alerta ${x.a.tipo==="danger"?"red":""}">
+            <b>${x.a.tipo==="danger"?"🔴":"🟠"} ${escapeHtml(x.v.id)}</b>
+            <br>${escapeHtml(x.a.texto)}
+        </div>
+    `).join("");
+}
+
+function atualizarIndicadores(){
+    const d=calcularIndicadoresFrota();
+
+    const set=(id,val)=>{
+        const el=document.getElementById(id);
+        if(el)el.textContent=val;
+    };
+
+    set("indDisponibilidade",d.disponibilidade.toLocaleString("pt-BR",{minimumFractionDigits:1,maximumFractionDigits:1})+"%");
+    set("indManutencao",d.manutencao);
+    set("indCustoMedio","R$ "+d.custoMedio.toLocaleString("pt-BR",{minimumFractionDigits:2}));
+    set("indAtrasadas",d.atrasadas);
+    set("indAtrasadasInfo",d.proximas+" revisão(ões) próxima(s) do vencimento");
+}
+
+function renderizarCentralAlertas(){
+    const box=document.getElementById("listaAlertas");
+    if(!box)return;
+
+    const itens=veiculos
+        .map(v=>({v,a:alertaVeiculo(v)}))
+        .filter(x=>x.a.tipo!=="ok")
+        .sort((a,b)=>(a.a.tipo==="danger"?0:1)-(b.a.tipo==="danger"?0:1));
+
+    if(!itens.length){
+        box.innerHTML=`
+            <div class="alerta green">
+                <b>🟢 Frota em dia</b><br>
+                Nenhuma revisão atrasada ou próxima do vencimento.
+            </div>`;
+        return;
+    }
+
+    box.innerHTML=itens.map(x=>`
+        <div class="alerta ${x.a.tipo==="danger"?"red":""}">
+            <b>${x.a.tipo==="danger"?"🔴":"🟠"} ${escapeHtml(x.v.id)}</b><br>
+            ${escapeHtml(x.a.texto)}
+            <br><small>KM atual: ${Number(x.v.km).toLocaleString("pt-BR")} • Próxima revisão: ${Number(x.v.proximaRevisaoKm||0).toLocaleString("pt-BR")} km</small>
+            <br><button class="btn-secondary" style="margin-top:8px" onclick="abrirVeiculo('${escapeHtml(x.v.id)}')">Abrir veículo</button>
+        </div>
+    `).join("");
+}
+
+function atualizarGraficoStatus(){
+    if(typeof graficoStatus==="undefined" || !graficoStatus)return;
+
+    const status=["Operando","Manutenção","Parado","Baixado"];
+    const dados=status.map(s=>veiculos.filter(v=>v.status===s).length);
+
+    graficoStatus.data.labels=status;
+    graficoStatus.data.datasets[0].data=dados;
+    graficoStatus.update();
+}
+
 /* INICIALIZAÇÃO */
 
+inicializarDadosVeiculos();
 renderizarVeiculos();
 
 renderizarTabela();
 renderizarPermissoesNovo();
 iniciarSessao();
 
-renderizarPermissoesNovo();
-
-iniciarSessao();
+atualizarDashboardAutomatico();
+renderizarCentralAlertas();
 
 </script>
 
@@ -2441,7 +2915,7 @@ new Chart(
 
 /* STATUS */
 
-new Chart(
+const graficoStatus = new Chart(
 
     document.getElementById("graficoStatus"),
 
