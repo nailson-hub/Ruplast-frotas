@@ -1148,6 +1148,44 @@ function entrar(){
 document.getElementById("senha").addEventListener("keydown",function(e){
     if(e.key==="Enter")entrar();
 });
+    function recuperarSenha(){
+
+    const usuario = prompt("Digite seu usuário para recuperar a senha:");
+
+    if(!usuario) return;
+
+    const encontrado = usuarios.find(function(u){
+        return u.usuario.toLowerCase() === usuario.trim().toLowerCase();
+    });
+
+    if(!encontrado){
+        alert("Usuário não encontrado.");
+        return;
+    }
+
+    const novaSenha = prompt(
+        "Usuário encontrado: " + encontrado.usuario +
+        "\n\nDigite a nova senha:"
+    );
+
+    if(!novaSenha){
+        alert("Recuperação cancelada.");
+        return;
+    }
+
+    if(novaSenha.length < 4){
+        alert("A nova senha deve ter pelo menos 4 caracteres.");
+        return;
+    }
+
+    encontrado.senha = novaSenha;
+
+    alert(
+        "Senha alterada com sucesso!\n\n" +
+        "Usuário: " + encontrado.usuario +
+        "\nNova senha: " + novaSenha
+    );
+}
 
 function iniciarSessao(){
 
