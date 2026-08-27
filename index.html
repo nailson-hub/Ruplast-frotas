@@ -2468,8 +2468,9 @@ function fecharModal(){
 function gerarAlertasInteligentes(){
     const hoje=new Date();
     const resultado=[];
-    const custos=veiculos.map(v=>Number(v.custo)||0).filter(v=>v>0);
-    const custoMedio=custos.length?custos.reduce((a,b)=>a+b,0)/custos.length:0;
+    const custoMedio=veiculos.length
+  ? veiculos.reduce((s,v)=>s+(Number(v.custo)||0),0)/veiculos.length
+  : 0;
 
     veiculos.forEach(v=>{
         const a=alertaVeiculo(v);
