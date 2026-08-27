@@ -1,10 +1,10 @@
 <!DOCTYPE html>
+
 <html lang="pt-BR">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
 <title>Ruplast | Gestão de Frotas</title>
-
 <style>
 *{box-sizing:border-box}
 
@@ -557,230 +557,170 @@ tr.clicavel:hover{
 
 .alert-badge{display:inline-flex;align-items:center;justify-content:center;min-width:20px;height:20px;padding:0 6px;margin-left:5px;border-radius:999px;background:#dc3545;color:#fff;font-size:11px;font-weight:700}.alerta{margin-bottom:10px}.alerta small{opacity:.8}</style>
 </head>
-
 <body>
-
 <!-- LOGIN -->
 <div class="login" id="login">
-
-    <div class="login-box">
-
-        <div class="logo-login">
-            <span class="logo-icon">R</span>
+<div class="login-box">
+<div class="logo-login">
+<span class="logo-icon">R</span>
             RUPLAST
         </div>
-
-        <div class="login-sub">
+<div class="login-sub">
             Gestão de Manutenção de Frotas
         </div>
-
-        <div class="campo">
-            <label>Usuário</label>
-            <input id="usuario" value="admin">
-        </div>
-
-        <div class="campo">
-            <label>Senha</label>
-            <input id="senha" type="password" placeholder="Digite a senha">
-        </div>
-
-        <button class="btn login-btn" onclick="entrar()">
+<div class="campo">
+<label>Usuário</label>
+<input id="usuario" value="admin"/>
+</div>
+<div class="campo">
+<label>Senha</label>
+<input id="senha" placeholder="Digite a senha" type="password"/>
+</div>
+<button class="btn login-btn" onclick="entrar()">
             Entrar na plataforma
         </button>
-
-        <div class="erro" id="erro">
+<div class="erro" id="erro">
             Usuário ou senha incorretos.
         </div>
-
-    </div>
 </div>
-
-
+</div>
 <!-- SISTEMA -->
 <div class="app" id="app">
-
-    <aside class="sidebar">
-
-        <div class="marca">
-            <div class="marca-icon">R</div>
-
-            <div>
-                <strong>RUPLAST</strong>
-                <small>GESTÃO DE FROTAS</small>
-            </div>
-        </div>
-
-        <div class="menu">
-
-            <div class="menu-item active" onclick="abrirPagina('dashboard',this)">
+<aside class="sidebar">
+<div class="marca">
+<div class="marca-icon">R</div>
+<div>
+<strong>RUPLAST</strong>
+<small>GESTÃO DE FROTAS</small>
+</div>
+</div>
+<div class="menu">
+<div class="menu-item active" onclick="abrirPagina('dashboard',this)">
                 📊 <span>Dashboard</span>
-            </div>
-
-            <div class="menu-item" onclick="abrirPagina('veiculos',this)">
+</div>
+<div class="menu-item" onclick="abrirPagina('veiculos',this)">
                 🚛 <span>Veículos</span>
-            </div>
-
-            <div class="menu-item" onclick="abrirPagina('manutencao',this)">
+</div>
+<div class="menu-item" onclick="abrirPagina('manutencao',this)">
                 🔧 <span>Manutenções</span>
-            </div>
-
-            <div class="menu-item" onclick="abrirPagina('ordens',this)">
+</div>
+<div class="menu-item" onclick="abrirPagina('ordens',this)">
                 📋 <span>Ordens de Serviço</span>
-            </div>
-
-            <div class="menu-item" onclick="abrirPagina('indicadores',this)">
+</div>
+<div class="menu-item" onclick="abrirPagina('indicadores',this)">
                 📈 <span>Indicadores</span>
-            </div>
-
-            <div class="menu-item" onclick="abrirPagina('alertas',this)">
+</div>
+<div class="menu-item" onclick="abrirPagina('alertas',this)">
                 ⚠️ <span>Alertas</span>
-            </div>
-
-            <div class="menu-item" onclick="abrirPagina('acessos',this)" id="menuAcessos">
+</div>
+<div class="menu-item" id="menuAcessos" onclick="abrirPagina('acessos',this)">
                 👥 <span>Acessos</span>
-            </div>
-
-        </div>
-
-    </aside>
-
-
-    <main class="main">
-
-        <header class="topbar">
-            <strong id="titulo">Dashboard</strong>
-            <div class="usuario-topo" onclick="toggleMenuUsuario()">
-                <div>
-                    🔔 &nbsp; <b id="nomeUsuarioTopo">Administrador</b>
-                    <small id="perfilUsuarioTopo">Administrador</small>
-                </div>
-                <div class="avatar" id="avatarUsuario">A</div>
-                <div class="menu-usuario" id="menuUsuario">
-                    <button onclick="abrirMeuPerfil(event)">👤 Meu perfil</button>
-                    <button onclick="alterarSenha(event)">🔑 Alterar senha</button>
-                    <button onclick="sair(event)">🚪 Sair</button>
-                </div>
-            </div>
-        </header>
-
-        <div class="conteudo">
-
-
+</div>
+</div>
+</aside>
+<main class="main">
+<header class="topbar">
+<strong id="titulo">Dashboard</strong>
+<div class="usuario-topo" onclick="toggleMenuUsuario()">
+<div>
+                    🔔   <b id="nomeUsuarioTopo">Administrador</b>
+<small id="perfilUsuarioTopo">Administrador</small>
+</div>
+<div class="avatar" id="avatarUsuario">A</div>
+<div class="menu-usuario" id="menuUsuario">
+<button onclick="abrirMeuPerfil(event)">👤 Meu perfil</button>
+<button onclick="alterarSenha(event)">🔑 Alterar senha</button>
+<button onclick="sair(event)">🚪 Sair</button>
+</div>
+</div>
+</header>
+<div class="conteudo">
 <!-- DASHBOARD -->
 <section class="pagina active" id="dashboard">
-
 <h1>Dashboard da Frota</h1>
 <p class="subtitulo" id="subtituloDashboard">
 Visão geral calculada automaticamente a partir dos dados cadastrados da frota.
 </p>
-
 <div class="kpis">
-
 <div class="kpi" onclick="mostrarIndicador('Custo total de manutenção',document.getElementById('kpiCustoTotal').textContent)">
 <span>Custo total de manutenção</span>
 <strong id="kpiCustoTotal">R$ 0,00</strong>
 <i id="kpiCustoTotalInfo">calculado pela frota atual</i>
 </div>
-
 <div class="kpi" onclick="mostrarIndicador('Custo médio por veículo',document.getElementById('kpiCustoMedio').textContent)">
 <span>Custo médio / veículo</span>
 <strong id="kpiCustoMedio">R$ 0,00</strong>
 <i id="kpiCustoMedioInfo">calculado pela frota atual</i>
 </div>
-
 <div class="kpi" onclick="mostrarIndicador('Horas de manutenção',document.getElementById('kpiHoras').textContent)">
 <span>Horas de manutenção</span>
 <strong id="kpiHoras">0 h</strong>
 <i id="kpiHorasInfo">calculado pela frota atual</i>
 </div>
-
 <div class="kpi" onclick="mostrarIndicador('Disponibilidade da frota',document.getElementById('kpiDisponibilidade').textContent)">
 <span>Disponibilidade da frota</span>
 <strong id="kpiDisponibilidade">0%</strong>
 <i id="kpiDisponibilidadeInfo">média dos veículos</i>
 </div>
-
 </div>
-
 <div class="card" style="margin-bottom:20px">
-    <div class="card-header">
-        <div>
-            <b>Alertas de manutenção</b>
-            <div class="subtitulo">Revisões calculadas automaticamente por KM e data.</div>
-        </div>
-        <button class="btn" onclick="abrirPagina('alertas')">Ver todos</button>
-    </div>
-    <div id="dashboardAlertas"></div>
+<div class="card-header">
+<div>
+<b>Alertas de manutenção</b>
+<div class="subtitulo">Revisões calculadas automaticamente por KM e data.</div>
 </div>
-
-
+<button class="btn" onclick="abrirPagina('alertas')">Ver todos</button>
+</div>
+<div id="dashboardAlertas"></div>
+</div>
 <div class="card" style="margin-bottom:20px">
-    <div class="card-header">
-        <div>
-            <b>Origem dos indicadores</b>
-            <div class="subtitulo">Os KPIs principais usam os valores acumulados de cada veículo. O histórico é mostrado separadamente para auditoria.</div>
-        </div>
-    </div>
-    <div class="dados-veiculo" style="margin-top:10px">
-        <div><span>Custo acumulado da frota</span><strong id="origemCustoFrota">R$ 0,00</strong></div>
-        <div><span>Custo no histórico concluído</span><strong id="origemCustoHistorico">R$ 0,00</strong></div>
-        <div><span>Horas acumuladas da frota</span><strong id="origemHorasFrota">0 h</strong></div>
-        <div><span>Horas do histórico concluído</span><strong id="origemHorasHistorico">0 h</strong></div>
-    </div>
+<div class="card-header">
+<div>
+<b>Origem dos indicadores</b>
+<div class="subtitulo">Os KPIs principais usam os valores acumulados de cada veículo. O histórico é mostrado separadamente para auditoria.</div>
 </div>
-
+</div>
+<div class="dados-veiculo" style="margin-top:10px">
+<div><span>Custo acumulado da frota</span><strong id="origemCustoFrota">R$ 0,00</strong></div>
+<div><span>Custo no histórico concluído</span><strong id="origemCustoHistorico">R$ 0,00</strong></div>
+<div><span>Horas acumuladas da frota</span><strong id="origemHorasFrota">0 h</strong></div>
+<div><span>Horas do histórico concluído</span><strong id="origemHorasHistorico">0 h</strong></div>
+</div>
+</div>
 <div class="grid">
-
 <div class="card">
-
 <div class="card-header">
 <div>
 <b>Custo de manutenção</b>
 <div class="subtitulo">Últimos 6 meses</div>
 </div>
 </div>
-
 <div class="grafico">
 <canvas id="graficoCusto"></canvas>
 </div>
-
 </div>
-
-
 <div class="card">
-
 <div class="card-header">
 <b>Status da frota</b>
 </div>
-
 <div class="grafico">
 <canvas id="graficoStatus"></canvas>
 </div>
-
 </div>
-
 </div>
-
-
 <div class="card tabela">
-
 <div class="card-header">
-
 <div>
 <b>Veículos com maior custo</b>
 <div class="subtitulo">
 Clique no veículo para abrir os detalhes
 </div>
 </div>
-
 <button class="btn" onclick="abrirPagina('veiculos')">
 Ver todos
 </button>
-
 </div>
-
 <table>
-
 <thead>
 <tr>
 <th>Veículo</th>
@@ -790,99 +730,61 @@ Ver todos
 <th>Status</th>
 </tr>
 </thead>
-
 <tbody id="tabelaTop"></tbody>
-
 </table>
-
 </div>
-
 </section>
-
-
 <!-- VEICULOS -->
 <section class="pagina" id="veiculos">
-
 <h1>Frota Ruplast</h1>
-
 <p class="subtitulo" id="resumoFrota">
 Veículos cadastrados e acompanhamento de quilometragem e revisões.
 </p>
-
 <div class="veiculos-toolbar">
-    <div class="alert-summary" id="resumoAlertasFrota"></div>
-    <button class="btn-primary" onclick="novoVeiculo()">＋ Cadastrar veículo</button>
+<div class="alert-summary" id="resumoAlertasFrota"></div>
+<button class="btn-primary" onclick="novoVeiculo()">＋ Cadastrar veículo</button>
 </div>
-
 <div class="veiculos" id="listaVeiculos"></div>
-
 </section>
-
-
 <!-- DETALHE -->
 <section class="pagina" id="detalhe">
-
 <button class="btn" onclick="abrirPagina('veiculos')">
 ← Voltar
 </button>
-
 <h1 id="detalheTitulo"></h1>
-
 <div class="kpis">
-
 <div class="kpi">
 <span>Custo acumulado</span>
 <strong id="detalheCusto"></strong>
 </div>
-
 <div class="kpi">
 <span>Horas de manutenção</span>
 <strong id="detalheHoras"></strong>
 </div>
-
 <div class="kpi">
 <span>Quilometragem</span>
 <strong id="detalheKm"></strong>
 </div>
-
 <div class="kpi">
 <span>Disponibilidade</span>
 <strong id="detalheDisponibilidade"></strong>
 </div>
-
 </div>
-
-
 <div class="grid">
-
 <div class="card">
-
 <b>Custo mensal</b>
-
 <div class="grafico">
 <canvas id="graficoVeiculo"></canvas>
 </div>
-
 </div>
-
-
 <div class="card">
-
 <b>Dados do veículo</b>
-
 <p id="dadosDetalhe"></p>
-
 </div>
-
 </div>
-
-
 <div class="card tabela">
-
 <h3>Histórico de manutenção</h3>
-
 <table>
-
 <thead>
 <tr>
 <th>Data</th>
@@ -893,9 +795,7 @@ Veículos cadastrados e acompanhamento de quilometragem e revisões.
 <th>Status</th>
 </tr>
 </thead>
-
 <tbody>
-
 <tr>
 <td>22/08/2026</td>
 <td>Preventiva</td>
@@ -904,7 +804,6 @@ Veículos cadastrados e acompanhamento de quilometragem e revisões.
 <td>R$ 820</td>
 <td><span class="status status-ok">Concluída</span></td>
 </tr>
-
 <tr>
 <td>13/08/2026</td>
 <td>Corretiva</td>
@@ -913,7 +812,6 @@ Veículos cadastrados e acompanhamento de quilometragem e revisões.
 <td>R$ 1.950</td>
 <td><span class="status status-ok">Concluída</span></td>
 </tr>
-
 <tr>
 <td>01/07/2026</td>
 <td>Preventiva</td>
@@ -922,15 +820,10 @@ Veículos cadastrados e acompanhamento de quilometragem e revisões.
 <td>R$ 1.240</td>
 <td><span class="status status-ok">Concluída</span></td>
 </tr>
-
 </tbody>
 </table>
-
 </div>
-
 </section>
-
-
 <!-- MANUTENCAO -->
 <section class="pagina" id="manutencao">
 <h1>Manutenções</h1>
@@ -946,8 +839,6 @@ Veículos cadastrados e acompanhamento de quilometragem e revisões.
 <table><thead><tr><th>Veículo</th><th>Tipo</th><th>Serviço</th><th>Data</th><th>Custo</th><th>Status</th><th>Ação</th></tr></thead><tbody id="tabelaManutencoes"></tbody></table>
 </div>
 </section>
-
-
 <!-- ORDENS -->
 <section class="pagina" id="ordens">
 <h1>Ordens de Serviço</h1>
@@ -963,122 +854,84 @@ Veículos cadastrados e acompanhamento de quilometragem e revisões.
 <table><thead><tr><th>OS</th><th>Veículo</th><th>Serviço</th><th>Tipo</th><th>Custo</th><th>Status</th><th>Ação</th></tr></thead><tbody id="tabelaOS"></tbody></table>
 </div>
 </section>
-
-
 <!-- INDICADORES -->
 <section class="pagina" id="indicadores">
-
 <h1>Indicadores</h1>
-
 <p class="subtitulo">
 KPIs de eficiência da manutenção.
 </p>
-
-
 <div class="kpis">
-
 <div class="kpi" onclick="mostrarIndicador('Disponibilidade da frota',document.getElementById('indDisponibilidade').textContent)">
 <span>Disponibilidade da frota</span>
 <strong id="indDisponibilidade">0%</strong>
 <i>calculado automaticamente</i>
 </div>
-
 <div class="kpi" onclick="mostrarIndicador('Veículos em manutenção',document.getElementById('indManutencao').textContent)">
 <span>Veículos em manutenção</span>
 <strong id="indManutencao">0</strong>
 <i>status atual da frota</i>
 </div>
-
 <div class="kpi" onclick="mostrarIndicador('Custo médio por veículo',document.getElementById('indCustoMedio').textContent)">
 <span>Custo médio / veículo</span>
 <strong id="indCustoMedio">R$ 0,00</strong>
 <i>calculado automaticamente</i>
 </div>
-
 <div class="kpi" onclick="mostrarIndicador('Revisões atrasadas',document.getElementById('indAtrasadas').textContent)">
 <span>Revisões atrasadas</span>
 <strong id="indAtrasadas">0</strong>
 <i id="indAtrasadasInfo">controle por KM e data</i>
 </div>
-
 </div>
-
 <div class="card" style="margin-top:20px">
-    <b>Indicadores que dependem de histórico</b>
-    <p class="subtitulo" style="margin-top:8px">
+<b>Indicadores que dependem de histórico</b>
+<p class="subtitulo" style="margin-top:8px">
         MTBF, MTTR e índice de preventiva serão calculados automaticamente quando houver histórico de manutenções e ordens de serviço com datas, horas e status suficientes.
     </p>
 </div>
-
-
 <div class="grid">
-
 <div class="card">
-
 <b>Horas de manutenção por veículo</b>
-
 <div class="grafico">
 <canvas id="graficoHoras"></canvas>
 </div>
-
 </div>
-
-
 <div class="card">
-
 <b>Distribuição dos custos</b>
-
 <div class="grafico">
 <canvas id="graficoCategorias"></canvas>
 </div>
-
 </div>
-
 </div>
-
 </section>
-
-
-
 <!-- ACESSOS -->
 <section class="pagina" id="acessos">
-
 <h1>Usuários e Acessos</h1>
 <p class="subtitulo">Cadastre usuários e defina os níveis de acesso à plataforma.</p>
-
 <div class="acesso-grid">
-
 <div class="card">
-
 <div class="card-header">
 <div>
 <b>Novo usuário</b>
 <div class="subtitulo">Crie um acesso para um funcionário.</div>
 </div>
 </div>
-
 <div class="form-grid">
-
 <div class="campo">
 <label>Nome completo</label>
-<input id="novoNome" placeholder="Ex.: João da Silva">
+<input id="novoNome" placeholder="Ex.: João da Silva"/>
 </div>
-
 <div class="campo">
 <label>Usuário</label>
-<input id="novoUsuario" placeholder="Ex.: joao">
+<input id="novoUsuario" placeholder="Ex.: joao"/>
 </div>
-
 <div class="campo">
 <label>E-mail</label>
-<input id="novoEmail" type="email" placeholder="joao@ruplast.com.br">
+<input id="novoEmail" placeholder="joao@ruplast.com.br" type="email"/>
 </div>
-
 <div class="campo">
 <label>Senha inicial</label>
-<input id="novoSenha" type="password" placeholder="Mínimo 6 caracteres">
+<input id="novoSenha" placeholder="Mínimo 6 caracteres" type="password"/>
 </div>
-
 <div class="campo">
 <label>Perfil</label>
 <select id="novoPerfil" onchange="aplicarPermissoesPerfil()">
@@ -1088,7 +941,6 @@ KPIs de eficiência da manutenção.
 <option value="Consulta">Consulta</option>
 </select>
 </div>
-
 <div class="campo">
 <label>Status</label>
 <select id="novoStatus">
@@ -1096,18 +948,12 @@ KPIs de eficiência da manutenção.
 <option value="Inativo">Inativo</option>
 </select>
 </div>
-
 </div>
-
 <label style="font-size:12px;font-weight:bold">Permissões</label>
 <div class="permissoes" id="permissoesNovo"></div>
-
 <button class="btn" onclick="cadastrarUsuario()">+ Cadastrar usuário</button>
-
 </div>
-
 <div class="card tabela">
-
 <div class="card-header">
 <div>
 <b>Usuários cadastrados</b>
@@ -1115,12 +961,10 @@ KPIs de eficiência da manutenção.
 </div>
 <span class="permissao-badge" id="contadorUsuarios">0 usuários</span>
 </div>
-
 <div class="acesso-toolbar">
-<input id="buscaUsuarios" placeholder="🔎 Buscar por nome, usuário ou e-mail" oninput="renderizarUsuarios()">
+<input id="buscaUsuarios" oninput="renderizarUsuarios()" placeholder="🔎 Buscar por nome, usuário ou e-mail"/>
 <button class="btn-secondary" onclick="limparBuscaUsuarios()">Limpar</button>
 </div>
-
 <table>
 <thead>
 <tr>
@@ -1133,51 +977,30 @@ KPIs de eficiência da manutenção.
 </thead>
 <tbody id="tabelaUsuarios"></tbody>
 </table>
-
 </div>
-
 </div>
 </section>
-
 <!-- ALERTAS -->
 <section class="pagina" id="alertas">
-
 <h1>Central de Alertas</h1>
-
 <p class="subtitulo">
 Pendências que exigem atenção.
 </p>
-
-
 <div class="card">
-    <div id="listaAlertas"></div>
+<div id="listaAlertas"></div>
 </div>
-
 </section>
-
-        </div>
-
-    </main>
-
 </div>
-
-
+</main>
+</div>
 <!-- MODAL -->
 <div class="modal" id="modal">
-
 <div class="modal-box">
-
 <button class="fechar" onclick="fecharModal()">×</button>
-
 <h2 id="modalTitulo"></h2>
-
 <div id="modalConteudo"></div>
-
 </div>
-
 </div>
-
-
 <script>
 
 /* LOGIN */
@@ -1230,10 +1053,20 @@ function carregarUsuarios(){
         return lista;
     }
     try{
-        return JSON.parse(salvo);
-    }catch(e){
-        return usuariosPadrao();
-    }
+        const dados=JSON.parse(salvo);
+        if(Array.isArray(dados) && dados.length){
+            return dados.map(u=>Object.assign({
+                id:"",nome:"",usuario:"",email:"",senha:"",
+                perfil:"Consulta",status:"Ativo",permissoes:[]
+            },u,{
+                permissoes:Array.isArray(u.permissoes)?u.permissoes:[]
+            }));
+        }
+    }catch(e){}
+
+    const lista=usuariosPadrao();
+    localStorage.setItem(CHAVE_USUARIOS,JSON.stringify(lista));
+    return lista;
 }
 
 function salvarUsuarios(lista){
@@ -1512,6 +1345,9 @@ for(let i=1;i<=3;i++){
 
 /* DADOS E CONTROLE DA FROTA */
 
+/* Snapshot dos veículos padrão para recuperar campos perdidos por versões anteriores. */
+const VEICULOS_PADRAO=veiculos.map(v=>Object.assign({},v));
+
 const CHAVE_VEICULOS="ruplast_veiculos_v1";
 
 function inicializarDadosVeiculos(){
@@ -1522,7 +1358,19 @@ function inicializarDadosVeiculos(){
             const dados=JSON.parse(salvos);
             if(Array.isArray(dados) && dados.length){
                 veiculos.length=0;
-                dados.forEach(v=>veiculos.push(normalizarVeiculo(v)));
+                dados.forEach(v=>{
+                    const salvo=normalizarVeiculo(v);
+                    const padrao=VEICULOS_PADRAO.find(p=>p.id===salvo.id);
+                    /* Recupera apenas campos zerados das versões anteriores.
+                       KM, status, placa e demais dados do usuário são preservados. */
+                    if(padrao){
+                        if(!Number.isFinite(Number(salvo.custo)) || Number(salvo.custo)<=0) salvo.custo=padrao.custo;
+                        if(!Number.isFinite(Number(salvo.horas)) || Number(salvo.horas)<=0) salvo.horas=padrao.horas;
+                        if(!Number.isFinite(Number(salvo.disponibilidade)) || Number(salvo.disponibilidade)<=0) salvo.disponibilidade=padrao.disponibilidade;
+                    }
+                    veiculos.push(salvo);
+                });
+                salvarVeiculos();
                 return;
             }
         }catch(e){}
@@ -2885,18 +2733,14 @@ function novaManutencao(){
         return;
     }
 
+    const hoje=new Date().toISOString().slice(0,10);
+
     document.getElementById("modalTitulo").textContent="Nova manutenção";
-
     document.getElementById("modalConteudo").innerHTML=`
-
         <div class="campo">
             <label>Veículo</label>
-            <select id="mVeiculo" onchange="preencherKmManutencao()">
-                ${veiculos.map(v=>`
-                    <option value="${escapeHtml(v.id)}">
-                        ${escapeHtml(v.id)}
-                    </option>
-                `).join("")}
+            <select id="mVeiculo">
+                ${veiculos.map(v=>`<option value="${escapeHtml(v.id)}">${escapeHtml(v.id)}</option>`).join("")}
             </select>
         </div>
 
@@ -2911,48 +2755,32 @@ function novaManutencao(){
 
         <div class="campo">
             <label>Serviço</label>
-            <input id="mServico"
-                   placeholder="Ex.: revisão, freios, óleo">
+            <input id="mServico" placeholder="Ex.: revisão, freios, óleo">
         </div>
 
         <div class="campo">
-            <label>Data da manutenção</label>
-            <input id="mData"
-                   type="date"
-                   value="${new Date().toISOString().slice(0,10)}">
+            <label>Data</label>
+            <input id="mData" type="date" value="${hoje}">
         </div>
 
         <div class="campo">
             <label>Quilometragem atual</label>
-            <input id="mKm"
-                   type="number"
-                   min="0"
-                   step="1"
-                   placeholder="Ex.: 150000">
+            <input id="mKmAtual" type="number" min="0" placeholder="Ex.: 130300">
         </div>
 
         <div class="campo">
             <label>Custo</label>
-            <input id="mCusto"
-                   type="number"
-                   min="0"
-                   step="0.01"
-                   placeholder="0,00">
+            <input id="mCusto" type="number" min="0" step="0.01" placeholder="0,00">
         </div>
 
         <div class="campo">
             <label>Horas</label>
-            <input id="mHoras"
-                   type="number"
-                   min="0"
-                   step="0.5"
-                   placeholder="0">
+            <input id="mHoras" type="number" min="0" step="0.5" placeholder="0">
         </div>
 
         <div class="campo">
             <label>Oficina / responsável</label>
-            <input id="mResponsavel"
-                   placeholder="Ex.: Oficina Central">
+            <input id="mOficina" placeholder="Ex.: Oficina Central">
         </div>
 
         <div class="campo">
@@ -2966,87 +2794,59 @@ function novaManutencao(){
 
         <div class="campo">
             <label>Próxima revisão em KM</label>
-            <input id="mProximaKm"
-                   type="number"
-                   min="0"
-                   step="1"
-                   placeholder="Ex.: 160000">
+            <input id="mProximaKm" type="number" min="0" placeholder="Ex.: 160000">
         </div>
 
         <div class="campo">
             <label>Próxima revisão em data</label>
-            <input id="mProximaData"
-                   type="date">
+            <input id="mProximaData" type="date">
         </div>
 
         <div class="campo">
             <label>Observações</label>
-            <textarea id="mObservacoes"
-                      rows="3"
-                      placeholder="Informações adicionais sobre o serviço"></textarea>
+            <textarea id="mObservacoes" rows="4" style="width:100%;resize:vertical" placeholder="Informações adicionais sobre o serviço"></textarea>
         </div>
 
-        <button class="btn" onclick="salvarManutencao()">
-            Salvar manutenção
-        </button>
+        <button class="btn" onclick="salvarManutencao()">Salvar manutenção</button>
     `;
 
-    document.getElementById("modal").classList.add("aberto");
-
-    preencherKmManutencao();
-}
-function preencherKmManutencao(){
-
     const select=document.getElementById("mVeiculo");
-    const campo=document.getElementById("mKm");
+    const km=document.getElementById("mKmAtual");
+    const proxKm=document.getElementById("mProximaKm");
 
-    if(!select || !campo)return;
-
-    const v=veiculos.find(x=>x.id===select.value);
-
-    if(v){
-        campo.value=Number(v.km)||0;
+    function preencherKmManutencao(){
+        const v=veiculos.find(x=>x.id===select.value);
+        if(!v)return;
+        km.value=Number(v.km)||0;
+        proxKm.value=Number(v.proximaRevisaoKm)||((Number(v.km)||0)+10000);
     }
-}function salvarManutencao(){
 
-    const veiculoId=document.getElementById("mVeiculo").value;
-    const veiculo=veiculos.find(v=>v.id===veiculoId);
+    select.addEventListener("change",preencherKmManutencao);
+    preencherKmManutencao();
 
-    if(!veiculo){
-        alert("Veículo não encontrado.");
+    document.getElementById("modal").classList.add("aberto");
+}
+
+function salvarManutencao(){
+    if(!temPermissao("manutencao_editar")){
+        alert("Você não possui permissão para registrar manutenção.");
         return;
     }
 
     const m={
         id:"MAN-"+Date.now(),
-
-        veiculo:veiculoId,
-
+        veiculo:document.getElementById("mVeiculo").value,
         tipo:document.getElementById("mTipo").value,
-
         servico:document.getElementById("mServico").value.trim(),
-
         data:document.getElementById("mData").value,
-
-        km:Number(document.getElementById("mKm").value)||0,
-
+        kmAtual:Number(document.getElementById("mKmAtual").value)||0,
         custo:Number(document.getElementById("mCusto").value)||0,
-
         horas:Number(document.getElementById("mHoras").value)||0,
-
-        responsavel:document.getElementById("mResponsavel").value.trim(),
-
+        oficina:document.getElementById("mOficina").value.trim(),
         status:document.getElementById("mStatus").value,
-
-        proximaRevisaoKm:Number(
-            document.getElementById("mProximaKm").value
-        )||0,
-
-        proximaRevisaoData:
-            document.getElementById("mProximaData").value,
-
-        observacoes:
-            document.getElementById("mObservacoes").value.trim()
+        proximaRevisaoKm:Number(document.getElementById("mProximaKm").value)||0,
+        proximaRevisaoData:document.getElementById("mProximaData").value,
+        observacoes:document.getElementById("mObservacoes").value.trim()
     };
 
     if(!m.servico){
@@ -3054,37 +2854,39 @@ function preencherKmManutencao(){
         return;
     }
 
-    if(m.km>0){
-        veiculo.km=m.km;
+    if(!m.data){
+        alert("Informe a data da manutenção.");
+        return;
     }
 
-    if(m.proximaRevisaoKm>0){
-        veiculo.proximaRevisaoKm=m.proximaRevisaoKm;
-    }
-
-    if(m.proximaRevisaoData){
-        veiculo.proximaRevisaoData=m.proximaRevisaoData;
-    }
-
-    if(m.status==="Concluída"){
-        veiculo.ultimaRevisao=m.data;
-
-        if(m.km>0){
-            veiculo.kmUltimaRevisao=m.km;
+    const v=veiculos.find(x=>x.id===m.veiculo);
+    if(v){
+        if(m.kmAtual>0) v.km=m.kmAtual;
+        if(m.oficina) v.responsavel=m.oficina;
+        if(m.proximaRevisaoKm>0) v.proximaRevisaoKm=m.proximaRevisaoKm;
+        if(m.proximaRevisaoData) v.proximaRevisaoData=m.proximaRevisaoData;
+        if(m.status==="Concluída"){
+            v.ultimaRevisao=m.data;
+            v.kmUltimaRevisao=m.kmAtual||v.kmUltimaRevisao||v.km;
         }
     }
 
     manutencoes.push(m);
 
+    if(m.status==="Concluída"){
+        aplicarImpactoManutencaoNoVeiculo(m,"adicionar");
+        m.impactoVeiculoAplicado=true;
+    }
+
     salvarColecoesFrota();
     salvarVeiculos();
-
     atualizarManutencoes();
     atualizarDashboardAutomatico();
-
+    renderizarVeiculos();
+    renderizarTabela();
+    atualizarIndicadores();
+    renderizarCentralAlertas();
     fecharModal();
-
-    alert("Manutenção registrada com sucesso.");
 }
 function excluirManutencao(id){
     if(!confirm("Excluir este registro de manutenção?"))return;
@@ -3150,12 +2952,8 @@ notificarAlertasCriticos();
 setInterval(()=>{ atualizarAlertasInteligentes(); notificarAlertasCriticos(); }, 60000);
 
 </script>
-
-
 <!-- CHART.JS -->
-
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
 <script>
 
 /* GRAFICO DE CUSTO */
@@ -3378,6 +3176,5 @@ new Chart(
 );
 
 </script>
-
 </body>
 </html>
