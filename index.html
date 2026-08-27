@@ -2880,18 +2880,211 @@ function migrarHistoricoParaCustosDaFrota(){
 }
 
 function novaManutencao(){
-    if(!temPermissao("manutencao_editar")){alert("Você não possui permissão para registrar manutenção.");return;}
+    if(!temPermissao("manutencao_editar")){
+        alert("Você não possui permissão para registrar manutenção.");
+        return;
+    }
+
     document.getElementById("modalTitulo").textContent="Nova manutenção";
-    document.getElementById("modalConteudo").innerHTML=`<div class="campo"><label>Veículo</label><select id="mVeiculo">${veiculos.map(v=>`<option value="${escapeHtml(v.id)}">${escapeHtml(v.id)}</option>`).join("")}</select></div><div class="campo"><label>Tipo</label><select id="mTipo"><option>Preventiva</option><option>Corretiva</option><option>Preditiva</option></select></div><div class="campo"><label>Serviço</label><input id="mServico" placeholder="Ex.: revisão, freios, óleo"></div><div class="campo"><label>Data</label><input id="mData" type="date" value="${new Date().toISOString().slice(0,10)}"></div><div class="campo"><label>Custo</label><input id="mCusto" type="number" min="0" step="0.01" placeholder="0,00"></div><div class="campo"><label>Horas</label><input id="mHoras" type="number" min="0" step="0.5" placeholder="0"></div><div class="campo"><label>Status</label><select id="mStatus"><option>Agendada</option><option>Em andamento</option><option>Concluída</option></select></div><button class="btn" onclick="salvarManutencao()">Salvar manutenção</button>`;
+
+    document.getElementById("modalConteudo").innerHTML=`
+
+        <div class="campo">
+            <label>Veículo</label>
+            <select id="mVeiculo" onchange="preencherKmManutencao()">
+                ${veiculos.map(v=>`
+                    <option value="${escapeHtml(v.id)}">
+                        ${escapeHtml(v.id)}
+                    </option>
+                `).join("")}
+            </select>
+        </div>
+
+        <div class="campo">
+            <label>Tipo</label>
+            <select id="mTipo">
+                <option>Preventiva</option>
+                <option>Corretiva</option>
+                <option>Preditiva</option>
+            </select>
+        </div>
+
+        <div class="campo">
+            <label>Serviço</label>
+            <input id="mServico"
+                   placeholder="Ex.: revisão, freios, óleo">
+        </div>
+
+        <div class="campo">
+            <label>Data da manutenção</label>
+            <input id="mData"
+                   type="date"
+                   value="${new Date().toISOString().slice(0,10)}">
+        </div>
+
+        <div class="campo">
+            <label>Quilometragem atual</label>
+            <input id="mKm"
+                   type="number"
+                   min="0"
+                   step="1"
+                   placeholder="Ex.: 150000">
+        </div>
+
+        <div class="campo">
+            <label>Custo</label>
+            <input id="mCusto"
+                   type="number"
+                   min="0"
+                   step="0.01"
+                   placeholder="0,00">
+        </div>
+
+        <div class="campo">
+            <label>Horas</label>
+            <input id="mHoras"
+                   type="number"
+                   min="0"
+                   step="0.5"
+                   placeholder="0">
+        </div>
+
+        <div class="campo">
+            <label>Oficina / responsável</label>
+            <input id="mResponsavel"
+                   placeholder="Ex.: Oficina Central">
+        </div>
+
+        <div class="campo">
+            <label>Status</label>
+            <select id="mStatus">
+                <option>Agendada</option>
+                <option>Em andamento</option>
+                <option>Concluída</option>
+            </select>
+        </div>
+
+        <div class="campo">
+            <label>Próxima revisão em KM</label>
+            <input id="mProximaKm"
+                   type="number"
+                   min="0"
+                   step="1"
+                   placeholder="Ex.: 160000">
+        </div>
+
+        <div class="campo">
+            <label>Próxima revisão em data</label>
+            <input id="mProximaData"
+                   type="date">
+        </div>
+
+        <div class="campo">
+            <label>Observações</label>
+            <textarea id="mObservacoes"
+                      rows="3"
+                      placeholder="Informações adicionais sobre o serviço"></textarea>
+        </div>
+
+        <button class="btn" onclick="salvarManutencao()">
+            Salvar manutenção
+        </button>
+    `;
+
     document.getElementById("modal").classList.add("aberto");
+
+    preencherKmManutencao();
 }
+function preencherKmManutencao(){
+
+    const select=document.getElementById("mVeiculo");
+    const campo=document.getElementById("mKm");
+
+    if(!select || !campo)return;
+
+    const v=veiculos.find(x=>x.id===select.value);
+
+    if(v){
+        campo.value=Number(v.km)||0;
+    }
 function salvarManutencao(){
-    const m={id:"MAN-"+Date.now(),veiculo:document.getElementById("mVeiculo").value,tipo:document.getElementById("mTipo").value,servico:document.getElementById("mServico").value.trim(),data:document.getElementById("mData").value,custo:Number(document.getElementById("mCusto").value)||0,horas:Number(document.getElementById("mHoras").value)||0,status:document.getElementById("mStatus").value};
-    if(!m.servico){alert("Informe o serviço.");return;}
+
+    const veiculoId=document.getElementById("mVeiculo").value;
+    const veiculo=veiculos.find(v=>v.id===veiculoId);
+
+    if(!veiculo){
+        alert("Veículo não encontrado.");
+        return;
+    }
+
+    const m={
+        id:"MAN-"+Date.now(),
+
+        veiculo:veiculoId,
+
+        tipo:document.getElementById("mTipo").value,
+
+        servico:document.getElementById("mServico").value.trim(),
+
+        data:document.getElementById("mData").value,
+
+        km:Number(document.getElementById("mKm").value)||0,
+
+        custo:Number(document.getElementById("mCusto").value)||0,
+
+        horas:Number(document.getElementById("mHoras").value)||0,
+
+        responsavel:document.getElementById("mResponsavel").value.trim(),
+
+        status:document.getElementById("mStatus").value,
+
+        proximaRevisaoKm:Number(
+            document.getElementById("mProximaKm").value
+        )||0,
+
+        proximaRevisaoData:
+            document.getElementById("mProximaData").value,
+
+        observacoes:
+            document.getElementById("mObservacoes").value.trim()
+    };
+
+    if(!m.servico){
+        alert("Informe o serviço.");
+        return;
+    }
+
+    if(m.km>0){
+        veiculo.km=m.km;
+    }
+
+    if(m.proximaRevisaoKm>0){
+        veiculo.proximaRevisaoKm=m.proximaRevisaoKm;
+    }
+
+    if(m.proximaRevisaoData){
+        veiculo.proximaRevisaoData=m.proximaRevisaoData;
+    }
+
+    if(m.status==="Concluída"){
+        veiculo.ultimaRevisao=m.data;
+
+        if(m.km>0){
+            veiculo.kmUltimaRevisao=m.km;
+        }
+    }
+
     manutencoes.push(m);
-    if(m.status==="Concluída"){ aplicarImpactoManutencaoNoVeiculo(m,"adicionar"); m.impactoVeiculoAplicado=true; }
+
     salvarColecoesFrota();
-    atualizarManutencoes();atualizarDashboardAutomatico();renderizarVeiculos();renderizarTabela();fecharModal();
+    salvarVeiculos();
+
+    atualizarManutencoes();
+    atualizarDashboardAutomatico();
+
+    fecharModal();
+
+    alert("Manutenção registrada com sucesso.");
 }
 function excluirManutencao(id){
     if(!confirm("Excluir este registro de manutenção?"))return;
