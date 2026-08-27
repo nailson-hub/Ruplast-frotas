@@ -555,7 +555,7 @@ tr.clicavel:hover{
     .form-grid,.permissoes{grid-template-columns:1fr}
 }
 
-</style>
+.alert-badge{display:inline-flex;align-items:center;justify-content:center;min-width:20px;height:20px;padding:0 6px;margin-left:5px;border-radius:999px;background:#dc3545;color:#fff;font-size:11px;font-weight:700}.alerta{margin-bottom:10px}.alerta small{opacity:.8}</style>
 </head>
 
 <body>
@@ -2601,6 +2601,66 @@ function fecharModal(){
 
 
 
+/* INTELIGÊNCIA DA FROTA — ALERTAS */
+function gerarAlertasInteligentes(){
+    const hoje=new Date();
+    const resultado=[];
+    const custos=veiculos.map(v=>Number(v.custo)||0).filter(v=>v>0);
+    const custoMedio=custos.length?custos.reduce((a,b)=>a+b,0)/custos.length:0;
+
+    veiculos.forEach(v=>{
+        const a=alertaVeiculo(v);
+        if(a.tipo!=="ok") resultado.push({nivel:a.tipo,veiculo:v.id,titulo:a.tipo==="danger"?"Revisão atrasada":"Revisão próxima",texto:a.texto,origem:"revisão"});
+
+        if(v.status==="Manutenção") resultado.push({nivel:"warning",veiculo:v.id,titulo:"Veículo em manutenção",texto:"O veículo está marcado como em manutenção.",origem:"status"});
+        if(v.status==="Parado") resultado.push({nivel:"danger",veiculo:v.id,titulo:"Veículo parado",texto:"O veículo está marcado como parado.",origem:"status"});
+        if(custoMedio>0 && (Number(v.custo)||0)>custoMedio*1.25) resultado.push({nivel:"warning",veiculo:v.id,titulo:"Custo acima da média",texto:"Custo acumulado 25% ou mais acima da média da frota.",origem:"custo"});
+    });
+
+    ordensServico.filter(o=>o.status!=="Concluída").forEach(o=>{
+        const criada=new Date(o.criadaEm);
+        const dias=Math.floor((hoje-criada)/86400000);
+        if(dias>=7) resultado.push({nivel:"danger",veiculo:o.veiculo,titulo:"OS pendente há muito tempo",texto:o.id+" está aberta há "+dias+" dias.",origem:"os"});
+        else resultado.push({nivel:"warning",veiculo:o.veiculo,titulo:"OS pendente",texto:o.id+" ainda está aberta.",origem:"os"});
+    });
+
+    return resultado.sort((a,b)=>({danger:0,warning:1}[a.nivel]??2)-({danger:0,warning:1}[b.nivel]??2));
+}
+
+function atualizarAlertasInteligentes(){
+    const alertas=gerarAlertasInteligentes();
+    const box=document.getElementById("listaAlertas");
+    const dash=document.getElementById("dashboardAlertas");
+    const render=(limite)=>{
+        const lista=limite?alertas.slice(0,limite):alertas;
+        if(!lista.length) return '<div class="alerta green"><b>🟢 Tudo em dia</b><br>Nenhuma pendência crítica ou de atenção encontrada.</div>';
+        return lista.map(a=>`<div class="alerta ${a.nivel==="danger"?"red":""}"><b>${a.nivel==="danger"?"🔴":"🟠"} ${escapeHtml(a.titulo)}</b><br><b>${escapeHtml(a.veiculo)}</b> — ${escapeHtml(a.texto)}</div>`).join("");
+    };
+    if(box)box.innerHTML=render();
+    if(dash)dash.innerHTML=render(5);
+
+    const badge=document.getElementById("badgeAlertas");
+    if(badge){ badge.textContent=alertas.length; badge.style.display=alertas.length?"inline-flex":"none"; }
+
+    return alertas;
+}
+
+function solicitarNotificacaoNavegador(){
+    if(!('Notification' in window)) return;
+    if(Notification.permission==='default') Notification.requestPermission();
+}
+
+function notificarAlertasCriticos(){
+    if(!('Notification' in window) || Notification.permission!=='granted') return;
+    const criticos=gerarAlertasInteligentes().filter(a=>a.nivel==='danger');
+    if(!criticos.length)return;
+    const chave='ruplast_ultimo_alerta_critico';
+    const assinatura=criticos.map(a=>a.veiculo+'|'+a.titulo+'|'+a.texto).join('||');
+    if(localStorage.getItem(chave)===assinatura)return;
+    localStorage.setItem(chave,assinatura);
+    new Notification('Ruplast — Alertas críticos',{body:criticos.slice(0,3).map(a=>a.veiculo+': '+a.texto).join('\n')});
+}
+
 /* INDICADORES E ALERTAS AUTOMÁTICOS */
 
 function calcularIndicadoresFrota(){
@@ -2637,6 +2697,7 @@ function atualizarDashboardAutomatico(){
     if(sub)sub.textContent="Visão geral calculada automaticamente de "+d.total+" veículo"+(d.total===1?"":"s")+" cadastrados.";
 
     atualizarDashboardAlertas();
+    atualizarAlertasInteligentes();
     atualizarIndicadores();
     atualizarGraficoStatus();
 }
@@ -2817,8 +2878,13 @@ iniciarSessao();
 
 atualizarDashboardAutomatico();
 renderizarCentralAlertas();
+atualizarAlertasInteligentes();
 atualizarManutencoes();
 atualizarOS();
+atualizarAlertasInteligentes();
+solicitarNotificacaoNavegador();
+notificarAlertasCriticos();
+setInterval(()=>{ atualizarAlertasInteligentes(); notificarAlertasCriticos(); }, 60000);
 
 </script>
 
@@ -2930,6 +2996,8 @@ const graficoStatus = new Chart(
 
 );
 
+atualizarDashboardAutomatico();
+atualizarAlertasInteligentes();
 
 /* HORAS */
 
