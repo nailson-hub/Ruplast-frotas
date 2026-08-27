@@ -714,6 +714,21 @@ Visão geral calculada automaticamente a partir dos dados cadastrados da frota.
 </div>
 
 
+<div class="card" style="margin-bottom:20px">
+    <div class="card-header">
+        <div>
+            <b>Origem dos indicadores</b>
+            <div class="subtitulo">Os KPIs principais usam os valores acumulados de cada veículo. O histórico é mostrado separadamente para auditoria.</div>
+        </div>
+    </div>
+    <div class="dados-veiculo" style="margin-top:10px">
+        <div><span>Custo acumulado da frota</span><strong id="origemCustoFrota">R$ 0,00</strong></div>
+        <div><span>Custo no histórico concluído</span><strong id="origemCustoHistorico">R$ 0,00</strong></div>
+        <div><span>Horas acumuladas da frota</span><strong id="origemHorasFrota">0 h</strong></div>
+        <div><span>Horas do histórico concluído</span><strong id="origemHorasHistorico">0 h</strong></div>
+    </div>
+</div>
+
 <div class="grid">
 
 <div class="card">
@@ -2665,17 +2680,21 @@ function notificarAlertasCriticos(){
 
 function calcularIndicadoresFrota(){
     const total=veiculos.length;
-    const hist=recalcularIndicadoresComHistorico();
-    const custo=manutencoes.length?hist.custoMan:veiculos.reduce((s,v)=>s+(Number(v.custo)||0),0);
-    const horas=manutencoes.length?hist.horas:veiculos.reduce((s,v)=>s+(Number(v.horas)||0),0);
+    const custo=veiculos.reduce((s,v)=>s+(Number(v.custo)||0),0);
+    const horas=veiculos.reduce((s,v)=>s+(Number(v.horas)||0),0);
     const disponibilidade=total ? veiculos.reduce((s,v)=>s+(Number(v.disponibilidade)||0),0)/total : 0;
     const manutencao=veiculos.filter(v=>v.status==="Manutenção").length;
-    const alertas=veiculos.map(alertaVeiculo);
-    const atrasadas=alertas.filter(a=>a.tipo==="danger").length;
-    const proximas=alertas.filter(a=>a.tipo==="warning").length;
+    const alertas=gerarAlertasInteligentes();
+    const atrasadas=alertas.filter(a=>a.origem==="revisão"&&a.nivel==="danger").length;
+    const proximas=alertas.filter(a=>a.origem==="revisão"&&a.nivel==="warning").length;
+    const osAbertas=ordensServico.filter(o=>o.status!=="Concluída").length;
+    const osConcluidas=ordensServico.filter(o=>o.status==="Concluída").length;
+    const custoHistorico=manutencoes.filter(m=>m.status==="Concluída").reduce((s,m)=>s+(Number(m.custo)||0),0);
+    const horasHistorico=manutencoes.filter(m=>m.status==="Concluída").reduce((s,m)=>s+(Number(m.horas)||0),0);
 
     return {
-        total,custo,horas,disponibilidade,manutencao,atrasadas,proximas,
+        total,custo,horas,disponibilidade,manutencao,atrasadas,proximas,osAbertas,osConcluidas,
+        custoHistorico,horasHistorico,
         custoMedio:total?custo/total:0
     };
 }
@@ -2700,6 +2719,7 @@ function atualizarDashboardAutomatico(){
     atualizarAlertasInteligentes();
     atualizarIndicadores();
     atualizarGraficoStatus();
+    atualizarGraficoCusto();
 }
 
 function atualizarDashboardAlertas(){
@@ -2738,6 +2758,10 @@ function atualizarIndicadores(){
     set("indCustoMedio","R$ "+d.custoMedio.toLocaleString("pt-BR",{minimumFractionDigits:2}));
     set("indAtrasadas",d.atrasadas);
     set("indAtrasadasInfo",d.proximas+" revisão(ões) próxima(s) do vencimento");
+    set("origemCustoFrota",moeda(d.custo));
+    set("origemCustoHistorico",moeda(d.custoHistorico));
+    set("origemHorasFrota",d.horas.toLocaleString("pt-BR")+" h");
+    set("origemHorasHistorico",d.horasHistorico.toLocaleString("pt-BR")+" h");
 }
 
 function renderizarCentralAlertas(){
@@ -2766,6 +2790,13 @@ function renderizarCentralAlertas(){
             <br><button class="btn-secondary" style="margin-top:8px" onclick="abrirVeiculo('${escapeHtml(x.v.id)}')">Abrir veículo</button>
         </div>
     `).join("");
+}
+
+function atualizarGraficoCusto(){
+    if(typeof graficoCusto==="undefined" || !graficoCusto)return;
+    const total=veiculos.reduce((s,v)=>s+(Number(v.custo)||0),0);
+    graficoCusto.data.datasets[0].data=[0,0,0,0,0,total];
+    graficoCusto.update();
 }
 
 function atualizarGraficoStatus(){
@@ -2822,6 +2853,32 @@ function atualizarOS(){
     const set=(id,v)=>{const e=document.getElementById(id);if(e)e.textContent=v;};
     set("osKpiAbertas",abertas);set("osKpiConcluidas",concl);set("osKpiCusto",moeda(custo));set("osKpiTempo",media.toLocaleString("pt-BR",{maximumFractionDigits:1})+" h");
 }
+function aplicarImpactoManutencaoNoVeiculo(m,modo){
+    const v=veiculos.find(x=>x.id===m.veiculo);
+    if(!v)return;
+    const custo=Number(m.custo)||0;
+    const horas=Number(m.horas)||0;
+    if(modo==="adicionar"){
+        v.custo=(Number(v.custo)||0)+custo;
+        v.horas=(Number(v.horas)||0)+horas;
+    }else if(modo==="remover"){
+        v.custo=Math.max(0,(Number(v.custo)||0)-custo);
+        v.horas=Math.max(0,(Number(v.horas)||0)-horas);
+    }
+    salvarVeiculos();
+}
+
+function migrarHistoricoParaCustosDaFrota(){
+    let alterou=false;
+    manutencoes.forEach(m=>{
+        if(m.status!=="Concluída" || m.impactoVeiculoAplicado)return;
+        aplicarImpactoManutencaoNoVeiculo(m,"adicionar");
+        m.impactoVeiculoAplicado=true;
+        alterou=true;
+    });
+    if(alterou)salvarColecoesFrota();
+}
+
 function novaManutencao(){
     if(!temPermissao("manutencao_editar")){alert("Você não possui permissão para registrar manutenção.");return;}
     document.getElementById("modalTitulo").textContent="Nova manutenção";
@@ -2831,9 +2888,19 @@ function novaManutencao(){
 function salvarManutencao(){
     const m={id:"MAN-"+Date.now(),veiculo:document.getElementById("mVeiculo").value,tipo:document.getElementById("mTipo").value,servico:document.getElementById("mServico").value.trim(),data:document.getElementById("mData").value,custo:Number(document.getElementById("mCusto").value)||0,horas:Number(document.getElementById("mHoras").value)||0,status:document.getElementById("mStatus").value};
     if(!m.servico){alert("Informe o serviço.");return;}
-    manutencoes.push(m);salvarColecoesFrota();atualizarManutencoes();atualizarDashboardAutomatico();fecharModal();
+    manutencoes.push(m);
+    if(m.status==="Concluída"){ aplicarImpactoManutencaoNoVeiculo(m,"adicionar"); m.impactoVeiculoAplicado=true; }
+    salvarColecoesFrota();
+    atualizarManutencoes();atualizarDashboardAutomatico();renderizarVeiculos();renderizarTabela();fecharModal();
 }
-function excluirManutencao(id){if(!confirm("Excluir este registro de manutenção?"))return;manutencoes=manutencoes.filter(m=>m.id!==id);salvarColecoesFrota();atualizarManutencoes();atualizarDashboardAutomatico();}
+function excluirManutencao(id){
+    if(!confirm("Excluir este registro de manutenção?"))return;
+    const m=manutencoes.find(x=>x.id===id);
+    if(m && m.status==="Concluída" && m.impactoVeiculoAplicado)aplicarImpactoManutencaoNoVeiculo(m,"remover");
+    manutencoes=manutencoes.filter(x=>x.id!==id);
+    salvarColecoesFrota();
+    atualizarManutencoes();atualizarDashboardAutomatico();renderizarVeiculos();renderizarTabela();
+}
 function novaOS(){
     if(!temPermissao("ordens_criar")){alert("Você não possui permissão para criar Ordens de Serviço.");return;}
     document.getElementById("modalTitulo").textContent="Nova Ordem de Serviço";
@@ -2849,8 +2916,10 @@ function finalizarOS(id){
     if(!temPermissao("ordens_finalizar")){alert("Você não possui permissão para finalizar Ordens de Serviço.");return;}
     const o=ordensServico.find(x=>x.id===id);if(!o)return;
     o.status="Concluída";o.finalizadaEm=new Date().toISOString();
-    manutencoes.push({id:"MAN-"+Date.now(),veiculo:o.veiculo,tipo:o.tipo,servico:o.servico,data:new Date().toISOString().slice(0,10),custo:o.custo,horas:o.horas,status:"Concluída"});
-    salvarColecoesFrota();atualizarOS();atualizarManutencoes();atualizarDashboardAutomatico();
+    const m={id:"MAN-"+Date.now(),veiculo:o.veiculo,tipo:o.tipo,servico:o.servico,data:new Date().toISOString().slice(0,10),custo:o.custo,horas:o.horas,status:"Concluída",impactoVeiculoAplicado:true};
+    manutencoes.push(m);
+    aplicarImpactoManutencaoNoVeiculo(m,"adicionar");
+    salvarColecoesFrota();atualizarOS();atualizarManutencoes();atualizarDashboardAutomatico();renderizarVeiculos();renderizarTabela();
     alert("OS finalizada e lançada no histórico de manutenção.");
 }
 function recalcularIndicadoresComHistorico(){
@@ -2870,6 +2939,7 @@ function recalcularIndicadoresComHistorico(){
 
 inicializarDadosVeiculos();
 carregarColecoesFrota();
+migrarHistoricoParaCustosDaFrota();
 renderizarVeiculos();
 
 renderizarTabela();
@@ -2897,7 +2967,7 @@ setInterval(()=>{ atualizarAlertasInteligentes(); notificarAlertasCriticos(); },
 
 /* GRAFICO DE CUSTO */
 
-new Chart(
+const graficoCusto = new Chart(
 
     document.getElementById("graficoCusto"),
 
@@ -2911,7 +2981,7 @@ new Chart(
 
             datasets:[{
 
-                data:[38600,41200,39800,45700,44900,48720],
+                data:[0,0,0,0,0,veiculos.reduce((s,v)=>s+(Number(v.custo)||0),0)],
 
                 backgroundColor:"#126cff",
 
