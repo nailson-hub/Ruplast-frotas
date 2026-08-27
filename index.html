@@ -918,165 +918,35 @@ Veículos cadastrados e acompanhamento de quilometragem e revisões.
 
 <!-- MANUTENCAO -->
 <section class="pagina" id="manutencao">
-
 <h1>Manutenções</h1>
-
-<p class="subtitulo">
-Programação preventiva e corretiva.
-</p>
-
-
+<p class="subtitulo">Histórico e programação preventiva/corretiva da frota.</p>
 <div class="kpis">
-
-<div class="kpi">
-<span>Preventivas no mês</span>
-<strong>24</strong>
-<i class="verde">92% no prazo</i>
+<div class="kpi"><span>Preventivas</span><strong id="manKpiPreventivas">0</strong><i id="manKpiPreventivasInfo">registradas</i></div>
+<div class="kpi"><span>Corretivas</span><strong id="manKpiCorretivas">0</strong><i>registradas</i></div>
+<div class="kpi"><span>Em andamento</span><strong id="manKpiAndamento">0</strong><i>manutenções abertas</i></div>
+<div class="kpi"><span>Custo total</span><strong id="manKpiCusto">R$ 0,00</strong><i>histórico registrado</i></div>
 </div>
-
-<div class="kpi">
-<span>Corretivas</span>
-<strong>11</strong>
-<i class="vermelho">+2 este mês</i>
-</div>
-
-<div class="kpi">
-<span>Tempo médio de reparo</span>
-<strong>7,4 h</strong>
-<i class="verde">▼ 0,8 h</i>
-</div>
-
-<div class="kpi">
-<span>Custo médio OS</span>
-<strong>R$ 1.392</strong>
-<i class="verde">▼ 4,1%</i>
-</div>
-
-</div>
-
-
 <div class="card tabela">
-
-<div class="card-header">
-
-<b>Programação de manutenção</b>
-
-<button class="btn" onclick="novaOS()">
-+ Nova manutenção
-</button>
-
+<div class="card-header"><div><b>Histórico de manutenção</b><div class="subtitulo">Registre serviços para alimentar automaticamente os indicadores.</div></div><button class="btn" onclick="novaManutencao()">+ Nova manutenção</button></div>
+<table><thead><tr><th>Veículo</th><th>Tipo</th><th>Serviço</th><th>Data</th><th>Custo</th><th>Status</th><th>Ação</th></tr></thead><tbody id="tabelaManutencoes"></tbody></table>
 </div>
-
-<table>
-
-<thead>
-<tr>
-<th>Veículo</th>
-<th>Tipo</th>
-<th>Serviço</th>
-<th>Data</th>
-<th>Prioridade</th>
-<th>Status</th>
-</tr>
-</thead>
-
-<tbody>
-
-<tr>
-<td>VW-Constellation-04</td>
-<td>Preventiva</td>
-<td>Revisão 20.000 km</td>
-<td>28/08/2026</td>
-<td><span class="status status-erro">Alta</span></td>
-<td><span class="status status-alerta">Pendente</span></td>
-</tr>
-
-<tr>
-<td>VW-Delivery-02</td>
-<td>Preventiva</td>
-<td>Troca de óleo</td>
-<td>29/08/2026</td>
-<td><span class="status status-alerta">Média</span></td>
-<td><span class="status status-alerta">Agendada</span></td>
-</tr>
-
-<tr>
-<td>Carreta LS-03</td>
-<td>Preventiva</td>
-<td>Inspeção de freios</td>
-<td>01/09/2026</td>
-<td><span class="status status-alerta">Média</span></td>
-<td><span class="status status-alerta">Agendada</span></td>
-</tr>
-
-</tbody>
-</table>
-
-</div>
-
 </section>
 
 
 <!-- ORDENS -->
 <section class="pagina" id="ordens">
-
 <h1>Ordens de Serviço</h1>
-
-<p class="subtitulo">
-Controle das ordens de serviço da frota.
-</p>
-
+<p class="subtitulo">Abra, acompanhe e finalize serviços da frota.</p>
+<div class="kpis">
+<div class="kpi"><span>OS abertas</span><strong id="osKpiAbertas">0</strong><i>pendentes/em andamento</i></div>
+<div class="kpi"><span>OS concluídas</span><strong id="osKpiConcluidas">0</strong><i>histórico</i></div>
+<div class="kpi"><span>Custo das OS</span><strong id="osKpiCusto">R$ 0,00</strong><i>registrado</i></div>
+<div class="kpi"><span>Tempo médio</span><strong id="osKpiTempo">0 h</strong><i>concluídas com duração</i></div>
+</div>
 <div class="card tabela">
-
-<div class="card-header">
-
-<b>Ordens recentes</b>
-
-<button class="btn" onclick="novaOS()">
-+ Criar OS
-</button>
-
+<div class="card-header"><div><b>Ordens de Serviço</b><div class="subtitulo">Cada OS atualiza o histórico e os indicadores da frota.</div></div><button class="btn" onclick="novaOS()">+ Criar OS</button></div>
+<table><thead><tr><th>OS</th><th>Veículo</th><th>Serviço</th><th>Tipo</th><th>Custo</th><th>Status</th><th>Ação</th></tr></thead><tbody id="tabelaOS"></tbody></table>
 </div>
-
-<table>
-
-<thead>
-<tr>
-<th>OS</th>
-<th>Veículo</th>
-<th>Serviço</th>
-<th>Responsável</th>
-<th>Custo</th>
-<th>Status</th>
-</tr>
-</thead>
-
-<tbody>
-
-<tr>
-<td>#OS-2026-0018</td>
-<td>VW-Constellation-01</td>
-<td>Sistema de freios</td>
-<td>Oficina Central</td>
-<td>R$ 2.850</td>
-<td><span class="status status-ok">Concluída</span></td>
-</tr>
-
-<tr>
-<td>#OS-2026-0019</td>
-<td>VW-Delivery-03</td>
-<td>Troca de embreagem</td>
-<td>Oficina Central</td>
-<td>R$ 4.200</td>
-<td><span class="status status-alerta">Em andamento</span></td>
-</tr>
-
-</tbody>
-
-</table>
-
-</div>
-
 </section>
 
 
@@ -2735,8 +2605,9 @@ function fecharModal(){
 
 function calcularIndicadoresFrota(){
     const total=veiculos.length;
-    const custo=veiculos.reduce((s,v)=>s+(Number(v.custo)||0),0);
-    const horas=veiculos.reduce((s,v)=>s+(Number(v.horas)||0),0);
+    const hist=recalcularIndicadoresComHistorico();
+    const custo=manutencoes.length?hist.custoMan:veiculos.reduce((s,v)=>s+(Number(v.custo)||0),0);
+    const horas=manutencoes.length?hist.horas:veiculos.reduce((s,v)=>s+(Number(v.horas)||0),0);
     const disponibilidade=total ? veiculos.reduce((s,v)=>s+(Number(v.disponibilidade)||0),0)/total : 0;
     const manutencao=veiculos.filter(v=>v.status==="Manutenção").length;
     const alertas=veiculos.map(alertaVeiculo);
@@ -2847,9 +2718,97 @@ function atualizarGraficoStatus(){
     graficoStatus.update();
 }
 
+/* HISTÓRICO DE MANUTENÇÕES E ORDENS DE SERVIÇO */
+const CHAVE_MANUTENCOES="ruplast_manutencoes_v1";
+const CHAVE_OS="ruplast_os_v1";
+let manutencoes=[];
+let ordensServico=[];
+
+function carregarColecoesFrota(){
+    try{ manutencoes=JSON.parse(localStorage.getItem(CHAVE_MANUTENCOES)||"[]"); }catch(e){ manutencoes=[]; }
+    try{ ordensServico=JSON.parse(localStorage.getItem(CHAVE_OS)||"[]"); }catch(e){ ordensServico=[]; }
+    if(!Array.isArray(manutencoes))manutencoes=[];
+    if(!Array.isArray(ordensServico))ordensServico=[];
+}
+function salvarColecoesFrota(){
+    localStorage.setItem(CHAVE_MANUTENCOES,JSON.stringify(manutencoes));
+    localStorage.setItem(CHAVE_OS,JSON.stringify(ordensServico));
+}
+function moeda(v){return "R$ "+(Number(v)||0).toLocaleString("pt-BR",{minimumFractionDigits:2});}
+function dataBR(v){if(!v)return "—"; const p=String(v).split("-"); return p.length===3?p[2]+"/"+p[1]+"/"+p[0]:v;}
+function escapeHtml(v){return String(v??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[m]));}
+function proximaOSId(){return "OS-"+new Date().getFullYear()+"-"+String(ordensServico.length+1).padStart(4,"0");}
+function atualizarManutencoes(){
+    const tb=document.getElementById("tabelaManutencoes"); if(tb){
+        tb.innerHTML=manutencoes.slice().reverse().map(m=>`<tr><td>${escapeHtml(m.veiculo)}</td><td>${escapeHtml(m.tipo)}</td><td>${escapeHtml(m.servico)}</td><td>${dataBR(m.data)}</td><td>${moeda(m.custo)}</td><td><span class="status ${m.status==="Concluída"?"status-ok":"status-alerta"}">${escapeHtml(m.status)}</span></td><td><button class="btn-secondary" onclick="excluirManutencao('${m.id}')">Excluir</button></td></tr>`).join("") || `<tr><td colspan="7">Nenhuma manutenção registrada.</td></tr>`;
+    }
+    const prev=manutencoes.filter(m=>m.tipo==="Preventiva").length;
+    const corr=manutencoes.filter(m=>m.tipo==="Corretiva").length;
+    const and=manutencoes.filter(m=>m.status!=="Concluída").length;
+    const custo=manutencoes.reduce((s,m)=>s+(Number(m.custo)||0),0);
+    const set=(id,v)=>{const e=document.getElementById(id);if(e)e.textContent=v;};
+    set("manKpiPreventivas",prev); set("manKpiPreventivasInfo",prev+" registrada(s)"); set("manKpiCorretivas",corr); set("manKpiAndamento",and); set("manKpiCusto",moeda(custo));
+}
+function atualizarOS(){
+    const tb=document.getElementById("tabelaOS"); if(tb){
+        tb.innerHTML=ordensServico.slice().reverse().map(o=>`<tr><td>${escapeHtml(o.id)}</td><td>${escapeHtml(o.veiculo)}</td><td>${escapeHtml(o.servico)}</td><td>${escapeHtml(o.tipo)}</td><td>${moeda(o.custo)}</td><td><span class="status ${o.status==="Concluída"?"status-ok":o.status==="Em andamento"?"status-alerta":"status-erro"}">${escapeHtml(o.status)}</span></td><td>${o.status!=="Concluída"?`<button class="btn-secondary" onclick="finalizarOS('${o.id}')">Finalizar</button>`:"<small>Finalizada</small>"}</td></tr>`).join("") || `<tr><td colspan="7">Nenhuma ordem de serviço registrada.</td></tr>`;
+    }
+    const abertas=ordensServico.filter(o=>o.status!=="Concluída").length;
+    const concl=ordensServico.filter(o=>o.status==="Concluída").length;
+    const custo=ordensServico.reduce((s,o)=>s+(Number(o.custo)||0),0);
+    const dur=ordensServico.filter(o=>o.status==="Concluída"&&Number(o.horas)>0);
+    const media=dur.length?dur.reduce((s,o)=>s+Number(o.horas),0)/dur.length:0;
+    const set=(id,v)=>{const e=document.getElementById(id);if(e)e.textContent=v;};
+    set("osKpiAbertas",abertas);set("osKpiConcluidas",concl);set("osKpiCusto",moeda(custo));set("osKpiTempo",media.toLocaleString("pt-BR",{maximumFractionDigits:1})+" h");
+}
+function novaManutencao(){
+    if(!temPermissao("manutencao_editar")){alert("Você não possui permissão para registrar manutenção.");return;}
+    document.getElementById("modalTitulo").textContent="Nova manutenção";
+    document.getElementById("modalConteudo").innerHTML=`<div class="campo"><label>Veículo</label><select id="mVeiculo">${veiculos.map(v=>`<option value="${escapeHtml(v.id)}">${escapeHtml(v.id)}</option>`).join("")}</select></div><div class="campo"><label>Tipo</label><select id="mTipo"><option>Preventiva</option><option>Corretiva</option><option>Preditiva</option></select></div><div class="campo"><label>Serviço</label><input id="mServico" placeholder="Ex.: revisão, freios, óleo"></div><div class="campo"><label>Data</label><input id="mData" type="date" value="${new Date().toISOString().slice(0,10)}"></div><div class="campo"><label>Custo</label><input id="mCusto" type="number" min="0" step="0.01" placeholder="0,00"></div><div class="campo"><label>Horas</label><input id="mHoras" type="number" min="0" step="0.5" placeholder="0"></div><div class="campo"><label>Status</label><select id="mStatus"><option>Agendada</option><option>Em andamento</option><option>Concluída</option></select></div><button class="btn" onclick="salvarManutencao()">Salvar manutenção</button>`;
+    document.getElementById("modal").classList.add("aberto");
+}
+function salvarManutencao(){
+    const m={id:"MAN-"+Date.now(),veiculo:document.getElementById("mVeiculo").value,tipo:document.getElementById("mTipo").value,servico:document.getElementById("mServico").value.trim(),data:document.getElementById("mData").value,custo:Number(document.getElementById("mCusto").value)||0,horas:Number(document.getElementById("mHoras").value)||0,status:document.getElementById("mStatus").value};
+    if(!m.servico){alert("Informe o serviço.");return;}
+    manutencoes.push(m);salvarColecoesFrota();atualizarManutencoes();atualizarDashboardAutomatico();fecharModal();
+}
+function excluirManutencao(id){if(!confirm("Excluir este registro de manutenção?"))return;manutencoes=manutencoes.filter(m=>m.id!==id);salvarColecoesFrota();atualizarManutencoes();atualizarDashboardAutomatico();}
+function novaOS(){
+    if(!temPermissao("ordens_criar")){alert("Você não possui permissão para criar Ordens de Serviço.");return;}
+    document.getElementById("modalTitulo").textContent="Nova Ordem de Serviço";
+    document.getElementById("modalConteudo").innerHTML=`<div class="campo"><label>Veículo</label><select id="oVeiculo">${veiculos.map(v=>`<option value="${escapeHtml(v.id)}">${escapeHtml(v.id)}</option>`).join("")}</select></div><div class="campo"><label>Tipo</label><select id="oTipo"><option>Preventiva</option><option>Corretiva</option><option>Preditiva</option></select></div><div class="campo"><label>Serviço</label><input id="oServico" placeholder="Descrição do serviço"></div><div class="campo"><label>Responsável / oficina</label><input id="oResp" placeholder="Ex.: Oficina Central"></div><div class="campo"><label>Custo estimado</label><input id="oCusto" type="number" min="0" step="0.01" placeholder="0,00"></div><div class="campo"><label>Horas previstas</label><input id="oHoras" type="number" min="0" step="0.5" placeholder="0"></div><button class="btn" onclick="criarOS()">Criar Ordem de Serviço</button>`;
+    document.getElementById("modal").classList.add("aberto");
+}
+function criarOS(){
+    const o={id:proximaOSId(),veiculo:document.getElementById("oVeiculo").value,tipo:document.getElementById("oTipo").value,servico:document.getElementById("oServico").value.trim(),responsavel:document.getElementById("oResp").value.trim(),custo:Number(document.getElementById("oCusto").value)||0,horas:Number(document.getElementById("oHoras").value)||0,status:"Aberta",criadaEm:new Date().toISOString()};
+    if(!o.servico){alert("Informe o serviço.");return;}
+    ordensServico.push(o);salvarColecoesFrota();atualizarOS();atualizarManutencoes();atualizarDashboardAutomatico();fecharModal();
+}
+function finalizarOS(id){
+    if(!temPermissao("ordens_finalizar")){alert("Você não possui permissão para finalizar Ordens de Serviço.");return;}
+    const o=ordensServico.find(x=>x.id===id);if(!o)return;
+    o.status="Concluída";o.finalizadaEm=new Date().toISOString();
+    manutencoes.push({id:"MAN-"+Date.now(),veiculo:o.veiculo,tipo:o.tipo,servico:o.servico,data:new Date().toISOString().slice(0,10),custo:o.custo,horas:o.horas,status:"Concluída"});
+    salvarColecoesFrota();atualizarOS();atualizarManutencoes();atualizarDashboardAutomatico();
+    alert("OS finalizada e lançada no histórico de manutenção.");
+}
+function recalcularIndicadoresComHistorico(){
+    const custoMan=manutencoes.reduce((s,m)=>s+(Number(m.custo)||0),0);
+    const custoOS=ordensServico.reduce((s,o)=>s+(Number(o.custo)||0),0);
+    const horas=manutencoes.reduce((s,m)=>s+(Number(m.horas)||0),0);
+    const totalCusto=custoMan;
+    const custoMedio=veiculos.length?totalCusto/veiculos.length:0;
+    const concl=manutencoes.filter(m=>m.status==="Concluída");
+    const preventivas=manutencoes.filter(m=>m.tipo==="Preventiva");
+    const preventivaNoPrazo=preventivas.filter(m=>m.status==="Concluída").length;
+    const mttr=concl.length?concl.reduce((s,m)=>s+(Number(m.horas)||0),0)/concl.length:0;
+    return {custoMan,custoOS,horas,custoMedio,mttr,preventivas:preventivas.length,preventivaNoPrazo};
+}
+
 /* INICIALIZAÇÃO */
 
 inicializarDadosVeiculos();
+carregarColecoesFrota();
 renderizarVeiculos();
 
 renderizarTabela();
@@ -2858,6 +2817,8 @@ iniciarSessao();
 
 atualizarDashboardAutomatico();
 renderizarCentralAlertas();
+atualizarManutencoes();
+atualizarOS();
 
 </script>
 
