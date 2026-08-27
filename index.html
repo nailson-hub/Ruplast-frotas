@@ -670,6 +670,9 @@ Visão geral calculada automaticamente a partir dos dados cadastrados da frota.
 <div class="subtitulo">Revisões calculadas automaticamente por KM e data.</div>
 </div>
 <button class="btn" onclick="abrirPagina('alertas')">Ver todos</button>
+    <button class="btn" onclick="solicitarNotificacaoNavegador()">
+    🔔 Ativar notificações
+</button>
 </div>
 <div id="dashboardAlertas"></div>
 </div>
@@ -2954,7 +2957,10 @@ atualizarAlertasInteligentes();
 atualizarManutencoes();
 atualizarOS();
 atualizarAlertasInteligentes();
-solicitarNotificacaoNavegador();
+function solicitarNotificacaoNavegador(){
+    if(!('Notification' in window)) return;
+    if(Notification.permission==='default') Notification.requestPermission();
+}
 notificarAlertasCriticos();
 setInterval(()=>{ atualizarAlertasInteligentes(); notificarAlertasCriticos(); }, 60000);
 
