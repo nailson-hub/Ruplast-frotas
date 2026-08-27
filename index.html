@@ -19,7 +19,7 @@ button,input,select{
     font:inherit;
 }
 
-/* ===== AUTENTICAÇÃO E ACESSOS ===== */
+/* AUTENTICAÇÃO E ACESSOS */
 
 const CHAVE_USUARIOS="ruplast_usuarios_v1";
 const CHAVE_SESSAO="ruplast_sessao_v1";
@@ -48,13 +48,9 @@ const perfis={
 
 function usuariosPadrao(){
     return [{
-        id:"USR-001",
-        nome:"Administrador Ruplast",
-        usuario:"admin",
-        email:"admin@ruplast.com.br",
-        senha:"ruplast123",
-        perfil:"Administrador",
-        status:"Ativo",
+        id:"USR-001",nome:"Administrador Ruplast",usuario:"admin",
+        email:"admin@ruplast.com.br",senha:"ruplast123",
+        perfil:"Administrador",status:"Ativo",
         permissoes:perfis.Administrador
     }];
 }
@@ -62,25 +58,28 @@ function usuariosPadrao(){
 function carregarUsuarios(){
     const salvo=localStorage.getItem(CHAVE_USUARIOS);
     if(!salvo){
-        const iniciais=usuariosPadrao();
-        localStorage.setItem(CHAVE_USUARIOS,JSON.stringify(iniciais));
-        return iniciais;
+        const lista=usuariosPadrao();
+        localStorage.setItem(CHAVE_USUARIOS,JSON.stringify(lista));
+        return lista;
     }
     try{return JSON.parse(salvo)}catch(e){return usuariosPadrao()}
 }
 
-function salvarUsuarios(lista){localStorage.setItem(CHAVE_USUARIOS,JSON.stringify(lista))}
+function salvarUsuarios(lista){
+    localStorage.setItem(CHAVE_USUARIOS,JSON.stringify(lista));
+}
+
 let usuarios=carregarUsuarios();
 let usuarioLogado=null;
 
-function temPermissao(permissao){
-    return !!usuarioLogado && usuarioLogado.permissoes.includes(permissao);
+function temPermissao(p){
+    return !!usuarioLogado && usuarioLogado.permissoes.includes(p);
 }
 
-function salvarSessao(usuario){
+function salvarSessao(u){
     localStorage.setItem(CHAVE_SESSAO,JSON.stringify({
-        id:usuario.id,nome:usuario.nome,usuario:usuario.usuario,email:usuario.email,
-        perfil:usuario.perfil,permissoes:usuario.permissoes
+        id:u.id,nome:u.nome,usuario:u.usuario,email:u.email,
+        perfil:u.perfil,permissoes:u.permissoes
     }));
 }
 
@@ -88,43 +87,50 @@ function atualizarCabecalho(){
     if(!usuarioLogado)return;
     document.getElementById("nomeUsuarioTopo").textContent=usuarioLogado.nome;
     document.getElementById("perfilUsuarioTopo").textContent=usuarioLogado.perfil;
-    document.getElementById("avatarUsuario").textContent=usuarioLogado.nome.trim().charAt(0).toUpperCase();
-    document.querySelectorAll(".somente-admin").forEach(function(item){
-        item.style.display=temPermissao("acessos")?"block":"none";
+    document.getElementById("avatarUsuario").textContent=usuarioLogado.nome.charAt(0).toUpperCase();
+    document.querySelectorAll(".somente-admin").forEach(function(el){
+        el.style.display=temPermissao("acessos")?"block":"none";
     });
 }
 
 function entrar(){
-    const usuario=document.getElementById("usuario").value.trim().toLowerCase();
+    const login=document.getElementById("usuario").value.trim().toLowerCase();
     const senha=document.getElementById("senha").value;
     const erro=document.getElementById("erro");
 
-    const encontrado=usuarios.find(function(u){
-        return u.usuario.toLowerCase()===usuario && u.senha===senha && u.status==="Ativo";
+    const u=usuarios.find(function(item){
+        return item.usuario.toLowerCase()===login &&
+               item.senha===senha &&
+               item.status==="Ativo";
     });
 
-    if(encontrado){
-        usuarioLogado=encontrado;
-        salvarSessao(encontrado);
-        erro.style.display="none";
-        document.getElementById("login").style.display="none";
-        document.getElementById("app").style.display="block";
-        atualizarCabecalho();
-        abrirPagina("dashboard");
-    }else{
+    if(!u){
         erro.textContent="Usuário, senha ou status de acesso inválido.";
         erro.style.display="block";
+        return;
     }
+
+    usuarioLogado=u;
+    salvarSessao(u);
+    erro.style.display="none";
+    document.getElementById("login").style.display="none";
+    document.getElementById("app").style.display="block";
+    atualizarCabecalho();
+    abrirPagina("dashboard");
 }
+
+document.getElementById("senha").addEventListener("keydown",function(e){
+    if(e.key==="Enter")entrar();
+});
 
 function iniciarSessao(){
     const salvo=localStorage.getItem(CHAVE_SESSAO);
     if(!salvo)return;
     try{
         const sessao=JSON.parse(salvo);
-        const usuario=usuarios.find(u=>u.id===sessao.id && u.status==="Ativo");
-        if(usuario){
-            usuarioLogado=usuario;
+        const u=usuarios.find(item=>item.id===sessao.id && item.status==="Ativo");
+        if(u){
+            usuarioLogado=u;
             document.getElementById("login").style.display="none";
             document.getElementById("app").style.display="block";
             atualizarCabecalho();
@@ -132,22 +138,17 @@ function iniciarSessao(){
     }catch(e){}
 }
 
-document.getElementById("senha").addEventListener("keydown",function(e){
-    if(e.key==="Enter")entrar();
-});
+function toggleMenuUsuario(){
+    document.getElementById("menuUsuario").classList.toggle("aberto");
+}
 
 function sair(e){
     if(e)e.stopPropagation();
     localStorage.removeItem(CHAVE_SESSAO);
     usuarioLogado=null;
-    document.getElementById("menuUsuario").classList.remove("aberto");
     document.getElementById("app").style.display="none";
     document.getElementById("login").style.display="flex";
     document.getElementById("senha").value="";
-}
-
-function toggleMenuUsuario(){
-    document.getElementById("menuUsuario").classList.toggle("aberto");
 }
 
 function abrirMeuPerfil(e){
@@ -171,89 +172,20 @@ function alterarSenha(e){
 function salvarNovaSenha(){
     const atual=document.getElementById("senhaAtual").value;
     const nova=document.getElementById("senhaNova").value;
-    const confirmacao=document.getElementById("senhaConfirmacao").value;
-    if(atual!==usuarioLogado.senha){alert("A senha atual está incorreta.");return}
+    const conf=document.getElementById("senhaConfirmacao").value;
+
+    if(atual!==usuarioLogado.senha){alert("Senha atual incorreta.");return}
     if(nova.length<6){alert("A nova senha deve ter pelo menos 6 caracteres.");return}
-    if(nova!==confirmacao){alert("A confirmação da senha não confere.");return}
-    const idx=usuarios.findIndex(u=>u.id===usuarioLogado.id);
-    usuarios[idx].senha=nova;
-    usuarioLogado=usuarios[idx];
+    if(nova!==conf){alert("As senhas não conferem.");return}
+
+    const i=usuarios.findIndex(u=>u.id===usuarioLogado.id);
+    usuarios[i].senha=nova;
+    usuarioLogado=usuarios[i];
     salvarUsuarios(usuarios);
     salvarSessao(usuarioLogado);
     fecharModal();
     alert("Senha alterada com sucesso.");
 }
-
-
-
-/* ===== GERENCIAMENTO DE USUÁRIOS ===== */
-
-function renderizarPermissoesNovo(){
-    const perfil=document.getElementById("novoPerfil");
-    const container=document.getElementById("permissoesNovo");
-    if(!perfil || !container)return;
-    const selecionadas=perfis[perfil.value]||[];
-    container.innerHTML=Object.entries(permissoesDisponiveis).map(function([chave,nome]){
-        return `<label class="permissao-item"><input type="checkbox" value="${chave}" ${selecionadas.includes(chave)?"checked":""}>${nome}</label>`;
-    }).join("");
-}
-
-function aplicarPermissoesPerfil(){renderizarPermissoesNovo()}
-
-function cadastrarUsuario(){
-    if(!temPermissao("acessos")){alert("Acesso negado.");return}
-
-    const nome=document.getElementById("novoNome").value.trim();
-    const usuario=document.getElementById("novoUsuario").value.trim().toLowerCase();
-    const email=document.getElementById("novoEmail").value.trim();
-    const senha=document.getElementById("novoSenha").value;
-    const perfil=document.getElementById("novoPerfil").value;
-    const status=document.getElementById("novoStatus").value;
-
-    if(!nome||!usuario||!email||!senha){alert("Preencha nome, usuário, e-mail e senha.");return}
-    if(senha.length<6){alert("A senha deve ter pelo menos 6 caracteres.");return}
-    if(usuarios.some(u=>u.usuario.toLowerCase()===usuario)){alert("Este usuário já está cadastrado.");return}
-
-    const permissoes=[...document.querySelectorAll("#permissoesNovo input:checked")].map(i=>i.value);
-
-    usuarios.push({
-        id:"USR-"+String(Date.now()).slice(-8),
-        nome,usuario,email,senha,perfil,status,permissoes
-    });
-
-    salvarUsuarios(usuarios);
-    renderizarUsuarios();
-    ["novoNome","novoUsuario","novoEmail","novoSenha"].forEach(id=>document.getElementById(id).value="");
-    alert("Usuário cadastrado com sucesso.");
-}
-
-function renderizarUsuarios(){
-    const tabela=document.getElementById("tabelaUsuarios");
-    const contador=document.getElementById("contadorUsuarios");
-    if(!tabela)return;
-    contador.textContent=usuarios.length+(usuarios.length===1?" usuário":" usuários");
-
-    tabela.innerHTML=usuarios.map(function(u){
-        return `<tr>
-            <td><b>${u.nome}</b><br><small>@${u.usuario}</small></td>
-            <td><span class="permissao-badge">${u.perfil}</span></td>
-            <td><span class="status ${u.status==="Ativo"?"status-ok":"status-alerta"}">${u.status}</span></td>
-            <td>${u.permissoes.length}</td>
-            <td>${u.id===usuarioLogado.id?"<small>Conta atual</small>":`<button class="btn-danger" onclick="excluirUsuario('${u.id}')">Excluir</button>`}</td>
-        </tr>`;
-    }).join("");
-}
-
-function excluirUsuario(id){
-    if(!temPermissao("acessos"))return;
-    const usuario=usuarios.find(u=>u.id===id);
-    if(!usuario)return;
-    if(!confirm("Excluir o acesso de "+usuario.nome+"?"))return;
-    usuarios=usuarios.filter(u=>u.id!==id);
-    salvarUsuarios(usuarios);
-    renderizarUsuarios();
-}
-
 
 /* VEICULOS */
 .veiculos{
@@ -359,25 +291,23 @@ function excluirUsuario(id){
 }
 
 
-/* ===== ACESSO / USUARIOS ===== */
+/* ACESSOS */
+.somente-admin{display:none}
 .usuario-topo{display:flex;align-items:center;gap:10px;cursor:pointer;position:relative}
-.avatar{width:34px;height:34px;border-radius:50%;background:#126cff;color:#fff;display:flex;align-items:center;justify-content:center;font-weight:bold;font-size:13px}
-.usuario-topo small{display:block;color:#718096;font-size:10px;font-weight:normal}
-.menu-usuario{display:none;position:absolute;right:0;top:44px;width:190px;background:#fff;border:1px solid #e5eaf0;border-radius:10px;box-shadow:0 12px 30px rgba(15,31,52,.16);padding:7px;z-index:30}
+.avatar{width:34px;height:34px;border-radius:50%;background:#126cff;color:#fff;display:flex;align-items:center;justify-content:center;font-weight:bold}
+.usuario-topo small{display:block;color:#718096;font-size:10px}
+.menu-usuario{display:none;position:absolute;right:0;top:42px;width:190px;background:#fff;border:1px solid #e5eaf0;border-radius:10px;box-shadow:0 12px 30px rgba(15,31,52,.16);padding:7px;z-index:30}
 .menu-usuario.aberto{display:block}
 .menu-usuario button{width:100%;text-align:left;border:0;background:transparent;padding:10px;border-radius:7px;cursor:pointer}
 .menu-usuario button:hover{background:#f3f6fa}
 .permissao-badge{display:inline-block;padding:4px 8px;border-radius:15px;background:#eef5ff;color:#126cff;font-size:10px;font-weight:bold}
-.acesso-grid{display:grid;grid-template-columns:1fr 1.5fr;gap:18px}
-.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:0 15px}
-.form-grid .campo{margin:10px 0}
-.permissoes{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin:10px 0 18px}
-.permissao-item{border:1px solid #e1e7ef;border-radius:8px;padding:10px;font-size:11px;cursor:pointer}
-.permissao-item:hover{background:#f7faff}
-.permissao-item input{margin-right:7px}
-.btn-sec{border:1px solid #d9e1eb;border-radius:8px;padding:10px 14px;background:#fff;cursor:pointer;font-weight:bold}
+.permissoes{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:10px 0 18px}
+.permissao-item{border:1px solid #e1e7ef;border-radius:8px;padding:9px;font-size:11px;cursor:pointer}
 .btn-danger{border:0;border-radius:7px;padding:7px 10px;background:#ffe8ea;color:#c72535;cursor:pointer;font-size:11px}
-@media(max-width:800px){.acesso-grid{grid-template-columns:1fr}.form-grid,.permissoes{grid-template-columns:1fr}.usuario-topo b,.usuario-topo small{display:none}}
+@media(max-width:700px){
+    .permissoes{grid-template-columns:1fr}
+    .usuario-topo b,.usuario-topo small{display:none}
+}
 
 /* RESPONSIVO */
 @media(max-width:1050px){
@@ -502,7 +432,6 @@ function excluirUsuario(id){
             <div class="menu-item" onclick="abrirPagina('alertas',this)">
                 ⚠️ <span>Alertas</span>
             </div>
-
             <div class="menu-item somente-admin" onclick="abrirPagina('acessos',this)">
                 👥 <span>Acessos</span>
             </div>
@@ -1003,44 +932,56 @@ KPIs de eficiência da manutenção.
 <!-- ACESSOS -->
 <section class="pagina" id="acessos">
 <h1>Usuários e Acessos</h1>
-<p class="subtitulo">Gerencie usuários, perfis e permissões da plataforma Ruplast.</p>
+<p class="subtitulo">Cadastre usuários e defina o perfil de acesso à plataforma.</p>
 
-<div class="acesso-grid">
+<div class="grid">
 <div class="card">
-<div class="card-header"><div><b>Novo usuário</b><div class="subtitulo">Cadastre um acesso à plataforma</div></div></div>
+<div class="card-header"><b>Novo usuário</b></div>
 
-<div class="form-grid">
-<div class="campo"><label>Nome completo</label><input id="novoNome" placeholder="Ex.: João da Silva"></div>
+<div class="campo"><label>Nome completo</label><input id="novoNome" placeholder="Nome do usuário"></div>
 <div class="campo"><label>Usuário</label><input id="novoUsuario" placeholder="Ex.: joao"></div>
-<div class="campo"><label>E-mail</label><input id="novoEmail" type="email" placeholder="joao@empresa.com"></div>
+<div class="campo"><label>E-mail</label><input id="novoEmail" type="email" placeholder="email@ruplast.com.br"></div>
 <div class="campo"><label>Senha inicial</label><input id="novoSenha" type="password" placeholder="Mínimo 6 caracteres"></div>
-<div class="campo"><label>Perfil</label>
+
+<div class="campo">
+<label>Perfil</label>
 <select id="novoPerfil" onchange="aplicarPermissoesPerfil()">
 <option value="Administrador">Administrador</option>
 <option value="Gestor">Gestor</option>
 <option value="Operador">Operador</option>
 <option value="Consulta">Consulta</option>
-</select></div>
-<div class="campo"><label>Status</label><select id="novoStatus"><option value="Ativo">Ativo</option><option value="Inativo">Inativo</option></select></div>
+</select>
+</div>
+
+<div class="campo">
+<label>Status</label>
+<select id="novoStatus">
+<option value="Ativo">Ativo</option>
+<option value="Inativo">Inativo</option>
+</select>
 </div>
 
 <label style="font-size:12px;font-weight:bold">Permissões</label>
 <div class="permissoes" id="permissoesNovo"></div>
+
 <button class="btn" onclick="cadastrarUsuario()">+ Cadastrar usuário</button>
 </div>
 
 <div class="card tabela">
-<div class="card-header"><div><b>Usuários cadastrados</b><div class="subtitulo">Contas e níveis de acesso</div></div><span class="permissao-badge" id="contadorUsuarios">0 usuários</span></div>
-<table>
-<thead><tr><th>Usuário</th><th>Perfil</th><th>Status</th><th>Permissões</th><th>Ação</th></tr></thead>
-<tbody id="tabelaUsuarios"></tbody>
-</table>
+<div class="card-header">
+<div>
+<b>Usuários cadastrados</b>
+<div class="subtitulo">Contas e níveis de acesso</div>
 </div>
 </div>
 
-<div class="card" style="margin-top:18px">
-<b>Perfis padrão</b>
-<div class="subtitulo" style="margin-top:6px">Administrador: acesso total · Gestor: operação e indicadores · Operador: execução operacional · Consulta: somente leitura.</div>
+<table>
+<thead>
+<tr><th>Usuário</th><th>Perfil</th><th>Status</th><th>Permissões</th><th>Ação</th></tr>
+</thead>
+<tbody id="tabelaUsuarios"></tbody>
+</table>
+</div>
 </div>
 </section>
 
@@ -1252,25 +1193,32 @@ const titulos={
 
 
 function abrirPagina(id,elemento){
-    const permissaoPagina={
+
+    const mapa={
         dashboard:"dashboard",veiculos:"veiculos",detalhe:"veiculos",
         manutencao:"manutencao",ordens:"ordens",indicadores:"indicadores",
         alertas:"alertas",acessos:"acessos"
     };
 
-    if(usuarioLogado && permissaoPagina[id] && !temPermissao(permissaoPagina[id])){
+    if(usuarioLogado && mapa[id] && !temPermissao(mapa[id])){
         alert("Seu perfil não possui permissão para acessar esta área.");
         return;
     }
 
-    document.querySelectorAll(".pagina").forEach(function(p){p.classList.remove("active")});
+    document.querySelectorAll(".pagina").forEach(function(p){
+        p.classList.remove("active");
+    });
+
     const pagina=document.getElementById(id);
     if(!pagina)return;
+
     pagina.classList.add("active");
     document.getElementById("titulo").textContent=titulos[id];
 
     if(elemento){
-        document.querySelectorAll(".menu-item").forEach(function(item){item.classList.remove("active")});
+        document.querySelectorAll(".menu-item").forEach(function(item){
+            item.classList.remove("active");
+        });
         elemento.classList.add("active");
     }
 
@@ -1278,8 +1226,85 @@ function abrirPagina(id,elemento){
         renderizarUsuarios();
         aplicarPermissoesPerfil();
     }
+
     window.scrollTo(0,0);
 }
+
+
+/* GERENCIAMENTO DE USUÁRIOS */
+
+function renderizarPermissoesNovo(){
+    const box=document.getElementById("permissoesNovo");
+    if(!box)return;
+    const selecionadas=perfis[document.getElementById("novoPerfil").value]||[];
+    box.innerHTML=Object.entries(permissoesDisponiveis).map(([chave,nome])=>`
+        <label class="permissao-item">
+            <input type="checkbox" value="${chave}" ${selecionadas.includes(chave)?"checked":""}>
+            ${nome}
+        </label>
+    `).join("");
+}
+
+function aplicarPermissoesPerfil(){
+    renderizarPermissoesNovo();
+}
+
+function cadastrarUsuario(){
+    if(!temPermissao("acessos")){alert("Acesso negado.");return}
+
+    const nome=document.getElementById("novoNome").value.trim();
+    const usuario=document.getElementById("novoUsuario").value.trim().toLowerCase();
+    const email=document.getElementById("novoEmail").value.trim();
+    const senha=document.getElementById("novoSenha").value;
+    const perfil=document.getElementById("novoPerfil").value;
+    const status=document.getElementById("novoStatus").value;
+
+    if(!nome||!usuario||!email||!senha){alert("Preencha todos os campos.");return}
+    if(senha.length<6){alert("A senha deve ter pelo menos 6 caracteres.");return}
+    if(usuarios.some(u=>u.usuario.toLowerCase()===usuario)){alert("Usuário já cadastrado.");return}
+
+    const permissoes=[...document.querySelectorAll("#permissoesNovo input:checked")].map(i=>i.value);
+
+    usuarios.push({
+        id:"USR-"+Date.now(),
+        nome,usuario,email,senha,perfil,status,permissoes
+    });
+
+    salvarUsuarios(usuarios);
+    renderizarUsuarios();
+
+    ["novoNome","novoUsuario","novoEmail","novoSenha"].forEach(id=>{
+        document.getElementById(id).value="";
+    });
+
+    alert("Usuário cadastrado com sucesso.");
+}
+
+function renderizarUsuarios(){
+    const tabela=document.getElementById("tabelaUsuarios");
+    if(!tabela)return;
+
+    tabela.innerHTML=usuarios.map(u=>`
+        <tr>
+            <td><b>${u.nome}</b><br><small>@${u.usuario}</small></td>
+            <td><span class="permissao-badge">${u.perfil}</span></td>
+            <td>${u.status}</td>
+            <td>${u.permissoes.length}</td>
+            <td>${u.id===usuarioLogado.id?"Conta atual":`<button class="btn-danger" onclick="excluirUsuario('${u.id}')">Excluir</button>`}</td>
+        </tr>
+    `).join("");
+}
+
+function excluirUsuario(id){
+    if(!temPermissao("acessos"))return;
+    const u=usuarios.find(item=>item.id===id);
+    if(!u)return;
+    if(!confirm("Excluir o acesso de "+u.nome+"?"))return;
+    usuarios=usuarios.filter(item=>item.id!==id);
+    salvarUsuarios(usuarios);
+    renderizarUsuarios();
+}
+
 
 /* LISTA DE VEICULOS */
 
@@ -1520,6 +1545,7 @@ function mostrarIndicador(titulo,valor){
 
 
 function novaOS(){
+
     if(!temPermissao("ordens_criar")){
         alert("Seu perfil não possui permissão para criar Ordens de Serviço.");
         return;
@@ -1606,6 +1632,7 @@ function fecharModal(){
 /* INICIALIZAÇÃO */
 
 renderizarVeiculos();
+
 renderizarTabela();
 renderizarPermissoesNovo();
 iniciarSessao();
