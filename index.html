@@ -2555,8 +2555,14 @@ function atualizarDashboardAutomatico(){
     const horas=document.getElementById("kpiHoras");
     const disp=document.getElementById("kpiDisponibilidade");
 
-    if(custo)custo.textContent="R$ "+d.custo.toLocaleString("pt-BR",{minimumFractionDigits:2});
-    if(medio)medio.textContent="R$ "+d.custoMedio.toLocaleString("pt-BR",{minimumFractionDigits:2});
+    if(custo)custo.textContent="R$ "+d.custo.toLocaleString("pt-BR",{
+    minimumFractionDigits:2,
+    maximumFractionDigits:2
+});
+    if(medio)medio.textContent="R$ "+d.custoMedio.toLocaleString("pt-BR",{
+    minimumFractionDigits:2,
+    maximumFractionDigits:2
+});
     if(horas)horas.textContent=d.horas.toLocaleString("pt-BR")+" h";
     if(disp)disp.textContent=d.disponibilidade.toLocaleString("pt-BR",{minimumFractionDigits:1,maximumFractionDigits:1})+"%";
 
