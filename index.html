@@ -556,6 +556,7 @@ tr.clicavel:hover{
 }
 
 .alert-badge{display:inline-flex;align-items:center;justify-content:center;min-width:20px;height:20px;padding:0 6px;margin-left:5px;border-radius:999px;background:#dc3545;color:#fff;font-size:11px;font-weight:700}.alerta{margin-bottom:10px}.alerta small{opacity:.8}</style>
+<link rel="icon" href="data:,">
 </head>
 <body>
 <!-- LOGIN -->
@@ -579,14 +580,6 @@ tr.clicavel:hover{
 <button class="btn login-btn" onclick="entrar()">
             Entrar na plataforma
         </button>
-    <div style="text-align:center;margin-top:14px">
-    <button
-        type="button"
-        onclick="recuperarSenha()"
-        style="border:0;background:none;color:#126cff;cursor:pointer;font-size:13px">
-        Esqueci minha senha
-    </button>
-</div>
 <div class="erro" id="erro">
             Usuário ou senha incorretos.
         </div>
@@ -678,9 +671,6 @@ Visão geral calculada automaticamente a partir dos dados cadastrados da frota.
 <div class="subtitulo">Revisões calculadas automaticamente por KM e data.</div>
 </div>
 <button class="btn" onclick="abrirPagina('alertas')">Ver todos</button>
-    <button class="btn" onclick="solicitarNotificacaoNavegador()">
-    🔔 Ativar notificações
-    </button>
 </div>
 <div id="dashboardAlertas"></div>
 </div>
@@ -1012,8 +1002,7 @@ Pendências que exigem atenção.
 <div id="modalConteudo"></div>
 </div>
 </div>
-
-    <!-- LOGIN -->
+<script>
 
 /* LOGIN */
 
@@ -1117,26 +1106,17 @@ function atualizarCabecalho(){
     }
 }
 
-async function entrar(){
+function entrar(){
 
     const usuario=document.getElementById("usuario").value.trim().toLowerCase();
     const senha=document.getElementById("senha").value;
     const erro=document.getElementById("erro");
 
-    const { data: encontrado, error } = await supabase
-    .from("usuarios")
-    .select("*")
-    .eq("usuario", usuario)
-    .eq("senha", senha)
-    .eq("status", "Ativo")
-    .maybeSingle();
-
-if (error) {
-    console.error("Erro ao consultar Supabase:", error);
-    erro.textContent = "Erro ao conectar com o banco de dados.";
-    erro.style.display = "block";
-    return;
-}
+    const encontrado=usuarios.find(function(u){
+        return u.usuario.toLowerCase()===usuario &&
+               u.senha===senha &&
+               u.status==="Ativo";
+    });
 
     if(!encontrado){
         erro.textContent="Usuário, senha ou status de acesso inválido.";
@@ -1158,44 +1138,8 @@ if (error) {
 document.getElementById("senha").addEventListener("keydown",function(e){
     if(e.key==="Enter")entrar();
 });
-    function recuperarSenha(){
 
-    const usuario = prompt("Digite seu usuário para recuperar a senha:");
-
-    if(!usuario) return;
-
-    const encontrado = usuarios.find(function(u){
-        return u.usuario.toLowerCase() === usuario.trim().toLowerCase();
-    });
-
-    if(!encontrado){
-        alert("Usuário não encontrado.");
-        return;
-    }
-
-    const novaSenha = prompt(
-        "Usuário encontrado: " + encontrado.usuario +
-        "\n\nDigite a nova senha:"
-    );
-
-    if(!novaSenha){
-        alert("Recuperação cancelada.");
-        return;
-    }
-
-    if(novaSenha.length < 4){
-        alert("A nova senha deve ter pelo menos 4 caracteres.");
-        return;
-    }
-
-    encontrado.senha = novaSenha;
-
-    alert(
-        "Senha alterada com sucesso!\n\n" +
-        "Usuário: " + encontrado.usuario +
-        "\nNova senha: " + novaSenha
-    );
-}
+window.entrar=entrar;
 
 function iniciarSessao(){
 
@@ -1479,11 +1423,23 @@ function salvarVeiculos(){
     localStorage.setItem(CHAVE_VEICULOS,JSON.stringify(veiculos));
 }
 
+function dataISOValida(valor){
+    if(!/^\d{4}-\d{2}-\d{2}$/.test(String(valor||"")))return false;
+    const d=new Date(String(valor)+"T00:00:00");
+    return !Number.isNaN(d.getTime()) && d.toISOString().slice(0,10)===String(valor);
+}
+
+function dataBRSegura(valor){
+    if(!dataISOValida(valor))return "—";
+    const p=String(valor).split("-");
+    return p[2]+"/"+p[1]+"/"+p[0];
+}
+
 function alertaVeiculo(v){
     const kmRestante=(Number(v.proximaRevisaoKm)||0)-(Number(v.km)||0);
 
     let porData="";
-    if(v.proximaRevisaoData){
+    if(dataISOValida(v.proximaRevisaoData)){
         const hoje=new Date();
         const data=new Date(v.proximaRevisaoData+"T00:00:00");
         const dias=Math.ceil((data-hoje)/86400000);
@@ -2345,9 +2301,9 @@ function abrirVeiculo(id){
         <b>Combustível:</b> ${escapeHtml(v.combustivel||"Não informado")}<br>
         <b>Centro de custo:</b> ${escapeHtml(v.centroCusto||"Não informado")}<br>
         <b>Responsável:</b> ${escapeHtml(v.responsavel||"Não informado")}<br>
-        <b>Última revisão:</b> ${v.ultimaRevisao?new Date(v.ultimaRevisao+"T00:00:00").toLocaleDateString("pt-BR"):"Não informada"}<br>
+        <b>Última revisão:</b> ${dataISOValida(v.ultimaRevisao)?dataBRSegura(v.ultimaRevisao):"Não informada"}<br>
         <b>Próxima revisão (KM):</b> ${Number(v.proximaRevisaoKm||0).toLocaleString("pt-BR")} km<br>
-        <b>Próxima revisão (data):</b> ${v.proximaRevisaoData?new Date(v.proximaRevisaoData+"T00:00:00").toLocaleDateString("pt-BR"):"Não informada"}<br>
+        <b>Próxima revisão (data):</b> ${dataISOValida(v.proximaRevisaoData)?dataBRSegura(v.proximaRevisaoData):"Não informada"}<br>
         <b>Status:</b> ${escapeHtml(v.status)}<br>
         <b>Disponibilidade:</b> ${v.disponibilidade}%<br>
         <b>Alerta:</b> ${escapeHtml(alertaVeiculo(v).texto)}
@@ -2527,9 +2483,8 @@ function fecharModal(){
 function gerarAlertasInteligentes(){
     const hoje=new Date();
     const resultado=[];
-    const custoMedio=veiculos.length
-  ? veiculos.reduce((s,v)=>s+(Number(v.custo)||0),0)/veiculos.length
-  : 0;
+    const custos=veiculos.map(v=>Number(v.custo)||0).filter(v=>v>0);
+    const custoMedio=custos.length?custos.reduce((a,b)=>a+b,0)/custos.length:0;
 
     veiculos.forEach(v=>{
         const a=alertaVeiculo(v);
@@ -2587,6 +2542,7 @@ function notificarAlertasCriticos(){
 /* INDICADORES E ALERTAS AUTOMÁTICOS */
 
 function calcularIndicadoresFrota(){
+    if(!Array.isArray(veiculos))veiculos.length=0;
     const total=veiculos.length;
     const custo=veiculos.reduce((s,v)=>s+(Number(v.custo)||0),0);
     const horas=veiculos.reduce((s,v)=>s+(Number(v.horas)||0),0);
@@ -2615,14 +2571,8 @@ function atualizarDashboardAutomatico(){
     const horas=document.getElementById("kpiHoras");
     const disp=document.getElementById("kpiDisponibilidade");
 
-    if(custo)custo.textContent="R$ "+d.custo.toLocaleString("pt-BR",{
-    minimumFractionDigits:2,
-    maximumFractionDigits:2
-});
-    if(medio)medio.textContent="R$ "+d.custoMedio.toLocaleString("pt-BR",{
-    minimumFractionDigits:2,
-    maximumFractionDigits:2
-});
+    if(custo)custo.textContent="R$ "+d.custo.toLocaleString("pt-BR",{minimumFractionDigits:2});
+    if(medio)medio.textContent="R$ "+d.custoMedio.toLocaleString("pt-BR",{minimumFractionDigits:2});
     if(horas)horas.textContent=d.horas.toLocaleString("pt-BR")+" h";
     if(disp)disp.textContent=d.disponibilidade.toLocaleString("pt-BR",{minimumFractionDigits:1,maximumFractionDigits:1})+"%";
 
@@ -2741,8 +2691,7 @@ function salvarColecoesFrota(){
     localStorage.setItem(CHAVE_OS,JSON.stringify(ordensServico));
 }
 function moeda(v){return "R$ "+(Number(v)||0).toLocaleString("pt-BR",{minimumFractionDigits:2});}
-function dataBR(v){if(!v)return "—"; const p=String(v).split("-"); return p.length===3?p[2]+"/"+p[1]+"/"+p[0]:v;}
-function escapeHtml(v){return String(v??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[m]));}
+function dataBR(v){return dataBRSegura(v);}
 function proximaOSId(){return "OS-"+new Date().getFullYear()+"-"+String(ordensServico.length+1).padStart(4,"0");}
 function atualizarManutencoes(){
     const tb=document.getElementById("tabelaManutencoes"); if(tb){
@@ -3013,10 +2962,7 @@ atualizarAlertasInteligentes();
 atualizarManutencoes();
 atualizarOS();
 atualizarAlertasInteligentes();
-function solicitarNotificacaoNavegador(){
-    if(!('Notification' in window)) return;
-    if(Notification.permission==='default') Notification.requestPermission();
-}
+solicitarNotificacaoNavegador();
 notificarAlertasCriticos();
 setInterval(()=>{ atualizarAlertasInteligentes(); notificarAlertasCriticos(); }, 60000);
 
