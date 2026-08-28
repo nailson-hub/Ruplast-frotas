@@ -244,7 +244,7 @@ tr.clicavel:hover{background:#f7faff}
 (function(){
 "use strict";
 var URL_SUPA="https://cqcrreienaqvktgwcmsk.supabase.co";
-var KEY_SUPA="sb_publishable_FZmoi098CgWl0CO96lIHZg__p2xKEk7";
+var KEY_SUPA="sb_publishable_FZmoi098CgWl0C0961lHZg___p2xKEK7";
 var sb=window.supabase.createClient(URL_SUPA,KEY_SUPA);
 var veiculos=[],manutencoes=[],ordensServico=[],usuarios=[];
 var usuarioLogado=null,token="",subs=[];
@@ -421,17 +421,39 @@ setTimeout(function(){var btns=document.querySelectorAll(".btn-exc-manut");for(v
 
 function renderOS(){
 var tb=$("tabelaOS");if(!tb)return;
-tb.innerHTML=ordensServico.slice().reverse().map(function(o){return"<tr><td>"+escapeHtml(o.id)+"</td><td>"+escapeHtml(o.veiculo)+"</td><td>"+escapeHtml(o.servico)+"</td><td>"+escapeHtml(o.tipo)+"</td><td>"+moeda(o.custo)+"</td><td><span class='status "+(o.status==="Concluída"?"status-ok":o.status==="Em andamento"?"status-alerta":"status-erro")+"'>"+escapeHtml(o.status)+"</span></td><td>"+(o.status!=="Concluída"?"<button class='btn-secondary btn-fin-os' data-id='"+o.id+"'>Finalizar</button>":"<small>Finalizada</small>")+"</td></tr>"}).join("")||"<tr><td colspan='7'>Nenhuma OS.</td></tr>";
+var hoje=new Date();
+tb.innerHTML=ordensServico.slice().reverse().map(function(o){
+var prior=o.prioridade||"Média";
+var priorCls=prior==="Urgente"?"status-erro":prior==="Alta"?"status-alerta":prior==="Baixa"?"status-ok":"status-alerta";
+var dataPrev=o.data_prevista?dataBR(o.data_prevista):"—";
+var atrasada=false;
+if(o.data_prevista&&o.status!=="Concluída"){var dp=new Date(o.data_prevista);if(dp<hoje)atrasada=true}
+return"<tr style='"+(atrasada?"background:#fff0f1":"")+"'><td><b>"+escapeHtml(o.id)+"</b><br><small style='color:#a66a00'>"+escapeHtml(prior)+"</small></td><td>"+escapeHtml(o.veiculo)+"</td><td>"+escapeHtml(o.servico)+"</td><td>"+escapeHtml(o.tipo)+"</td><td>"+moeda(o.custo)+"</td><td><span class='status "+(o.status==="Concluída"?"status-ok":o.status==="Em andamento"?"status-alerta":"status-erro")+"'>"+escapeHtml(o.status)+"</span><br><small>Prev: "+dataPrev+"</small></td><td>"+(o.status!=="Concluída"?"<button class='btn-secondary btn-fin-os' data-id='"+o.id+"'>Finalizar</button>":"<small>Finalizada</small>")+"</td></tr>";
+}).join("")||"<tr><td colspan='7'>Nenhuma OS.</td></tr>";
 var ab=0,co=0,cu=0;
 ordensServico.forEach(function(o){if(o.status!=="Concluída")ab++;else co++;cu+=Number(o.custo)||0});
-$("osKpiAb").textContent=ab;$("osKpiConc").textContent=co;$("osKpiCusto").textContent=moeda(cu);
+var concl=ordensServico.filter(function(o){return o.status==="Concluída"&&Number(o.horas)>0});
+var tempoMed=concl.length?(concl.reduce(function(s,o){return s+Number(o.horas)},0)/concl.length):0;
+$("osKpiAb").textContent=ab;$("osKpiConc").textContent=co;$("osKpiCusto").textContent=moeda(cu);$("osKpiTempo").textContent=tempoMed.toFixed(1)+" h";
 setTimeout(function(){var btns=document.querySelectorAll(".btn-fin-os");for(var i=0;i<btns.length;i++){btns[i].addEventListener("click",function(){finalizarOS(this.getAttribute("data-id"))})}},100);
 }
 
 function calcDash(){
 var t=veiculos.length,cu=0,ho=0,di=0;
-veiculos.forEach(function(v){cu+=Number(v.custo)||0;ho+=Number(v.horas)||0;di+=Number(v.disponibilidade)||0});
-var cuH=0,hoH=0;manutencoes.filter(function(m){return m.status==="Concluída"}).forEach(function(m){cuH+=Number(m.custo)||0;hoH+=Number(m.horas)||0});
+for(var i=0;i<veiculos.length;i++){
+var v=veiculos[i];
+var vc=Number(v.custo);if(!isNaN(vc))cu+=vc;
+var vh=Number(v.horas);if(!isNaN(vh))ho+=vh;
+var vd=Number(v.disponibilidade);if(!isNaN(vd))di+=vd;
+}
+var cuH=0,hoH=0;
+for(var i=0;i<manutencoes.length;i++){
+var m=manutencoes[i];
+if(m.status==="Concluída"){
+var mc=Number(m.custo);if(!isNaN(mc))cuH+=mc;
+var mh=Number(m.horas);if(!isNaN(mh))hoH+=mh;
+}
+}
 return{total:t,custo:cu,horas:ho,disp:t?di/t:0,custoMedio:t?cu/t:0,cuHist:cuH,hoHist:hoH};
 }
 
@@ -581,15 +603,19 @@ syncStatus("Sincronizado","#13a36a");fecharModal();
 function novaOS(){
 if(!temPerm("ordens_criar")){alert("Sem permissão.");return}
 $("modalTitulo").textContent="Nova Ordem de Serviço";
-var opts=veiculos.map(function(v){return'<option value="'+v.id+'">'+v.id+'</option>'}).join("");
-$("modalConteudo").innerHTML='<div class="campo"><label>Veículo</label><select id="oVeic">'+opts+'</select></div><div class="campo"><label>Tipo</label><select id="oTipo"><option>Preventiva</option><option>Corretiva</option><option>Preditiva</option></select></div><div class="campo"><label>Serviço</label><input id="oServ" placeholder="Descrição do serviço"></div><div class="campo"><label>Responsável</label><input id="oResp" placeholder="Ex.: Oficina Central"></div><div class="campo"><label>Custo estimado</label><input id="oCusto" type="number" step="0.01" placeholder="0,00"></div><div class="campo"><label>Horas previstas</label><input id="oHoras" type="number" step="0.5" placeholder="0"></div><button class="btn" id="btnSalvaOS">Criar OS</button>';
+var opts=veiculos.map(function(v){return'<option value="'+v.id+'" data-km="'+v.km+'">'+v.id+' ('+v.modelo+')</option>'}).join("");
+$("modalConteudo").innerHTML='<div class="form-grid"><div class="campo"><label>Veículo *</label><select id="oVeic">'+opts+'</select></div><div class="campo"><label>Tipo *</label><select id="oTipo"><option>Preventiva</option><option>Corretiva</option><option>Preditiva</option></select></div><div class="campo"><label>Serviço *</label><input id="oServ" placeholder="Ex.: Troca de óleo"></div><div class="campo"><label>Responsável</label><input id="oResp" placeholder="Ex.: Oficina Central"></div><div class="campo"><label>Prioridade</label><select id="oPrior"><option>Baixa</option><option selected>Média</option><option>Alta</option><option>Urgente</option></select></div><div class="campo"><label>Data prevista</label><input id="oDataPrev" type="date"></div><div class="campo"><label>Custo estimado</label><input id="oCusto" type="number" step="0.01" placeholder="0,00"></div><div class="campo"><label>Horas previstas</label><input id="oHoras" type="number" step="0.5" placeholder="0"></div><div class="campo"><label>KM atual do veículo</label><input id="oKm" type="number" placeholder="0"></div><div class="campo"><label>Descrição detalhada</label><textarea id="oDesc" rows="3" style="width:100%;resize:vertical" placeholder="Detalhes adicionais do serviço"></textarea></div></div><button class="btn" id="btnSalvaOS">Criar OS</button>';
 $("modal").classList.add("aberto");
+var selVeic=$("oVeic");
+function atualizarKmOS(){var opt=selVeic.options[selVeic.selectedIndex];if(opt&&opt.getAttribute("data-km"))$("oKm").value=opt.getAttribute("data-km")}
+atualizarKmOS();
+selVeic.addEventListener("change",atualizarKmOS);
 $("btnSalvaOS").addEventListener("click",function(){
-var veic=$("oVeic").value,tipo=$("oTipo").value,serv=$("oServ").value.trim(),resp=$("oResp").value.trim(),custo=Number($("oCusto").value)||0,horas=Number($("oHoras").value)||0;
+var veic=$("oVeic").value,tipo=$("oTipo").value,serv=$("oServ").value.trim(),resp=$("oResp").value.trim(),prior=$("oPrior").value,dataPrev=$("oDataPrev").value||null,custo=Number($("oCusto").value)||0,horas=Number($("oHoras").value)||0,km=Number($("oKm").value)||0,desc=$("oDesc").value.trim();
 if(!serv){alert("Informe o serviço.");return}
 var idOS="OS-"+new Date().getFullYear()+"-"+String(ordensServico.length+1).padStart(4,"0");
 syncStatus("Salvando...","#f59e0b");
-sb.from("ordens_servico").insert([{id:idOS,veiculo:veic,tipo:tipo,servico:serv,responsavel:resp,custo:custo,horas:horas,status:"Aberta",criada_em:new Date().toISOString()}]).then(function(r){
+sb.from("ordens_servico").insert([{id:idOS,veiculo:veic,tipo:tipo,servico:serv,responsavel:resp,custo:custo,horas:horas,status:"Aberta",criada_em:new Date().toISOString(),prioridade:prior,data_prevista:dataPrev,km_atual:km,descricao:desc}]).then(function(r){
 if(r.error){alert("Erro: "+r.error.message);syncStatus("Erro","#dc3545");return}
 syncStatus("Sincronizado","#13a36a");fecharModal();
 });
@@ -633,14 +659,14 @@ aplicarPermissoesPerfil();
 function novoVeiculo(){
 if(!temPerm("veiculos_editar")){alert("Sem permissão para cadastrar veículos.");return}
 $("modalTitulo").textContent="Cadastrar veículo";
-$("modalConteudo").innerHTML='<div class="form-grid"><div class="campo"><label>Identificação</label><input id="nvId" placeholder="Ex.: TRUCK-010"></div><div class="campo"><label>Placa</label><input id="nvPlaca" placeholder="Ex.: ABC1D23"></div><div class="campo"><label>Modelo</label><input id="nvMod" placeholder="Ex.: VW Constellation"></div><div class="campo"><label>Tipo</label><select id="nvTipo"><option>Truck</option><option>Delivery</option><option>Carreta</option><option>Van</option><option>Utilitário</option></select></div><div class="campo"><label>Ano</label><input id="nvAno" type="number" value="2024"></div><div class="campo"><label>KM</label><input id="nvKm" type="number" value="0"></div><div class="campo"><label>Combustível</label><select id="nvComb"><option>Diesel</option><option>Gasolina</option><option>Etanol</option><option>Elétrico</option><option>Híbrido</option></select></div><div class="campo"><label>Status</label><select id="nvSt"><option>Operando</option><option>Manutenção</option><option>Parado</option></select></div><div class="campo"><label>Centro de custo</label><input id="nvCentro" placeholder="Ex.: Operação"></div><div class="campo"><label>Responsável</label><input id="nvResp" placeholder="Nome"></div><div class="campo"><label>Próx. revisão KM</label><input id="nvProxKm" type="number" value="10000"></div><div class="campo"><label>Próx. revisão data</label><input id="nvProxData" type="date"></div></div><button class="btn-primary" id="btnSalvaNovoVeic">＋ Cadastrar veículo</button>';
+$("modalConteudo").innerHTML='<div class="form-grid"><div class="campo"><label>Identificação *</label><input id="nvId" placeholder="Ex.: TRUCK-010"></div><div class="campo"><label>Placa</label><input id="nvPlaca" placeholder="Ex.: ABC1D23"></div><div class="campo"><label>Modelo *</label><input id="nvMod" placeholder="Ex.: VW Constellation"></div><div class="campo"><label>Tipo</label><select id="nvTipo"><option>Truck</option><option>Delivery</option><option>Carreta</option><option>Van</option><option>Utilitário</option></select></div><div class="campo"><label>Ano</label><input id="nvAno" type="number" value="2024"></div><div class="campo"><label>KM inicial</label><input id="nvKm" type="number" value="0"></div><div class="campo"><label>Combustível</label><select id="nvComb"><option>Diesel</option><option>Gasolina</option><option>Etanol</option><option>Elétrico</option><option>Híbrido</option></select></div><div class="campo"><label>Status</label><select id="nvSt"><option>Operando</option><option>Manutenção</option><option>Parado</option></select></div><div class="campo"><label>Centro de custo</label><input id="nvCentro" placeholder="Ex.: Operação"></div><div class="campo"><label>Responsável</label><input id="nvResp" placeholder="Nome"></div><div class="campo"><label>Próx. revisão KM</label><input id="nvProxKm" type="number" value="10000"></div><div class="campo"><label>Próx. revisão data (opcional)</label><input id="nvProxData" type="date"></div></div><button class="btn-primary" id="btnSalvaNovoVeic">＋ Cadastrar veículo</button>';
 $("modal").classList.add("aberto");
 $("btnSalvaNovoVeic").addEventListener("click",function(){
-var id=$("nvId").value.trim(),placa=$("nvPlaca").value.trim().toUpperCase(),mod=$("nvMod").value.trim(),tipo=$("nvTipo").value,ano=Number($("nvAno").value)||2024,km=Number($("nvKm").value)||0,comb=$("nvComb").value,st=$("nvSt").value,centro=$("nvCentro").value.trim(),resp=$("nvResp").value.trim(),proxKm=Number($("nvProxKm").value)||0,proxData=$("nvProxData").value;
+var id=$("nvId").value.trim(),placa=$("nvPlaca").value.trim().toUpperCase(),mod=$("nvMod").value.trim(),tipo=$("nvTipo").value,ano=Number($("nvAno").value)||2024,km=Number($("nvKm").value)||0,comb=$("nvComb").value,st=$("nvSt").value,centro=$("nvCentro").value.trim(),resp=$("nvResp").value.trim(),proxKm=Number($("nvProxKm").value)||0,proxData=$("nvProxData").value||null;
 if(!id||!mod){alert("Informe identificação e modelo.");return}
 if(veiculos.some(function(x){return x.id===id})){alert("Já existe veículo com essa identificação.");return}
 syncStatus("Salvando...","#f59e0b");
-sb.from("veiculos").insert([{id:id,placa:placa,modelo:mod,tipo:tipo,ano:ano,km:km,custo:0,horas:0,disponibilidade:100,status:st,combustivel:comb,centro_custo:centro,responsavel:resp,ultima_revisao:"",km_ultima_revisao:0,proxima_revisao_km:proxKm,proxima_revisao_data:proxData,observacoes:""}]).then(function(r){
+sb.from("veiculos").insert([{id:id,placa:placa,modelo:mod,tipo:tipo,ano:ano,km:km,custo:0,horas:0,disponibilidade:100,status:st,combustivel:comb,centro_custo:centro,responsavel:resp,ultima_revisao:null,km_ultima_revisao:0,proxima_revisao_km:proxKm,proxima_revisao_data:proxData,observacoes:""}]).then(function(r){
 if(r.error){alert("Erro: "+r.error.message);syncStatus("Erro","#dc3545");return}
 syncStatus("Sincronizado","#13a36a");fecharModal();
 });
@@ -675,5 +701,5 @@ gVeic=new Chart($("graficoVeiculo"),{type:"line",data:{labels:["Mar","Abr","Mai"
 tentarRestaurarSessao().then(function(ok){if(!ok){$("login").style.display="flex";$("app").style.display="none"}});
 })();
 </script>
-</body>
+<script>(function(){function c(){var b=a.contentDocument||(a.contentWindow&&a.contentWindow.document);if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a323c29f7fdb64d3',t:'MTc4NzkyNDc2Ng=='};var a=document.createElement('script');a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>
