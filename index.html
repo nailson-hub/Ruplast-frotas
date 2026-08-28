@@ -139,11 +139,11 @@ tr.clicavel:hover{background:#f7faff}
 <div class="menu">
 <div class="menu-item active" data-pagina="dashboard">📊 <span>Dashboard</span></div>
 <div class="menu-item" data-pagina="veiculos">🚛 <span>Veículos</span></div>
-<div class="menu-item" data-pagina="manutencao"> <span>Manutenções</span></div>
+<div class="menu-item" data-pagina="manutencao">🔧 <span>Manutenções</span></div>
 <div class="menu-item" data-pagina="ordens">📋 <span>Ordens de Serviço</span></div>
 <div class="menu-item" data-pagina="indicadores">📈 <span>Indicadores</span></div>
 <div class="menu-item" data-pagina="alertas">️ <span>Alertas</span></div>
-<div class="menu-item" id="menuAcessos" data-pagina="acessos"> <span>Acessos</span></div>
+<div class="menu-item" id="menuAcessos" data-pagina="acessos">👥 <span>Acessos</span></div>
 </div>
 </aside>
 <main class="main">
@@ -156,8 +156,8 @@ tr.clicavel:hover{background:#f7faff}
 <div class="avatar" id="avatarUsuario">A</div>
 <div class="menu-usuario" id="menuUsuario">
 <button id="btnPerfil">👤 Meu perfil</button>
-<button id="btnAlterarSenha">🔑 Alterar senha</button>
-<button id="btnSair"> Sair</button>
+<button id="btnAlterarSenha"> Alterar senha</button>
+<button id="btnSair">🚪 Sair</button>
 </div>
 </div>
 </div>
@@ -172,7 +172,7 @@ tr.clicavel:hover{background:#f7faff}
 <div class="kpi"><span>Horas de manutenção</span><strong id="kpiHoras">0 h</strong><i>calculado pela frota atual</i></div>
 <div class="kpi"><span>Disponibilidade da frota</span><strong id="kpiDisponibilidade">0%</strong><i>média dos veículos</i></div>
 </div>
-<div class="card" style="margin-bottom:20px"><div class="card-header"><div><b>Alertas de manutenção</b><div class="subtitulo">Revisões calculadas automaticamente por KM e data.</div></div><div style="display:flex;gap:8px"><button class="btn" id="btnVerTodosAlertas">Ver todos</button><button class="btn" id="btnNotificacoes"> Ativar notificações</button></div></div><div id="dashboardAlertas"></div></div>
+<div class="card" style="margin-bottom:20px"><div class="card-header"><div><b>Alertas de manutenção</b><div class="subtitulo">Revisões calculadas automaticamente por KM e data.</div></div><div style="display:flex;gap:8px"><button class="btn" id="btnVerTodosAlertas">Ver todos</button><button class="btn" id="btnNotificacoes">🔔 Ativar notificações</button></div></div><div id="dashboardAlertas"></div></div>
 <div class="card" style="margin-bottom:20px"><div class="card-header"><div><b>Origem dos indicadores</b></div></div><div class="dados-veiculo" style="margin-top:10px"><div><span>Custo acumulado da frota</span><strong id="origemCustoFrota">R$ 0,00</strong></div><div><span>Custo no histórico</span><strong id="origemCustoHistorico">R$ 0,00</strong></div><div><span>Horas acumuladas</span><strong id="origemHorasFrota">0 h</strong></div><div><span>Horas do histórico</span><strong id="origemHorasHistorico">0 h</strong></div></div></div>
 <div class="grid">
 <div class="card"><div class="card-header"><div><b>Custo de manutenção</b><div class="subtitulo">Últimos 6 meses</div></div></div><div class="grafico"><canvas id="graficoCusto"></canvas></div></div>
@@ -227,7 +227,7 @@ tr.clicavel:hover{background:#f7faff}
 <button class="btn" id="btnCadUsuario">+ Cadastrar usuário</button>
 </div>
 <div class="card tabela"><div class="card-header"><div><b>Usuários</b></div><span class="permissao-badge" id="contadorUsuarios">0</span></div>
-<div class="acesso-toolbar"><input id="buscaUsuarios" placeholder="🔎 Buscar"/><button class="btn-secondary" id="btnLimparBusca">Limpar</button></div>
+<div class="acesso-toolbar"><input id="buscaUsuarios" placeholder=" Buscar"/><button class="btn-secondary" id="btnLimparBusca">Limpar</button></div>
 <table><thead><tr><th>Usuário</th><th>Perfil</th><th>Status</th><th>Permissões</th><th>Ação</th></tr></thead><tbody id="tabelaUsuarios"></tbody></table>
 </div>
 </div>
@@ -237,14 +237,14 @@ tr.clicavel:hover{background:#f7faff}
 </main>
 </div>
 <div class="modal" id="modal"><div class="modal-box"><button class="fechar" id="btnFecharModal">×</button><h2 id="modalTitulo"></h2><div id="modalConteudo"></div></div></div>
-<div class="sync-indicator" id="syncIndicator"><span class="sync-dot"></span><span id="syncIndicatorText">Sincronizando...</span></div>
+<div class="sync-indicator active" id="syncIndicator"><span class="sync-dot"></span><span id="syncIndicatorText">Sincronizando...</span></div>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
 (function(){
 "use strict";
 var URL_SUPA="https://cqcrreienaqvktgwcmsk.supabase.co";
-var KEY_SUPA="sb_publishable_FZmoi098CgWl0CO96lIHZg__p2xKEk7";
+var KEY_SUPA="sb_publishable_FZmoi098CgWl0C0961lHZg___p2xKEK7";
 var sb=window.supabase.createClient(URL_SUPA,KEY_SUPA);
 var veiculos=[],manutencoes=[],ordensServico=[],usuarios=[];
 var usuarioLogado=null,token="",subs=[];
@@ -271,13 +271,12 @@ var a=await sb.from("veiculos").select("*").order("id");if(a.error)throw a.error
 var b=await sb.from("manutencoes").select("*").order("data",{ascending:false});if(b.error)throw b.error;manutencoes=b.data||[];
 var c=await sb.from("ordens_servico").select("*").order("criada_em",{ascending:false});if(c.error)throw c.error;ordensServico=c.data||[];
 syncStatus("Sincronizado","#13a36a");
-}catch(e){console.error(e);syncStatus("Erro","#dc3545");alert("Erro: "+e.message)}
+}catch(e){console.error(e);syncStatus("Erro","#dc3545")}
 hideLoad();
 }
 
 function ativarRealtime(){
-subs.forEach(function(s){try{s.unsubscribe()}catch(e){}});
-subs=[];
+subs.forEach(function(s){try{s.unsubscribe()}catch(e){}});subs=[];
 ["veiculos","manutencoes","ordens_servico","usuarios"].forEach(function(tbl){
 var ch=sb.channel(tbl+"_rt").on("postgres_changes",{event:"*",schema:"public",table:tbl},function(p){handleRT(tbl,p)}).subscribe();
 subs.push(ch);
@@ -307,6 +306,28 @@ renderizarTudo();
 
 function renderizarTudo(){renderVeiculos();renderTabelaTop();renderManut();renderOS();renderDash();renderAlertas();renderUsuarios()}
 
+function salvarSessao(){
+if(!usuarioLogado)return;
+localStorage.setItem("ruplast_sessao",JSON.stringify({token:token,id:usuarioLogado.id,nome:usuarioLogado.nome,usuario:usuarioLogado.usuario,email:usuarioLogado.email,perfil:usuarioLogado.perfil,permissoes:usuarioLogado.permissoes}));
+}
+
+async function tentarRestaurarSessao(){
+var salvo=localStorage.getItem("ruplast_sessao");
+if(!salvo)return false;
+try{
+var sessao=JSON.parse(salvo);
+var r=await rpc("ruplast_me",{p_token:sessao.token});
+if(!r||!r.ok){localStorage.removeItem("ruplast_sessao");return false}
+token=sessao.token;usuarioLogado=r.usuario;
+$("login").style.display="none";$("app").style.display="block";
+atualizarHeader();
+await carregarDados();ativarRealtime();
+renderizarTudo();
+if(temPerm("acessos")){var lu=await rpc("ruplast_list_users",{p_token:token});if(lu&&lu.ok&&Array.isArray(lu.usuarios)){usuarios=lu.usuarios;renderUsuarios()}}
+return true;
+}catch(e){localStorage.removeItem("ruplast_sessao");return false}
+}
+
 async function entrar(){
 var u=$("usuario").value.trim().toLowerCase();var s=$("senha").value;var er=$("erro");
 if(!u||!s){er.textContent="Informe usuário e senha.";er.style.display="block";return}
@@ -314,6 +335,7 @@ try{
 var r=await rpc("ruplast_login",{p_usuario:u,p_senha:s});
 if(!r||!r.ok){er.textContent=r&&r.erro?r.erro:"Usuário ou senha incorretos.";er.style.display="block";return}
 token=r.token;usuarioLogado=r.usuario;
+salvarSessao();
 er.style.display="none";$("login").style.display="none";$("app").style.display="block";
 atualizarHeader();
 await carregarDados();ativarRealtime();
@@ -348,7 +370,7 @@ veiculos.forEach(function(v){
 var a=alertaVeic(v);
 var cls=v.status==="Operando"?"status-ok":v.status==="Manutenção"?"status-alerta":"status-erro";
 var div=document.createElement("div");div.className="card veiculo";
-div.innerHTML='<div class="veiculo-top"><div><h3>'+escapeHtml(v.id)+'</h3><small>'+escapeHtml(v.modelo)+' • '+escapeHtml(v.placa||"Sem placa")+'</small></div><span class="status '+cls+'">'+escapeHtml(v.status)+'</span></div><div class="dados-veiculo"><div><span>Quilometragem</span><strong>'+Number(v.km).toLocaleString("pt-BR")+' km</strong></div><div><span>Próxima revisão</span><strong>'+Number(v.proxima_revisao_km||0).toLocaleString("pt-BR")+' km</strong></div><div><span>Disponibilidade</span><strong>'+v.disponibilidade+'%</strong></div><div><span>Alerta</span><strong>'+escapeHtml(a.texto)+'</strong></div></div><div style="display:flex;gap:7px;margin-top:15px;flex-wrap:wrap"><button class="btn-secondary btn-edit">✏️ Editar</button><button class="btn-secondary btn-detalhe">👁️ Detalhes</button><button class="btn-danger btn-exc">🗑️ Excluir</button></div>';
+div.innerHTML='<div class="veiculo-top"><div><h3>'+escapeHtml(v.id)+'</h3><small>'+escapeHtml(v.modelo)+' • '+escapeHtml(v.placa||"Sem placa")+'</small></div><span class="status '+cls+'">'+escapeHtml(v.status)+'</span></div><div class="dados-veiculo"><div><span>Quilometragem</span><strong>'+Number(v.km).toLocaleString("pt-BR")+' km</strong></div><div><span>Próxima revisão</span><strong>'+Number(v.proxima_revisao_km||0).toLocaleString("pt-BR")+' km</strong></div><div><span>Disponibilidade</span><strong>'+v.disponibilidade+'%</strong></div><div><span>Alerta</span><strong>'+escapeHtml(a.texto)+'</strong></div></div><div style="display:flex;gap:7px;margin-top:15px;flex-wrap:wrap"><button class="btn-secondary btn-edit">️ Editar</button><button class="btn-secondary btn-detalhe">👁️ Detalhes</button><button class="btn-danger btn-exc">🗑️ Excluir</button></div>';
 div.addEventListener("click",function(e){if(e.target.tagName==="BUTTON")return;abrirVeiculo(v.id)});
 div.querySelector(".btn-edit").addEventListener("click",function(e){e.stopPropagation();editarVeic(v.id)});
 div.querySelector(".btn-detalhe").addEventListener("click",function(e){e.stopPropagation();abrirVeiculo(v.id)});
@@ -363,7 +385,7 @@ var r=$("resumoFrota"),b=$("resumoAlertasFrota");if(!r||!b)return;
 var at=0,pr=0;veiculos.forEach(function(v){var a=alertaVeic(v);if(a.tipo==="danger")at++;if(a.tipo==="warning")pr++});
 r.textContent=veiculos.length+" veículo(s) cadastrado(s) • controle por KM e data.";
 b.innerHTML=at?'<span class="alert-pill danger">🔴 '+at+' atrasada(s)</span>':"";
-b.innerHTML+=pr?'<span class="alert-pill">🟠 '+pr+' próxima(s)</span>':"";
+b.innerHTML+=pr?'<span class="alert-pill"> '+pr+' próxima(s)</span>':"";
 if(!at&&!pr)b.innerHTML='<span class="alert-pill ok">🟢 Frota em dia</span>';
 }
 
@@ -376,7 +398,7 @@ $("detalheCusto").textContent=moeda(v.custo);
 $("detalheHoras").textContent=v.horas+" h";
 $("detalheKm").textContent=Number(v.km).toLocaleString("pt-BR")+" km";
 $("detalheDisponibilidade").textContent=v.disponibilidade+"%";
-$("dadosDetalhe").innerHTML="<b>Modelo:</b> "+v.modelo+"<br><b>Tipo:</b> "+v.tipo+"<br><b>Ano:</b> "+v.ano+"<br><b>KM:</b> "+Number(v.km).toLocaleString("pt-BR")+" km<br><b>Placa:</b> "+escapeHtml(v.placa||"Não informada")+"<br><b>Combustível:</b> "+escapeHtml(v.combustivel||"-")+"<br><b>Status:</b> "+v.status+"<br><b>Alerta:</b> "+alertaVeic(v).texto;
+$("dadosDetalhe").innerHTML="<b>Modelo:</b> "+v.modelo+"<br><b>Tipo:</b> "+v.tipo+"<br><b>Ano:</b> "+v.ano+"<br><b>KM:</b> "+Number(v.km).toLocaleString("pt-BR")+" km<br><b>Placa:</b> "+escapeHtml(v.placa||"Não informada")+"<br><b>Combustível:</b> "+escapeHtml(v.combustivel||"-")+"<br><b>Centro de custo:</b> "+escapeHtml(v.centro_custo||"-")+"<br><b>Responsável:</b> "+escapeHtml(v.responsavel||"-")+"<br><b>Última revisão:</b> "+dataBR(v.ultima_revisao)+"<br><b>Próxima revisão KM:</b> "+Number(v.proxima_revisao_km||0).toLocaleString("pt-BR")+" km<br><b>Próxima revisão data:</b> "+dataBR(v.proxima_revisao_data)+"<br><b>Status:</b> "+v.status+"<br><b>Disponibilidade:</b> "+v.disponibilidade+"%<br><b>Alerta:</b> "+alertaVeic(v).texto;
 var hist=manutencoes.filter(function(m){return m.veiculo===id}).sort(function(a,b){return new Date(b.data)-new Date(a.data)});
 var tb=$("tabelaHistoricoVeiculo");
 tb.innerHTML=hist.length?hist.map(function(m){return"<tr><td>"+dataBR(m.data)+"</td><td>"+escapeHtml(m.tipo)+"</td><td>"+escapeHtml(m.servico)+"</td><td>"+m.horas+" h</td><td>"+moeda(m.custo)+"</td><td><span class='status "+(m.status==="Concluída"?"status-ok":"status-alerta")+"'>"+escapeHtml(m.status)+"</span></td></tr>"}).join(""):"<tr><td colspan='6'>Nenhuma manutenção.</td></tr>";
@@ -385,7 +407,7 @@ tb.innerHTML=hist.length?hist.map(function(m){return"<tr><td>"+dataBR(m.data)+"<
 function renderTabelaTop(){
 var tb=$("tabelaTop");if(!tb)return;
 var ord=veiculos.slice().sort(function(a,b){return Number(b.custo)-Number(a.custo)}).slice(0,5);
-tb.innerHTML=ord.map(function(v){return"<tr class='clicavel' onclick='abrirVeiculo(\""+v.id+"\")'><td><b>"+v.id+"</b><br><small>"+v.modelo+"</small></td><td>"+v.tipo+"</td><td>"+moeda(v.custo)+"</td><td>"+v.horas+" h</td><td><span class='status "+(v.status==="Operando"?"status-ok":"status-alerta")+"'>"+v.status+"</span></td></tr>"}).join("");
+tb.innerHTML=ord.map(function(v){return"<tr><td><b>"+v.id+"</b><br><small>"+v.modelo+"</small></td><td>"+v.tipo+"</td><td>"+moeda(v.custo)+"</td><td>"+v.horas+" h</td><td><span class='status "+(v.status==="Operando"?"status-ok":"status-alerta")+"'>"+v.status+"</span></td></tr>"}).join("");
 }
 
 function renderManut(){
@@ -394,7 +416,7 @@ tb.innerHTML=manutencoes.slice().reverse().map(function(m){return"<tr><td>"+esca
 var prev=0,corr=0,and=0,custo=0;
 manutencoes.forEach(function(m){if(m.tipo==="Preventiva")prev++;if(m.tipo==="Corretiva")corr++;if(m.status!=="Concluída")and++;custo+=Number(m.custo)||0});
 $("manKpiPrev").textContent=prev;$("manKpiCorr").textContent=corr;$("manKpiAnd").textContent=and;$("manKpiCusto").textContent=moeda(custo);
-var btns=document.querySelectorAll(".btn-exc-manut");for(var i=0;i<btns.length;i++){btns[i].addEventListener("click",function(){excluirManut(this.getAttribute("data-id"))})}
+setTimeout(function(){var btns=document.querySelectorAll(".btn-exc-manut");for(var i=0;i<btns.length;i++){btns[i].addEventListener("click",function(){excluirManut(this.getAttribute("data-id"))})}},100);
 }
 
 function renderOS(){
@@ -403,7 +425,7 @@ tb.innerHTML=ordensServico.slice().reverse().map(function(o){return"<tr><td>"+es
 var ab=0,co=0,cu=0;
 ordensServico.forEach(function(o){if(o.status!=="Concluída")ab++;else co++;cu+=Number(o.custo)||0});
 $("osKpiAb").textContent=ab;$("osKpiConc").textContent=co;$("osKpiCusto").textContent=moeda(cu);
-var btns=document.querySelectorAll(".btn-fin-os");for(var i=0;i<btns.length;i++){btns[i].addEventListener("click",function(){finalizarOS(this.getAttribute("data-id"))})}
+setTimeout(function(){var btns=document.querySelectorAll(".btn-fin-os");for(var i=0;i<btns.length;i++){btns[i].addEventListener("click",function(){finalizarOS(this.getAttribute("data-id"))})}},100);
 }
 
 function calcDash(){
@@ -437,8 +459,8 @@ return res.sort(function(a,b){return(a.nivel==="danger"?0:1)-(b.nivel==="danger"
 
 function renderAlertas(){
 var box=$("listaAlertas");if(!box)return;
-var itens=veiculos.map(function(v){return{v:v,a:alertaVeic(v)}}).filter(function(x){return x.a.tipo!=="ok"}).sort(function(a,b){return(a.a.tipo==="danger"?0:1)-(b.a.tipo==="danger"?0:1)});
-box.innerHTML=itens.length?itens.map(function(x){return"<div class='alerta "+(x.a.tipo==="danger"?"red":"")+"'><b>"+(x.a.tipo==="danger"?"🔴":"🟠")+" "+escapeHtml(x.v.id)+"</b><br>"+escapeHtml(x.a.texto)+"</div>"}).join(""):"<div class='alerta green'><b>🟢 Tudo em dia</b></div>";
+var itens=gerarAlertas();
+box.innerHTML=itens.length?itens.map(function(x){return"<div class='alerta "+(x.nivel==="danger"?"red":"")+"'><b>"+(x.nivel==="danger"?"🔴":"🟠")+" "+escapeHtml(x.veiculo)+"</b><br>"+escapeHtml(x.texto)+"</div>"}).join(""):"<div class='alerta green'><b>🟢 Tudo em dia</b></div>";
 }
 
 var gCusto=null,gStatus=null,gHoras=null,gCat=null,gVeic=null;
@@ -454,9 +476,12 @@ var busca=($("buscaUsuarios")?$("buscaUsuarios").value:"").toLowerCase();
 var fil=usuarios.filter(function(u){if(!busca)return true;return(u.nome||"").toLowerCase().indexOf(busca)>=0||(u.usuario||"").toLowerCase().indexOf(busca)>=0||(u.email||"").toLowerCase().indexOf(busca)>=0});
 if(ct)ct.textContent=usuarios.length+" usuário(s)";
 tb.innerHTML=fil.length?fil.map(function(u){
-return"<tr><td><b>"+escapeHtml(u.nome)+"</b><br><small>"+escapeHtml(u.usuario)+"</small><br><small>"+escapeHtml(u.email)+"</small></td><td><span class='permissao-badge'>"+escapeHtml(u.perfil)+"</span></td><td><span class='status-badge "+(u.status==="Ativo"?"status-ativo":"status-inativo")+"'>"+u.status+"</span></td><td>"+(u.permissoes?u.permissoes.length:0)+"</td><td><button class='btn-secondary btn-alt-st' data-id='"+u.id+"'>"+(u.status==="Ativo"?"Desativar":"Ativar")+"</button></td></tr>";
+return"<tr><td><b>"+escapeHtml(u.nome)+"</b><br><small>"+escapeHtml(u.usuario)+"</small><br><small>"+escapeHtml(u.email)+"</small></td><td><span class='permissao-badge'>"+escapeHtml(u.perfil)+"</span></td><td><span class='status-badge "+(u.status==="Ativo"?"status-ativo":"status-inativo")+"'>"+u.status+"</span></td><td>"+(u.permissoes?u.permissoes.length:0)+"</td><td><div class='acoes-usuario'><button class='btn-secondary btn-alt-st' data-id='"+u.id+"'>"+(u.status==="Ativo"?" Desativar":"🟢 Ativar")+"</button>"+(u.id!==usuarioLogado.id?"<button class='btn-danger btn-exc-usu' data-id='"+u.id+"'>🗑️ Excluir</button>":"")+"</div></td></tr>";
 }).join(""):"<tr><td colspan='5'>Nenhum usuário.</td></tr>";
+setTimeout(function(){
 var btns=document.querySelectorAll(".btn-alt-st");for(var i=0;i<btns.length;i++){btns[i].addEventListener("click",function(){altStatus(this.getAttribute("data-id"))})}
+var btns2=document.querySelectorAll(".btn-exc-usu");for(var i=0;i<btns2.length;i++){btns2[i].addEventListener("click",function(){excluirUsuario(this.getAttribute("data-id"))})}
+},100);
 }
 
 function altStatus(id){
@@ -464,7 +489,13 @@ var u=null;for(var i=0;i<usuarios.length;i++){if(usuarios[i].id===id){u=usuarios
 if(!u)return;
 var ns=u.status==="Ativo"?"Inativo":"Ativo";
 if(!confirm((ns==="Ativo"?"Ativar":"Desativar")+" "+u.nome+"?"))return;
-sb.from("usuarios").update({status:ns}).eq("id",id).then(function(){syncStatus("Sincronizado","#13a36a");renderUsuarios()});
+sb.from("usuarios").update({status:ns}).eq("id",id).then(function(r){if(r.error)alert("Erro: "+r.error.message);syncStatus("Sincronizado","#13a36a")});
+}
+
+function excluirUsuario(id){
+var u=null;for(var i=0;i<usuarios.length;i++){if(usuarios[i].id===id){u=usuarios[i];break}}
+if(!u)return;if(!confirm("Excluir "+u.nome+"?"))return;
+sb.from("usuarios").delete().eq("id",id).then(function(r){if(r.error)alert("Erro: "+r.error.message);syncStatus("Sincronizado","#13a36a")});
 }
 
 function aplicarPermissoesPerfil(){
@@ -477,6 +508,7 @@ async function cadUsuario(){
 if(!temPerm("acessos"))return;
 var nome=$("novoNome").value.trim(),usu=$("novoUsuario").value.trim().toLowerCase(),ema=$("novoEmail").value.trim(),sen=$("novoSenha").value,per=$("novoPerfil").value,st=$("novoStatus").value;
 if(!nome||!usu||!ema||!sen){alert("Preencha tudo.");return}
+if(sen.length<6){alert("Senha deve ter 6+ caracteres.");return}
 var perms=[];var cbs=document.querySelectorAll("#permissoesNovo input:checked");for(var i=0;i<cbs.length;i++)perms.push(cbs[i].value);
 syncStatus("Salvando...","#f59e0b");
 var r=await sb.from("usuarios").insert([{id:"USR-"+Date.now(),nome:nome,usuario:usu,email:ema,senha:sen,perfil:per,status:st,permissoes:perms}]);
@@ -484,6 +516,23 @@ if(r.error){alert("Erro: "+r.error.message);syncStatus("Erro","#dc3545");return}
 syncStatus("Sincronizado","#13a36a");
 $("novoNome").value="";$("novoUsuario").value="";$("novoEmail").value="";$("novoSenha").value="";
 renderUsuarios();
+}
+
+function editarVeic(id){
+var v=null;for(var i=0;i<veiculos.length;i++){if(veiculos[i].id===id){v=veiculos[i];break}}
+if(!v)return;
+$("modalTitulo").textContent="Editar veículo";
+$("modalConteudo").innerHTML='<div class="form-grid"><div class="campo"><label>Modelo</label><input id="vMod" value="'+escapeHtml(v.modelo)+'"></div><div class="campo"><label>Placa</label><input id="vPlaca" value="'+escapeHtml(v.placa||"")+'"></div><div class="campo"><label>Tipo</label><select id="vTipo"><option'+(v.tipo==="Truck"?" selected":"")+'>Truck</option><option'+(v.tipo==="Delivery"?" selected":"")+'>Delivery</option><option'+(v.tipo==="Carreta"?" selected":"")+'>Carreta</option><option'+(v.tipo==="Van"?" selected":"")+'>Van</option><option'+(v.tipo==="Utilitário"?" selected":"")+'>Utilitário</option></select></div><div class="campo"><label>Ano</label><input id="vAno" type="number" value="'+v.ano+'"></div><div class="campo"><label>KM</label><input id="vKm" type="number" value="'+v.km+'"></div><div class="campo"><label>Custo</label><input id="vCusto" type="number" value="'+v.custo+'"></div><div class="campo"><label>Horas</label><input id="vHoras" type="number" value="'+v.horas+'"></div><div class="campo"><label>Disponibilidade</label><input id="vDisp" type="number" value="'+v.disponibilidade+'"></div><div class="campo"><label>Status</label><select id="vSt"><option'+(v.status==="Operando"?" selected":"")+'>Operando</option><option'+(v.status==="Manutenção"?" selected":"")+'>Manutenção</option><option'+(v.status==="Parado"?" selected":"")+'>Parado</option><option'+(v.status==="Baixado"?" selected":"")+'>Baixado</option></select></div><div class="campo"><label>Próx. revisão KM</label><input id="vProxKm" type="number" value="'+(v.proxima_revisao_km||0)+'"></div><div class="campo"><label>Próx. revisão data</label><input id="vProxData" type="date" value="'+(v.proxima_revisao_data||"")+'"></div><div class="campo"><label>Combustível</label><input id="vComb" value="'+escapeHtml(v.combustivel||"")+'"></div></div><button class="btn-primary" id="btnSalvaVeic">Salvar alterações</button>';
+$("modal").classList.add("aberto");
+$("btnSalvaVeic").addEventListener("click",function(){
+var mod=$("vMod").value.trim(),placa=$("vPlaca").value.trim().toUpperCase(),tipo=$("vTipo").value,ano=Number($("vAno").value)||2024,km=Number($("vKm").value)||0,custo=Number($("vCusto").value)||0,horas=Number($("vHoras").value)||0,disp=Number($("vDisp").value)||100,st=$("vSt").value,proxKm=Number($("vProxKm").value)||0,proxData=$("vProxData").value,comb=$("vComb").value.trim();
+if(!mod){alert("Informe o modelo.");return}
+syncStatus("Salvando...","#f59e0b");
+sb.from("veiculos").update({modelo:mod,placa:placa,tipo:tipo,ano:ano,km:km,custo:custo,horas:horas,disponibilidade:disp,status:st,proxima_revisao_km:proxKm,proxima_revisao_data:proxData,combustivel:comb}).eq("id",id).then(function(r){
+if(r.error){alert("Erro: "+r.error.message);syncStatus("Erro","#dc3545");return}
+syncStatus("Sincronizado","#13a36a");fecharModal();
+});
+});
 }
 
 async function excluirVeic(id){
@@ -496,72 +545,134 @@ if(r.error){alert("Erro: "+r.error.message);syncStatus("Erro","#dc3545");return}
 syncStatus("Sincronizado","#13a36a");
 }
 
-function editarVeic(id){
-var v=null;for(var i=0;i<veiculos.length;i++){if(veiculos[i].id===id){v=veiculos[i];break}}
-if(!v)return;
-$("modalTitulo").textContent="Editar veículo";
-$("modalConteudo").innerHTML='<div class="form-grid"><div class="campo"><label>ID</label><input id="vID" value="'+escapeHtml(v.id)+'"></div><div class="campo"><label>Modelo</label><input id="vMod" value="'+escapeHtml(v.modelo)+'"></div><div class="campo"><label>KM</label><input id="vKm" type="number" value="'+v.km+'"></div><div class="campo"><label>Status</label><select id="vSt"><option'+(v.status==="Operando"?" selected":"")+'>Operando</option><option'+(v.status==="Manutenção"?" selected":"")+'>Manutenção</option><option'+(v.status==="Parado"?" selected":"")+'>Parado</option></select></div></div><button class="btn" id="btnSalvaVeic">Salvar</button>';
-$("modal").classList.add("aberto");
-$("btnSalvaVeic").addEventListener("click",function(){
-var id2=$("vID").value.trim(),mod=$("vMod").value.trim(),km=Number($("vKm").value)||0,st=$("vSt").value;
-if(!id2||!mod){alert("Preencha ID e modelo.");return}
-syncStatus("Salvando...","#f59e0b");
-sb.from("veiculos").update({modelo:mod,km:km,status:st}).eq("id",id2).then(function(r){
-if(r.error){alert("Erro: "+r.error.message);syncStatus("Erro","#dc3545");return}
-syncStatus("Sincronizado","#13a36a");fecharModal();
-});
-});
-}
-
 async function excluirManut(id){
-if(!confirm("Excluir?"))return;
+if(!confirm("Excluir manutenção?"))return;
 syncStatus("Excluindo...","#f59e0b");
 var r=await sb.from("manutencoes").delete().eq("id",id);
 if(r.error){alert("Erro: "+r.error.message);syncStatus("Erro","#dc3545");return}
 syncStatus("Sincronizado","#13a36a");
 }
 
+function novaManutencao(){
+if(!temPerm("manutencao_editar")){alert("Sem permissão.");return}
+var hoje=new Date().toISOString().slice(0,10);
+$("modalTitulo").textContent="Nova manutenção";
+var opts=veiculos.map(function(v){return'<option value="'+v.id+'">'+v.id+'</option>'}).join("");
+$("modalConteudo").innerHTML='<div class="campo"><label>Veículo</label><select id="mVeic">'+opts+'</select></div><div class="campo"><label>Tipo</label><select id="mTipo"><option>Preventiva</option><option>Corretiva</option><option>Preditiva</option></select></div><div class="campo"><label>Serviço</label><input id="mServ" placeholder="Ex.: troca de óleo"></div><div class="campo"><label>Data</label><input id="mData" type="date" value="'+hoje+'"></div><div class="campo"><label>Custo</label><input id="mCusto" type="number" step="0.01" placeholder="0,00"></div><div class="campo"><label>Horas</label><input id="mHoras" type="number" step="0.5" placeholder="0"></div><div class="campo"><label>Oficina</label><input id="mOficina" placeholder="Ex.: Oficina Central"></div><div class="campo"><label>Status</label><select id="mStatus"><option>Agendada</option><option>Em andamento</option><option>Concluída</option></select></div><div class="campo"><label>Próx. revisão KM</label><input id="mProxKm" type="number" placeholder="Ex.: 160000"></div><div class="campo"><label>Próx. revisão data</label><input id="mProxData" type="date"></div><button class="btn" id="btnSalvaManut">Salvar manutenção</button>';
+$("modal").classList.add("aberto");
+$("btnSalvaManut").addEventListener("click",function(){
+var veic=$("mVeic").value,tipo=$("mTipo").value,serv=$("mServ").value.trim(),data=$("mData").value,custo=Number($("mCusto").value)||0,horas=Number($("mHoras").value)||0,oficina=$("mOficina").value.trim(),status=$("mStatus").value,proxKm=Number($("mProxKm").value)||0,proxData=$("mProxData").value;
+if(!serv){alert("Informe o serviço.");return}
+if(!data){alert("Informe a data.");return}
+syncStatus("Salvando...","#f59e0b");
+sb.from("manutencoes").insert([{id:"MAN-"+Date.now(),veiculo:veic,tipo:tipo,servico:serv,data:data,km_atual:0,custo:custo,horas:horas,oficina:oficina,status:status,proxima_revisao_km:proxKm,proxima_revisao_data:proxData,observacoes:""}]).then(function(r){
+if(r.error){alert("Erro: "+r.error.message);syncStatus("Erro","#dc3545");return}
+var v=null;for(var i=0;i<veiculos.length;i++){if(veiculos[i].id===veic){v=veiculos[i];break}}
+var updates={};
+if(status==="Concluída"){updates.ultima_revisao=data;updates.custo=(Number(v?v.custo:0)||0)+custo;updates.horas=(Number(v?v.horas:0)||0)+horas}
+if(proxKm>0)updates.proxima_revisao_km=proxKm;
+if(proxData)updates.proxima_revisao_data=proxData;
+if(Object.keys(updates).length>0&&v){sb.from("veiculos").update(updates).eq("id",veic)}
+syncStatus("Sincronizado","#13a36a");fecharModal();
+});
+});
+}
+
+function novaOS(){
+if(!temPerm("ordens_criar")){alert("Sem permissão.");return}
+$("modalTitulo").textContent="Nova Ordem de Serviço";
+var opts=veiculos.map(function(v){return'<option value="'+v.id+'">'+v.id+'</option>'}).join("");
+$("modalConteudo").innerHTML='<div class="campo"><label>Veículo</label><select id="oVeic">'+opts+'</select></div><div class="campo"><label>Tipo</label><select id="oTipo"><option>Preventiva</option><option>Corretiva</option><option>Preditiva</option></select></div><div class="campo"><label>Serviço</label><input id="oServ" placeholder="Descrição do serviço"></div><div class="campo"><label>Responsável</label><input id="oResp" placeholder="Ex.: Oficina Central"></div><div class="campo"><label>Custo estimado</label><input id="oCusto" type="number" step="0.01" placeholder="0,00"></div><div class="campo"><label>Horas previstas</label><input id="oHoras" type="number" step="0.5" placeholder="0"></div><button class="btn" id="btnSalvaOS">Criar OS</button>';
+$("modal").classList.add("aberto");
+$("btnSalvaOS").addEventListener("click",function(){
+var veic=$("oVeic").value,tipo=$("oTipo").value,serv=$("oServ").value.trim(),resp=$("oResp").value.trim(),custo=Number($("oCusto").value)||0,horas=Number($("oHoras").value)||0;
+if(!serv){alert("Informe o serviço.");return}
+var idOS="OS-"+new Date().getFullYear()+"-"+String(ordensServico.length+1).padStart(4,"0");
+syncStatus("Salvando...","#f59e0b");
+sb.from("ordens_servico").insert([{id:idOS,veiculo:veic,tipo:tipo,servico:serv,responsavel:resp,custo:custo,horas:horas,status:"Aberta",criada_em:new Date().toISOString()}]).then(function(r){
+if(r.error){alert("Erro: "+r.error.message);syncStatus("Erro","#dc3545");return}
+syncStatus("Sincronizado","#13a36a");fecharModal();
+});
+});
+}
+
 async function finalizarOS(id){
 if(!temPerm("ordens_finalizar"))return;
 var o=null;for(var i=0;i<ordensServico.length;i++){if(ordensServico[i].id===id){o=ordensServico[i];break}}
-if(!o)return;
+if(!o)return;if(!confirm("Finalizar OS "+id+"?"))return;
 syncStatus("Finalizando...","#f59e0b");
 await sb.from("ordens_servico").update({status:"Concluída",finalizada_em:new Date().toISOString()}).eq("id",id);
-await sb.from("manutencoes").insert([{id:"MAN-"+Date.now(),veiculo:o.veiculo,tipo:o.tipo,servico:o.servico,data:new Date().toISOString().slice(0,10),custo:o.custo,horas:o.horas,status:"Concluída"}]);
+await sb.from("manutencoes").insert([{id:"MAN-"+Date.now(),veiculo:o.veiculo,tipo:o.tipo,servico:o.servico,data:new Date().toISOString().slice(0,10),custo:o.custo,horas:o.horas,status:"Concluída",oficina:o.responsavel||"",proxima_revisao_km:0,proxima_revisao_data:"",observacoes:""}]);
 var v=null;for(var i=0;i<veiculos.length;i++){if(veiculos[i].id===o.veiculo){v=veiculos[i];break}}
 if(v){await sb.from("veiculos").update({custo:Number(v.custo||0)+Number(o.custo||0),horas:Number(v.horas||0)+Number(o.horas||0)}).eq("id",o.veiculo)}
 syncStatus("Sincronizado","#13a36a");
 }
 
+// ====== EVENT LISTENERS ======
 $("btnEntrar").addEventListener("click",entrar);
 $("senha").addEventListener("keydown",function(e){if(e.key==="Enter")entrar()});
 $("btnRecuperar").addEventListener("click",function(){var u=prompt("Usuário:"),e=prompt("E-mail:"),s=prompt("Nova senha:"),c=prompt("Confirme:");if(u&&e&&s&&c){if(s.length<6||s!==c){alert("Senha inválida.");return}rpc("ruplast_recuperar_senha",{p_usuario:u,p_email:e,p_nova_senha:s}).then(function(r){if(r&&r.ok){alert("Senha alterada!");$("usuario").value=u.toLowerCase();$("senha").value=""}else{alert(r&&r.erro?r.erro:"Erro.")}}).catch(function(err){alert("Erro: "+err.message)})}});
 $("btnFecharModal").addEventListener("click",fecharModal);
-$("btnSair").addEventListener("click",function(){$("menuUsuario").classList.remove("aberto");token="";usuarioLogado=null;subs.forEach(function(s){try{s.unsubscribe()}catch(e){}});subs=[];$("app").style.display="none";$("login").style.display="flex";$("senha").value=""});
-$("btnAlterarSenha").addEventListener("click",function(){$("menuUsuario").classList.remove("aberto")});
-$("btnPerfil").addEventListener("click",function(){$("menuUsuario").classList.remove("aberto")});
+$("btnSair").addEventListener("click",function(){$("menuUsuario").classList.remove("aberto");token="";usuarioLogado=null;subs.forEach(function(s){try{s.unsubscribe()}catch(e){}});subs=[];localStorage.removeItem("ruplast_sessao");$("app").style.display="none";$("login").style.display="flex";$("senha").value=""});
+$("btnAlterarSenha").addEventListener("click",function(e){e.stopPropagation();$("menuUsuario").classList.remove("aberto");alterarSenhaModal()});
+$("btnPerfil").addEventListener("click",function(e){e.stopPropagation();$("menuUsuario").classList.remove("aberto");alert(usuarioLogado?usuarioLogado.nome+" • "+usuarioLogado.perfil:"")});
 $("usuarioTopo").addEventListener("click",function(){$("menuUsuario").classList.toggle("aberto")});
 document.querySelectorAll(".menu-item").forEach(function(el){el.addEventListener("click",function(){abrirPagina(el.getAttribute("data-pagina"))})});
 $("btnVoltar").addEventListener("click",function(){abrirPagina("veiculos")});
-$("btnNovoVeic").addEventListener("click",function(){if(!temPerm("veiculos_editar"))return;alert("Formulário de novo veículo - implementar")});
-$("btnNovaManut").addEventListener("click",function(){if(!temPerm("manutencao_editar"))return;alert("Formulário de nova manutenção - implementar")});
-$("btnNovaOS").addEventListener("click",function(){if(!temPerm("ordens_criar"))return;alert("Formulário de nova OS - implementar")});
+$("btnNovoVeic").addEventListener("click",novoVeiculo);
+$("btnNovaManut").addEventListener("click",novaManutencao);
+$("btnNovaOS").addEventListener("click",novaOS);
 $("btnCadUsuario").addEventListener("click",cadUsuario);
 $("btnLimparBusca").addEventListener("click",function(){$("buscaUsuarios").value="";renderUsuarios()});
 $("novoPerfil").addEventListener("change",aplicarPermissoesPerfil);
 $("btnVerTodosAlertas").addEventListener("click",function(){abrirPagina("alertas")});
 $("btnVerTodosVeic").addEventListener("click",function(){abrirPagina("veiculos")});
-$("btnNotificacoes").addEventListener("click",function(){if("Notification"in window){Notification.requestPermission().then(function(p){alert(p==="granted"?"Ativado!":"Bloqueado.")})}});
+$("btnNotificacoes").addEventListener("click",function(){if("Notification"in window){Notification.requestPermission().then(function(p){alert(p==="granted"?"Notificações ativadas!":"Bloqueadas.")})}else{alert("Navegador não suporta.")}});
 aplicarPermissoesPerfil();
+
+function novoVeiculo(){
+if(!temPerm("veiculos_editar")){alert("Sem permissão para cadastrar veículos.");return}
+$("modalTitulo").textContent="Cadastrar veículo";
+$("modalConteudo").innerHTML='<div class="form-grid"><div class="campo"><label>Identificação</label><input id="nvId" placeholder="Ex.: TRUCK-010"></div><div class="campo"><label>Placa</label><input id="nvPlaca" placeholder="Ex.: ABC1D23"></div><div class="campo"><label>Modelo</label><input id="nvMod" placeholder="Ex.: VW Constellation"></div><div class="campo"><label>Tipo</label><select id="nvTipo"><option>Truck</option><option>Delivery</option><option>Carreta</option><option>Van</option><option>Utilitário</option></select></div><div class="campo"><label>Ano</label><input id="nvAno" type="number" value="2024"></div><div class="campo"><label>KM</label><input id="nvKm" type="number" value="0"></div><div class="campo"><label>Combustível</label><select id="nvComb"><option>Diesel</option><option>Gasolina</option><option>Etanol</option><option>Elétrico</option><option>Híbrido</option></select></div><div class="campo"><label>Status</label><select id="nvSt"><option>Operando</option><option>Manutenção</option><option>Parado</option></select></div><div class="campo"><label>Centro de custo</label><input id="nvCentro" placeholder="Ex.: Operação"></div><div class="campo"><label>Responsável</label><input id="nvResp" placeholder="Nome"></div><div class="campo"><label>Próx. revisão KM</label><input id="nvProxKm" type="number" value="10000"></div><div class="campo"><label>Próx. revisão data</label><input id="nvProxData" type="date"></div></div><button class="btn-primary" id="btnSalvaNovoVeic">＋ Cadastrar veículo</button>';
+$("modal").classList.add("aberto");
+$("btnSalvaNovoVeic").addEventListener("click",function(){
+var id=$("nvId").value.trim(),placa=$("nvPlaca").value.trim().toUpperCase(),mod=$("nvMod").value.trim(),tipo=$("nvTipo").value,ano=Number($("nvAno").value)||2024,km=Number($("nvKm").value)||0,comb=$("nvComb").value,st=$("nvSt").value,centro=$("nvCentro").value.trim(),resp=$("nvResp").value.trim(),proxKm=Number($("nvProxKm").value)||0,proxData=$("nvProxData").value;
+if(!id||!mod){alert("Informe identificação e modelo.");return}
+if(veiculos.some(function(x){return x.id===id})){alert("Já existe veículo com essa identificação.");return}
+syncStatus("Salvando...","#f59e0b");
+sb.from("veiculos").insert([{id:id,placa:placa,modelo:mod,tipo:tipo,ano:ano,km:km,custo:0,horas:0,disponibilidade:100,status:st,combustivel:comb,centro_custo:centro,responsavel:resp,ultima_revisao:"",km_ultima_revisao:0,proxima_revisao_km:proxKm,proxima_revisao_data:proxData,observacoes:""}]).then(function(r){
+if(r.error){alert("Erro: "+r.error.message);syncStatus("Erro","#dc3545");return}
+syncStatus("Sincronizado","#13a36a");fecharModal();
+});
+});
+}
+
+function alterarSenhaModal(){
+if(!usuarioLogado)return;
+$("modalTitulo").textContent="Alterar senha";
+$("modalConteudo").innerHTML='<div class="campo"><label>Senha atual</label><input id="sAtual" type="password"></div><div class="campo"><label>Nova senha</label><input id="sNova" type="password"></div><div class="campo"><label>Confirmar</label><input id="sConf" type="password"></div><button class="btn" id="btnSalvaSenha">Salvar nova senha</button>';
+$("modal").classList.add("aberto");
+$("btnSalvaSenha").addEventListener("click",function(){
+var atual=$("sAtual").value,nova=$("sNova").value,conf=$("sConf").value;
+if(atual!==usuarioLogado.senha){alert("Senha atual incorreta.");return}
+if(nova.length<6){alert("Mínimo 6 caracteres.");return}
+if(nova!==conf){alert("Senhas não conferem.");return}
+sb.from("usuarios").update({senha:nova}).eq("id",usuarioLogado.id).then(function(r){
+if(r.error){alert("Erro: "+r.error.message);return}
+usuarioLogado.senha=nova;salvarSessao();fecharModal();alert("Senha alterada com sucesso!");
+});
+});
+}
 
 // Gráficos
 gCusto=new Chart($("graficoCusto"),{type:"bar",data:{labels:["Mar","Abr","Mai","Jun","Jul","Ago"],datasets:[{data:[0,0,0,0,0,0],backgroundColor:"#126cff",borderRadius:5}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}}}});
 gStatus=new Chart($("graficoStatus"),{type:"doughnut",data:{labels:["Operando","Manutenção","Parado","Baixado"],datasets:[{data:[0,0,0,0],backgroundColor:["#13a36a","#f59e0b","#dc3545","#94a3b8"],borderWidth:0}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:"bottom"}}}});
 gHoras=new Chart($("graficoHoras"),{type:"bar",data:{labels:[],datasets:[{data:[],backgroundColor:"#126cff"}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}}}});
 gCat=new Chart($("graficoCategorias"),{type:"doughnut",data:{labels:["Peças","Mão de obra","Pneus","Lubrificantes","Outros"],datasets:[{data:[42,25,16,10,7],backgroundColor:["#126cff","#13a36a","#f59e0b","#8b5cf6","#94a3b8"],borderWidth:0}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:"bottom"}}}});
+gVeic=new Chart($("graficoVeiculo"),{type:"line",data:{labels:["Mar","Abr","Mai","Jun","Jul","Ago"],datasets:[{data:[1100,1800,1300,2400,1900,0],borderColor:"#126cff",backgroundColor:"rgba(18,108,255,.12)",fill:true,tension:.4}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}}}});
 
-window.abrirVeiculo=abrirVeiculo;
-window.fecharModal=fecharModal;
+// Inicializar: tentar restaurar sessão
+tentarRestaurarSessao().then(function(ok){if(!ok){$("login").style.display="flex";$("app").style.display="none"}});
 })();
 </script>
 </body>
