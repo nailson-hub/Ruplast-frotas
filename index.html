@@ -1158,28 +1158,162 @@ async function carregarUsuariosCloud(){
     }catch(e){ console.warn("Falha ao carregar usuários online:",e); }
 }
 
-async function loginOnline(usuario,senha){
-    try{
-        const r=await cloudRpc("ruplast_login",{p_usuario:usuario,p_senha:senha});
-        if(!r?.ok) return {ok:false,erro:r?.erro||"Usuário ou senha incorretos."};
-        cloudToken=r.token;
-        localStorage.setItem(CHAVE_TOKEN_CLOUD,cloudToken);
-        usuarioLogado=Object.assign({senha:senha},r.usuario);
-        const local=usuarios.find(u=>u.id===usuarioLogado.id||u.usuario===usuarioLogado.usuario);
-        if(local) usuarioLogado=Object.assign(local,usuarioLogado,{senha:senha});
-        else usuarios.push(usuarioLogado);
-        localStorage.setItem(CHAVE_USUARIOS,JSON.stringify(usuarios));
-        await carregarEstadoCloud();
-        await carregarUsuariosCloud();
-        await salvarEstadoCloud();
-        if(temPermissao("acessos")) await sincronizarUsuariosCloud();
-        salvarSessao(usuarioLogado);
-        iniciarSincronizacaoAutomaticaCloud();
-        return {ok:true};
-    }catch(e){
-        console.warn("Login online indisponível; usando modo local:",e);
-        return {ok:false,offline:true};
+async function loginOnline(usuario, senha){
+
+  try{
+
+    const r = await cloudRpc("ruplast_login", {
+      p_usuario: usuario,
+      p_senha: senha
+    });
+
+    if(!r || !r.ok){
+      return {
+        ok:false,
+        erro:r?.erro || "Usuário ou senha incorretos."
+      };
     }
+
+    /* ==============================
+       SESSÃO ONLINE
+       ============================== */
+
+    cloudToken = r.token || "";
+
+    if(!cloudToken){
+      return {
+        ok:false,
+        erro:"O servidor não retornou o token da sessão."
+      };
+    }
+
+    /* Token da sessão neste dispositivo */
+    localStorage.setItem(CHAVE_TOKEN_CLOUD, cloudToken);
+
+
+    /* ==============================
+       DADOS DO USUÁRIO
+       ============================== */
+
+    const usuarioCloud = {
+      id: r.usuario_id,
+      nome: r.nome,
+      usuario: r.usuario,
+      email: r.email,
+      perfil: r.perfil,
+      status: r.status,
+      permissoes: r.permissoes || [],
+      senha: senha
+    };
+
+
+    /* Atualiza usuário atualmente logado */
+    usuarioLogado = usuarioCloud;
+
+
+    /* ==============================
+       ATUALIZA CACHE LOCAL
+       ============================== */
+
+    const usuariosLocais = Array.isArray(usuarios)
+      ? usuarios
+      : [];
+
+    const indice = usuariosLocais.findIndex(
+      u =>
+        u?.id === usuarioCloud.id ||
+        u?.usuario === usuarioCloud.usuario
+    );
+
+    if(indice >= 0){
+
+      usuariosLocais[indice] = {
+        ...usuariosLocais[indice],
+        ...usuarioCloud
+      };
+
+    }else{
+
+      usuariosLocais.push(usuarioCloud);
+
+    }
+
+    usuarios = usuariosLocais;
+
+    localStorage.setItem(
+      CHAVE_USUARIOS,
+      JSON.stringify(usuarios)
+    );
+
+
+    /* ==============================
+       SINCRONIZA DADOS ONLINE
+       ============================== */
+
+    try{
+      await carregarEstadoCloud();
+    }catch(e){
+      console.warn("Não foi possível carregar o estado online:", e);
+    }
+
+    try{
+      await carregarUsuariosCloud();
+    }catch(e){
+      console.warn("Não foi possível carregar usuários online:", e);
+    }
+
+    try{
+      await salvarEstadoCloud();
+    }catch(e){
+      console.warn("Não foi possível sincronizar o estado:", e);
+    }
+
+
+    /* ==============================
+       SINCRONIZA USUÁRIOS
+       ============================== */
+
+    if(typeof temPermissao === "function" &&
+       temPermissao("acessos")){
+
+      try{
+        await sincronizarUsuariosCloud();
+      }catch(e){
+        console.warn("Não foi possível sincronizar usuários:", e);
+      }
+
+    }
+
+
+    /* ==============================
+       SALVA SESSÃO
+       ============================== */
+
+    salvarSessao(usuarioLogado);
+
+    if(typeof iniciarSincronizacaoAutomaticaCloud === "function"){
+      iniciarSincronizacaoAutomaticaCloud();
+    }
+
+
+    return {
+      ok:true,
+      usuario:usuarioLogado
+    };
+
+
+  }catch(e){
+
+    console.error("Erro no login online:", e);
+
+    return {
+      ok:false,
+      offline:true,
+      erro:"Não foi possível conectar ao servidor."
+    };
+
+  }
+
 }
 
 
