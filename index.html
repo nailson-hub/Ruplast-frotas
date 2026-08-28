@@ -580,6 +580,14 @@ tr.clicavel:hover{
 <button class="btn login-btn" onclick="entrar()">
             Entrar na plataforma
         </button>
+<div style="text-align:center;margin-top:14px">
+    <button
+        type="button"
+        onclick="recuperarSenha()"
+        style="border:0;background:none;color:#126cff;cursor:pointer;font-size:13px">
+        Esqueci minha senha
+    </button>
+</div>
 <div class="erro" id="erro">
             Usuário ou senha incorretos.
         </div>
@@ -1023,7 +1031,6 @@ let cloudToken=localStorage.getItem(CHAVE_TOKEN_CLOUD)||"";
 let cloudOnline=false;
 let cloudSyncTimer=null;
 let cloudLoading=false;
-let cloudSaving=false;
 
 async function cloudRpc(nome,params){
     const {data,error}=await supabaseClient.rpc(nome,params||{});
@@ -1042,16 +1049,13 @@ function agendarSincronizacaoCloud(){
 }
 
 async function salvarEstadoCloud(){
-    if(!cloudToken||cloudLoading||cloudSaving)return;
-    cloudSaving=true;
+    if(!cloudToken||cloudLoading)return;
     try{
         const r=await cloudRpc("ruplast_save_state",{p_token:cloudToken,p_state:cloudState()});
         if(r?.ok===false) throw new Error(r.erro||"Sessão online inválida");
         cloudOnline=true;
     }catch(e){
         console.warn("Falha ao sincronizar dados online:",e);
-    }finally{
-        cloudSaving=false;
     }
 }
 
@@ -1061,14 +1065,14 @@ async function carregarEstadoCloud(){
         cloudLoading=true;
         const r=await cloudRpc("ruplast_load_state",{p_token:cloudToken});
         if(r?.ok===false) throw new Error(r.erro||"Sessão inválida");
-        const cloudExiste=r.cloudExiste===true;
+        const cloudTemDados=(Array.isArray(r.veiculos)&&r.veiculos.length) ||
+                            (Array.isArray(r.manutencoes)&&r.manutencoes.length) ||
+                            (Array.isArray(r.ordensServico)&&r.ordensServico.length);
         const localTemDados=veiculos.length || manutencoes.length || ordensServico.length;
 
-        // Se já existe estado deste usuário na nuvem, ele é a fonte oficial
-        // e substitui o cache local deste dispositivo.
-        // Se ainda não existe estado na nuvem, preservamos os dados locais
-        // e o primeiro salvamento envia esses dados para a conta online.
-        if(cloudExiste || !localTemDados){
+        // Primeiro acesso: o banco pode estar vazio. Nesse caso preservamos
+        // os dados que já estavam neste computador e fazemos o primeiro upload.
+        if(cloudTemDados || !localTemDados){
             if(Array.isArray(r.veiculos)){
                 veiculos.length=0;
                 r.veiculos.forEach(v=>veiculos.push(normalizarVeiculo(v)));
@@ -1089,53 +1093,6 @@ async function carregarEstadoCloud(){
         console.warn("Não foi possível carregar os dados online:",e);
         return false;
     }finally{ cloudLoading=false; }
-}
-
-let cloudPollTimer=null;
-let cloudPollBusy=false;
-
-async function sincronizarEstadoCloudSilencioso(){
-    if(!cloudToken||cloudLoading||cloudSaving||cloudPollBusy||!usuarioLogado)return;
-    cloudPollBusy=true;
-    try{
-        const r=await cloudRpc("ruplast_load_state",{p_token:cloudToken});
-        if(r?.ok===false) throw new Error(r.erro||"Sessão online inválida");
-        if(r?.cloudExiste!==true)return;
-
-        if(Array.isArray(r.veiculos)){
-            veiculos.length=0;
-            r.veiculos.forEach(v=>veiculos.push(normalizarVeiculo(v)));
-            localStorage.setItem(CHAVE_VEICULOS,JSON.stringify(veiculos));
-        }
-        if(Array.isArray(r.manutencoes)){
-            manutencoes=r.manutencoes;
-            localStorage.setItem(CHAVE_MANUTENCOES,JSON.stringify(manutencoes));
-        }
-        if(Array.isArray(r.ordensServico)){
-            ordensServico=r.ordensServico;
-            localStorage.setItem(CHAVE_OS,JSON.stringify(ordensServico));
-        }
-
-        renderizarVeiculos();
-        renderizarTabela();
-        atualizarManutencoes();
-        atualizarOS();
-        atualizarDashboardAutomatico();
-        atualizarAlertasInteligentes();
-        cloudOnline=true;
-    }catch(e){
-        console.warn("Falha ao atualizar dados online:",e);
-    }finally{
-        cloudPollBusy=false;
-    }
-}
-
-function iniciarSincronizacaoAutomaticaCloud(){
-    clearInterval(cloudPollTimer);
-    if(!cloudToken)return;
-    cloudPollTimer=setInterval(()=>{
-        if(document.visibilityState!=="hidden" && usuarioLogado) sincronizarEstadoCloudSilencioso();
-    },3000);
 }
 
 async function sincronizarUsuariosCloud(){
@@ -1167,27 +1124,16 @@ async function loginOnline(usuario,senha){
         if(!r?.ok) return {ok:false,erro:r?.erro||"Usuário ou senha incorretos."};
         cloudToken=r.token;
         localStorage.setItem(CHAVE_TOKEN_CLOUD,cloudToken);
-        // O RPC de login retorna os dados do usuário diretamente (não dentro de r.usuario).
-        // Mantemos a senha somente no cache local para compatibilidade com o restante do app.
-        const usuarioCloud={
-            id:r.usuario_id,
-            nome:r.nome,
-            usuario:r.usuario,
-            email:r.email,
-            perfil:r.perfil,
-            status:r.status,
-            permissoes:Array.isArray(r.permissoes)?r.permissoes:[]
-        };
-        const local=usuarios.find(u=>u.id===usuarioCloud.id||u.usuario===usuarioCloud.usuario);
-        usuarioLogado=Object.assign({},local||{},usuarioCloud,{senha:senha});
-        if(!local) usuarios.push(usuarioLogado);
+        usuarioLogado=Object.assign({senha:senha},r.usuario);
+        const local=usuarios.find(u=>u.id===usuarioLogado.id||u.usuario===usuarioLogado.usuario);
+        if(local) usuarioLogado=Object.assign(local,usuarioLogado,{senha:senha});
+        else usuarios.push(usuarioLogado);
         localStorage.setItem(CHAVE_USUARIOS,JSON.stringify(usuarios));
         await carregarEstadoCloud();
         await carregarUsuariosCloud();
         await salvarEstadoCloud();
         if(temPermissao("acessos")) await sincronizarUsuariosCloud();
         salvarSessao(usuarioLogado);
-        iniciarSincronizacaoAutomaticaCloud();
         return {ok:true};
     }catch(e){
         console.warn("Login online indisponível; usando modo local:",e);
@@ -1347,6 +1293,52 @@ document.getElementById("senha").addEventListener("keydown",function(e){
 
 window.entrar=entrar;
 
+async function recuperarSenha(){
+    const usuario=prompt("Digite seu usuário para recuperar a senha:");
+    if(!usuario)return;
+
+    const email=prompt("Digite o e-mail cadastrado neste usuário:");
+    if(!email)return;
+
+    const novaSenha=prompt("Digite a nova senha (mínimo 6 caracteres):");
+    if(!novaSenha)return;
+
+    const confirmacao=prompt("Digite novamente a nova senha:");
+    if(!confirmacao)return;
+
+    if(novaSenha.length<6){
+        alert("A nova senha deve ter pelo menos 6 caracteres.");
+        return;
+    }
+
+    if(novaSenha!==confirmacao){
+        alert("As senhas não conferem.");
+        return;
+    }
+
+    try{
+        const r=await cloudRpc("ruplast_recuperar_senha",{
+            p_usuario:usuario.trim(),
+            p_email:email.trim(),
+            p_nova_senha:novaSenha
+        });
+
+        if(!r?.ok){
+            alert(r?.erro||"Não foi possível recuperar a senha. Verifique usuário e e-mail.");
+            return;
+        }
+
+        document.getElementById("usuario").value=usuario.trim().toLowerCase();
+        document.getElementById("senha").value="";
+        alert("Senha redefinida com sucesso. Agora entre com a nova senha.");
+    }catch(e){
+        console.warn("Falha ao recuperar senha online:",e);
+        alert("Não foi possível conectar ao servidor para recuperar a senha.");
+    }
+}
+
+window.recuperarSenha=recuperarSenha;
+
 async function iniciarSessao(){
     if(!cloudToken){
         const salvo=localStorage.getItem(CHAVE_SESSAO);
@@ -1367,9 +1359,8 @@ async function iniciarSessao(){
     try{
         const r=await cloudRpc("ruplast_me",{p_token:cloudToken});
         if(!r?.ok) throw new Error("Sessão online expirada");
-        const usuarioCloud=r.usuario||{};
-        const local=usuarios.find(u=>u.id===usuarioCloud.id);
-        usuarioLogado=Object.assign({},local||{senha:""},usuarioCloud);
+        const local=usuarios.find(u=>u.id===r.usuario.id);
+        usuarioLogado=Object.assign(local||{senha:""},r.usuario);
         await carregarEstadoCloud();
         await carregarUsuariosCloud();
         document.getElementById("login").style.display="none";
@@ -1381,7 +1372,6 @@ async function iniciarSessao(){
         atualizarOS();
         atualizarDashboardAutomatico();
         atualizarAlertasInteligentes();
-        iniciarSincronizacaoAutomaticaCloud();
     }catch(e){
         localStorage.removeItem(CHAVE_TOKEN_CLOUD);
         cloudToken="";
@@ -1398,8 +1388,6 @@ async function sair(e){
     try{ if(cloudToken) await cloudRpc("ruplast_logout",{p_token:cloudToken}); }catch(err){}
     localStorage.removeItem(CHAVE_SESSAO);
     localStorage.removeItem(CHAVE_TOKEN_CLOUD);
-    clearInterval(cloudPollTimer);
-    cloudPollTimer=null;
     cloudToken="";
     usuarioLogado=null;
     document.getElementById("app").style.display="none";
