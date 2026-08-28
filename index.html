@@ -1005,6 +1005,7 @@ Pendências que exigem atenção.
 <div id="modalConteudo"></div>
 </div>
 </div>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
 
 /* LOGIN */
@@ -1013,6 +1014,174 @@ Pendências que exigem atenção.
 
 const CHAVE_USUARIOS="ruplast_usuarios_v1";
 const CHAVE_SESSAO="ruplast_sessao_v1";
+
+const CHAVE_TOKEN_CLOUD="ruplast_cloud_token_v1";
+const SUPABASE_URL="https://cqcrreienaqvktgwcmsk.supabase.co";
+const SUPABASE_KEY="sb_publishable_FZmoi098CglW10C0961IHZg__p2xKEk7";
+const supabaseClient=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
+let cloudToken=localStorage.getItem(CHAVE_TOKEN_CLOUD)||"";
+let cloudOnline=false;
+let cloudSyncTimer=null;
+let cloudLoading=false;
+
+async function cloudRpc(nome,params){
+    const {data,error}=await supabaseClient.rpc(nome,params||{});
+    if(error) throw error;
+    return data;
+}
+
+function cloudState(){
+    return {veiculos:veiculos,manutencoes:manutencoes,ordensServico:ordensServico};
+}
+
+function agendarSincronizacaoCloud(){
+    if(!cloudToken||cloudLoading)return;
+    clearTimeout(cloudSyncTimer);
+    cloudSyncTimer=setTimeout(salvarEstadoCloud,500);
+}
+
+async function salvarEstadoCloud(){
+    if(!cloudToken||cloudLoading)return;
+    try{
+        const r=await cloudRpc("ruplast_save_state",{p_token:cloudToken,p_state:cloudState()});
+        if(r?.ok===false) throw new Error(r.erro||"Sessão online inválida");
+        cloudOnline=true;
+    }catch(e){
+        console.warn("Falha ao sincronizar dados online:",e);
+    }
+}
+
+let cloudPollTimer=null;
+let cloudPollBusy=false;
+
+async function sincronizarEstadoCloudSilencioso(){
+    if(!cloudToken||cloudLoading||cloudPollBusy)return;
+    cloudPollBusy=true;
+    try{
+        const r=await cloudRpc("ruplast_load_state",{p_token:cloudToken});
+        if(r?.ok===false) throw new Error(r.erro||"Sessão online inválida");
+        if(r?.cloudExiste!==true)return;
+        if(Array.isArray(r.veiculos)){
+            veiculos.length=0;
+            r.veiculos.forEach(v=>veiculos.push(normalizarVeiculo(v)));
+            localStorage.setItem(CHAVE_VEICULOS,JSON.stringify(veiculos));
+        }
+        if(Array.isArray(r.manutencoes)){
+            manutencoes=r.manutencoes;
+            localStorage.setItem(CHAVE_MANUTENCOES,JSON.stringify(manutencoes));
+        }
+        if(Array.isArray(r.ordensServico)){
+            ordensServico=r.ordensServico;
+            localStorage.setItem(CHAVE_OS,JSON.stringify(ordensServico));
+        }
+        renderizarVeiculos();
+        renderizarTabela();
+        atualizarManutencoes();
+        atualizarOS();
+        atualizarDashboardAutomatico();
+        atualizarAlertasInteligentes();
+        cloudOnline=true;
+    }catch(e){
+        console.warn("Falha ao atualizar dados online:",e);
+    }finally{
+        cloudPollBusy=false;
+    }
+}
+
+function iniciarSincronizacaoAutomaticaCloud(){
+    clearInterval(cloudPollTimer);
+    if(!cloudToken)return;
+    cloudPollTimer=setInterval(()=>{
+        if(document.visibilityState!=="hidden" && usuarioLogado) sincronizarEstadoCloudSilencioso();
+    },15000);
+}
+
+async function carregarEstadoCloud(){
+    if(!cloudToken)return false;
+    try{
+        cloudLoading=true;
+        const r=await cloudRpc("ruplast_load_state",{p_token:cloudToken});
+        if(r?.ok===false) throw new Error(r.erro||"Sessão inválida");
+        const cloudExiste=r?.cloudExiste===true;
+        const localTemDados=veiculos.length || manutencoes.length || ordensServico.length;
+
+        // Se já existe um estado na nuvem, ele é a fonte oficial e substitui
+        // os dados locais deste dispositivo. Se a nuvem ainda não foi criada,
+        // preservamos os dados locais e o primeiro salvamento faz a carga inicial.
+        if(cloudExiste){
+            if(Array.isArray(r.veiculos)){
+                veiculos.length=0;
+                r.veiculos.forEach(v=>veiculos.push(normalizarVeiculo(v)));
+                localStorage.setItem(CHAVE_VEICULOS,JSON.stringify(veiculos));
+            }
+            if(Array.isArray(r.manutencoes)){
+                manutencoes=r.manutencoes;
+                localStorage.setItem(CHAVE_MANUTENCOES,JSON.stringify(manutencoes));
+            }
+            if(Array.isArray(r.ordensServico)){
+                ordensServico=r.ordensServico;
+                localStorage.setItem(CHAVE_OS,JSON.stringify(ordensServico));
+            }
+        }else if(!localTemDados){
+            veiculos.length=0;
+            manutencoes=[];
+            ordensServico=[];
+        }
+        cloudOnline=true;
+        return true;
+    }catch(e){
+        console.warn("Não foi possível carregar os dados online:",e);
+        return false;
+    }finally{ cloudLoading=false; }
+}
+
+async function sincronizarUsuariosCloud(){
+    if(!cloudToken||!usuarioLogado||!temPermissao("acessos"))return;
+    try{
+        const r=await cloudRpc("ruplast_save_users",{p_token:cloudToken,p_users:usuarios});
+        if(r?.ok===false) throw new Error(r.erro||"Falha ao salvar usuários");
+    }catch(e){ console.warn("Falha ao sincronizar usuários:",e); }
+}
+
+async function carregarUsuariosCloud(){
+    if(!cloudToken||!usuarioLogado||!temPermissao("acessos"))return;
+    try{
+        const r=await cloudRpc("ruplast_list_users",{p_token:cloudToken});
+        if(r?.ok && Array.isArray(r.usuarios)){
+            const devePreservarLocais=(r.usuarios.length<=1 && usuarios.length>r.usuarios.length);
+            if(!devePreservarLocais){
+                const senhasLocais=new Map(usuarios.map(u=>[u.id,u.senha||""]));
+                usuarios=r.usuarios.map(u=>Object.assign({senha:senhasLocais.get(u.id)||""},u));
+                localStorage.setItem(CHAVE_USUARIOS,JSON.stringify(usuarios));
+            }
+        }
+    }catch(e){ console.warn("Falha ao carregar usuários online:",e); }
+}
+
+async function loginOnline(usuario,senha){
+    try{
+        const r=await cloudRpc("ruplast_login",{p_usuario:usuario,p_senha:senha});
+        if(!r?.ok) return {ok:false,erro:r?.erro||"Usuário ou senha incorretos."};
+        cloudToken=r.token;
+        localStorage.setItem(CHAVE_TOKEN_CLOUD,cloudToken);
+        usuarioLogado=Object.assign({senha:senha},r.usuario);
+        const local=usuarios.find(u=>u.id===usuarioLogado.id||u.usuario===usuarioLogado.usuario);
+        if(local) usuarioLogado=Object.assign(local,usuarioLogado,{senha:senha});
+        else usuarios.push(usuarioLogado);
+        localStorage.setItem(CHAVE_USUARIOS,JSON.stringify(usuarios));
+        await carregarEstadoCloud();
+        await carregarUsuariosCloud();
+        await salvarEstadoCloud();
+        if(temPermissao("acessos")) await sincronizarUsuariosCloud();
+        salvarSessao(usuarioLogado);
+        iniciarSincronizacaoAutomaticaCloud();
+        return {ok:true};
+    }catch(e){
+        console.warn("Login online indisponível; usando modo local:",e);
+        return {ok:false,offline:true};
+    }
+}
+
 
 const permissoesDisponiveis={
     dashboard:"Ver Dashboard",
@@ -1075,6 +1244,7 @@ function carregarUsuarios(){
 
 function salvarUsuarios(lista){
     localStorage.setItem(CHAVE_USUARIOS,JSON.stringify(lista));
+    if(typeof sincronizarUsuariosCloud==="function") sincronizarUsuariosCloud();
 }
 
 let usuarios=carregarUsuarios();
@@ -1109,33 +1279,53 @@ function atualizarCabecalho(){
     }
 }
 
-function entrar(){
+async function entrar(){
 
     const usuario=document.getElementById("usuario").value.trim().toLowerCase();
     const senha=document.getElementById("senha").value;
     const erro=document.getElementById("erro");
 
-    const encontrado=usuarios.find(function(u){
-        return u.usuario.toLowerCase()===usuario &&
-               u.senha===senha &&
-               u.status==="Ativo";
-    });
-
-    if(!encontrado){
-        erro.textContent="Usuário, senha ou status de acesso inválido.";
+    if(!usuario||!senha){
+        erro.textContent="Informe usuário e senha.";
         erro.style.display="block";
         return;
     }
 
-    usuarioLogado=encontrado;
-    salvarSessao(encontrado);
+    const online=await loginOnline(usuario,senha);
+    if(online.ok){
+        erro.style.display="none";
+        document.getElementById("login").style.display="none";
+        document.getElementById("app").style.display="block";
+        atualizarCabecalho();
+        renderizarVeiculos();
+        renderizarTabela();
+        atualizarManutencoes();
+        atualizarOS();
+        atualizarDashboardAutomatico();
+        atualizarAlertasInteligentes();
+        return;
+    }
 
-    erro.style.display="none";
-    document.getElementById("login").style.display="none";
-    document.getElementById("app").style.display="block";
+    if(online.offline){
+        const encontrado=usuarios.find(function(u){
+            return u.usuario.toLowerCase()===usuario && u.senha===senha && u.status==="Ativo";
+        });
+        if(!encontrado){
+            erro.textContent="Não foi possível conectar ao servidor e o acesso local também não foi validado.";
+            erro.style.display="block";
+            return;
+        }
+        usuarioLogado=encontrado;
+        salvarSessao(encontrado);
+        erro.style.display="none";
+        document.getElementById("login").style.display="none";
+        document.getElementById("app").style.display="block";
+        atualizarCabecalho();
+        return;
+    }
 
-    atualizarCabecalho();
-    abrirPagina("dashboard");
+    erro.textContent=online.erro||"Usuário, senha ou status de acesso inválido.";
+    erro.style.display="block";
 }
 
 document.getElementById("senha").addEventListener("keydown",function(e){
@@ -1144,36 +1334,60 @@ document.getElementById("senha").addEventListener("keydown",function(e){
 
 window.entrar=entrar;
 
-function iniciarSessao(){
-
-    const salvo=localStorage.getItem(CHAVE_SESSAO);
-    if(!salvo)return;
+async function iniciarSessao(){
+    if(!cloudToken){
+        const salvo=localStorage.getItem(CHAVE_SESSAO);
+        if(!salvo)return;
+        try{
+            const sessao=JSON.parse(salvo);
+            const encontrado=usuarios.find(u=>u.id===sessao.id && u.status==="Ativo");
+            if(encontrado){
+                usuarioLogado=encontrado;
+                document.getElementById("login").style.display="none";
+                document.getElementById("app").style.display="block";
+                atualizarCabecalho();
+            }
+        }catch(e){}
+        return;
+    }
 
     try{
-        const sessao=JSON.parse(salvo);
-        const encontrado=usuarios.find(function(u){
-            return u.id===sessao.id && u.status==="Ativo";
-        });
-
-        if(encontrado){
-            usuarioLogado=encontrado;
-            document.getElementById("login").style.display="none";
-            document.getElementById("app").style.display="block";
-            atualizarCabecalho();
-        }
-    }catch(e){}
+        const r=await cloudRpc("ruplast_me",{p_token:cloudToken});
+        if(!r?.ok) throw new Error("Sessão online expirada");
+        const local=usuarios.find(u=>u.id===r.usuario.id);
+        usuarioLogado=Object.assign(local||{senha:""},r.usuario);
+        await carregarEstadoCloud();
+        await carregarUsuariosCloud();
+        document.getElementById("login").style.display="none";
+        document.getElementById("app").style.display="block";
+        atualizarCabecalho();
+        renderizarVeiculos();
+        renderizarTabela();
+        atualizarManutencoes();
+        atualizarOS();
+        atualizarDashboardAutomatico();
+        atualizarAlertasInteligentes();
+        iniciarSincronizacaoAutomaticaCloud();
+    }catch(e){
+        localStorage.removeItem(CHAVE_TOKEN_CLOUD);
+        cloudToken="";
+        console.warn("Sessão online indisponível:",e);
+    }
 }
 
 function toggleMenuUsuario(){
     document.getElementById("menuUsuario").classList.toggle("aberto");
 }
 
-function sair(e){
+async function sair(e){
     if(e)e.stopPropagation();
-
+    try{ if(cloudToken) await cloudRpc("ruplast_logout",{p_token:cloudToken}); }catch(err){}
     localStorage.removeItem(CHAVE_SESSAO);
+    localStorage.removeItem(CHAVE_TOKEN_CLOUD);
+    clearInterval(cloudPollTimer);
+    cloudPollTimer=null;
+    cloudToken="";
     usuarioLogado=null;
-
     document.getElementById("app").style.display="none";
     document.getElementById("login").style.display="flex";
     document.getElementById("senha").value="";
@@ -1249,6 +1463,7 @@ function salvarNovaSenha(){
 
     salvarUsuarios(usuarios);
     salvarSessao(usuarioLogado);
+    if(cloudToken) cloudRpc("ruplast_update_password",{p_token:cloudToken,p_user_id:usuarioLogado.id,p_nova_senha:nova}).catch(e=>console.warn("Falha ao atualizar senha online:",e));
 
     fecharModal();
 
@@ -1424,6 +1639,7 @@ function normalizarVeiculo(v){
 
 function salvarVeiculos(){
     localStorage.setItem(CHAVE_VEICULOS,JSON.stringify(veiculos));
+    agendarSincronizacaoCloud();
 }
 
 function dataISOValida(valor){
@@ -2117,6 +2333,7 @@ function salvarRedefinicaoSenha(id){
 
     u.senha=nova;
     salvarUsuarios(usuarios);
+    if(cloudToken) cloudRpc("ruplast_update_password",{p_token:cloudToken,p_user_id:id,p_nova_senha:nova}).catch(e=>console.warn("Falha ao redefinir senha online:",e));
 
     if(id===usuarioLogado.id){
         usuarioLogado=u;
@@ -2144,6 +2361,7 @@ function excluirUsuario(id){
     usuarios=usuarios.filter(item=>item.id!==id);
 
     salvarUsuarios(usuarios);
+    if(cloudToken) cloudRpc("ruplast_delete_user",{p_token:cloudToken,p_user_id:id}).catch(e=>console.warn("Falha ao excluir usuário online:",e));
     renderizarUsuarios();
 }
 
@@ -2725,6 +2943,7 @@ function carregarColecoesFrota(){
 function salvarColecoesFrota(){
     localStorage.setItem(CHAVE_MANUTENCOES,JSON.stringify(manutencoes));
     localStorage.setItem(CHAVE_OS,JSON.stringify(ordensServico));
+    agendarSincronizacaoCloud();
 }
 function moeda(v){return "R$ "+(Number(v)||0).toLocaleString("pt-BR",{minimumFractionDigits:2});}
 function dataBR(v){return dataBRSegura(v);}
