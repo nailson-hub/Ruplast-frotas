@@ -1023,6 +1023,7 @@ let cloudToken=localStorage.getItem(CHAVE_TOKEN_CLOUD)||"";
 let cloudOnline=false;
 let cloudSyncTimer=null;
 let cloudLoading=false;
+let cloudSaving=false;
 
 async function cloudRpc(nome,params){
     const {data,error}=await supabaseClient.rpc(nome,params||{});
@@ -1041,13 +1042,16 @@ function agendarSincronizacaoCloud(){
 }
 
 async function salvarEstadoCloud(){
-    if(!cloudToken||cloudLoading)return;
+    if(!cloudToken||cloudLoading||cloudSaving)return;
+    cloudSaving=true;
     try{
         const r=await cloudRpc("ruplast_save_state",{p_token:cloudToken,p_state:cloudState()});
         if(r?.ok===false) throw new Error(r.erro||"Sessão online inválida");
         cloudOnline=true;
     }catch(e){
         console.warn("Falha ao sincronizar dados online:",e);
+    }finally{
+        cloudSaving=false;
     }
 }
 
@@ -1091,7 +1095,7 @@ let cloudPollTimer=null;
 let cloudPollBusy=false;
 
 async function sincronizarEstadoCloudSilencioso(){
-    if(!cloudToken||cloudLoading||cloudPollBusy||!usuarioLogado)return;
+    if(!cloudToken||cloudLoading||cloudSaving||cloudPollBusy||!usuarioLogado)return;
     cloudPollBusy=true;
     try{
         const r=await cloudRpc("ruplast_load_state",{p_token:cloudToken});
@@ -1163,10 +1167,20 @@ async function loginOnline(usuario,senha){
         if(!r?.ok) return {ok:false,erro:r?.erro||"Usuário ou senha incorretos."};
         cloudToken=r.token;
         localStorage.setItem(CHAVE_TOKEN_CLOUD,cloudToken);
-        usuarioLogado=Object.assign({senha:senha},r.usuario);
-        const local=usuarios.find(u=>u.id===usuarioLogado.id||u.usuario===usuarioLogado.usuario);
-        if(local) usuarioLogado=Object.assign(local,usuarioLogado,{senha:senha});
-        else usuarios.push(usuarioLogado);
+        // O RPC de login retorna os dados do usuário diretamente (não dentro de r.usuario).
+        // Mantemos a senha somente no cache local para compatibilidade com o restante do app.
+        const usuarioCloud={
+            id:r.usuario_id,
+            nome:r.nome,
+            usuario:r.usuario,
+            email:r.email,
+            perfil:r.perfil,
+            status:r.status,
+            permissoes:Array.isArray(r.permissoes)?r.permissoes:[]
+        };
+        const local=usuarios.find(u=>u.id===usuarioCloud.id||u.usuario===usuarioCloud.usuario);
+        usuarioLogado=Object.assign({},local||{},usuarioCloud,{senha:senha});
+        if(!local) usuarios.push(usuarioLogado);
         localStorage.setItem(CHAVE_USUARIOS,JSON.stringify(usuarios));
         await carregarEstadoCloud();
         await carregarUsuariosCloud();
@@ -1353,8 +1367,9 @@ async function iniciarSessao(){
     try{
         const r=await cloudRpc("ruplast_me",{p_token:cloudToken});
         if(!r?.ok) throw new Error("Sessão online expirada");
-        const local=usuarios.find(u=>u.id===r.usuario.id);
-        usuarioLogado=Object.assign(local||{senha:""},r.usuario);
+        const usuarioCloud=r.usuario||{};
+        const local=usuarios.find(u=>u.id===usuarioCloud.id);
+        usuarioLogado=Object.assign({},local||{senha:""},usuarioCloud);
         await carregarEstadoCloud();
         await carregarUsuariosCloud();
         document.getElementById("login").style.display="none";
