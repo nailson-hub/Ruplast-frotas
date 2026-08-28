@@ -1127,17 +1127,26 @@ function atualizarCabecalho(){
     }
 }
 
-function entrar(){
+async function entrar(){
 
     const usuario=document.getElementById("usuario").value.trim().toLowerCase();
     const senha=document.getElementById("senha").value;
     const erro=document.getElementById("erro");
 
-    const encontrado=usuarios.find(function(u){
-        return u.usuario.toLowerCase()===usuario &&
-               u.senha===senha &&
-               u.status==="Ativo";
-    });
+    const { data: encontrado, error } = await supabase
+    .from("usuarios")
+    .select("*")
+    .eq("usuario", usuario)
+    .eq("senha", senha)
+    .eq("status", "Ativo")
+    .maybeSingle();
+
+if (error) {
+    console.error("Erro ao consultar Supabase:", error);
+    erro.textContent = "Erro ao conectar com o banco de dados.";
+    erro.style.display = "block";
+    return;
+}
 
     if(!encontrado){
         erro.textContent="Usuário, senha ou status de acesso inválido.";
