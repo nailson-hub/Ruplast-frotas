@@ -184,6 +184,18 @@ tr.clicavel:hover{background:#f7faff}
 <h1>Frota Ruplast</h1>
 <p class="subtitulo" id="resumoFrota">Veículos cadastrados e acompanhamento de quilometragem e revisões.</p>
 <div class="veiculos-toolbar"><div class="alert-summary" id="resumoAlertasFrota"></div><button class="btn-primary" id="btnNovoVeic">＋ Cadastrar veículo</button></div>
+<div class="card" style="margin-bottom:16px;padding:14px">
+<div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center">
+<input id="buscaVeiculos" placeholder="🔎 Buscar por ID, modelo ou placa..." style="flex:1;min-width:200px"/>
+<select id="filtroStatusVeic" style="padding:10px;border:1px solid #e1e7ef;border-radius:8px">
+<option value="">Todos os status</option><option>Operando</option><option>Manutenção</option><option>Parado</option><option>Baixado</option>
+</select>
+<select id="filtroTipoVeic" style="padding:10px;border:1px solid #e1e7ef;border-radius:8px">
+<option value="">Todos os tipos</option><option>Truck</option><option>Delivery</option><option>Carreta</option><option>Van</option><option>Utilitário</option>
+</select>
+<button class="btn-secondary" id="btnLimparFiltrosVeic">Limpar filtros</button>
+</div>
+</div>
 <div class="veiculos" id="listaVeiculos"></div>
 </section>
 <section class="pagina" id="detalhe">
@@ -202,14 +214,32 @@ tr.clicavel:hover{background:#f7faff}
 <section class="pagina" id="ordens">
 <h1>Ordens de Serviço</h1>
 <p class="subtitulo">Abra, acompanhe e finalize serviços da frota.</p>
-<div class="kpis"><div class="kpi"><span>OS abertas</span><strong id="osKpiAb">0</strong></div><div class="kpi"><span>OS concluídas</span><strong id="osKpiConc">0</strong></div><div class="kpi"><span>Custo das OS</span><strong id="osKpiCusto">R$ 0,00</strong></div><div class="kpi"><span>Tempo médio</span><strong id="osKpiTempo">0 h</strong></div></div>
-<div class="card tabela"><div class="card-header"><div><b>Ordens de Serviço</b></div><button class="btn" id="btnNovaOS">+ Criar OS</button></div><table><thead><tr><th>OS</th><th>Veículo</th><th>Serviço</th><th>Tipo</th><th>Custo</th><th>Status</th><th>Ação</th></tr></thead><tbody id="tabelaOS"></tbody></table></div>
+<div class="kpis"><div class="kpi"><span>OS abertas</span><strong id="osKpiAb">0</strong></div><div class="kpi"><span>OS concluídas</span><strong id="osKpiConc">0</strong></div><div class="kpi"><span>OS canceladas</span><strong id="osKpiCanc">0</strong></div><div class="kpi"><span>Custo das OS</span><strong id="osKpiCusto">R$ 0,00</strong></div></div>
+<div class="card" style="margin-bottom:16px;padding:14px">
+<div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center">
+<input id="buscaOS" placeholder="🔎 Buscar por ID, veículo ou serviço..." style="flex:1;min-width:200px"/>
+<select id="filtroStatusOS" style="padding:10px;border:1px solid #e1e7ef;border-radius:8px">
+<option value="">Todos os status</option><option>Aberta</option><option>Em andamento</option><option>Concluída</option><option>Cancelada</option>
+</select>
+<select id="filtroTipoOS" style="padding:10px;border:1px solid #e1e7ef;border-radius:8px">
+<option value="">Todos os tipos</option><option>Preventiva</option><option>Corretiva</option><option>Preditiva</option>
+</select>
+<select id="filtroPrioridadeOS" style="padding:10px;border:1px solid #e1e7ef;border-radius:8px">
+<option value="">Todas as prioridades</option><option>Baixa</option><option>Média</option><option>Alta</option><option>Urgente</option>
+</select>
+<button class="btn-secondary" id="btnLimparFiltrosOS">Limpar filtros</button>
+</div>
+</div>
+<div class="card tabela"><div class="card-header"><div><b>Ordens de Serviço</b></div><button class="btn" id="btnNovaOS">+ Criar OS</button></div><table><thead><tr><th>OS</th><th>Veículo</th><th>Serviço</th><th>Tipo</th><th>Prioridade</th><th>Custo</th><th>Status</th><th>Ação</th></tr></thead><tbody id="tabelaOS"></tbody></table></div>
 </section>
 <section class="pagina" id="indicadores">
 <h1>Indicadores</h1>
-<p class="subtitulo">KPIs de eficiência da manutenção.</p>
-<div class="kpis"><div class="kpi"><span>Disponibilidade</span><strong id="indDisp">0%</strong></div><div class="kpi"><span>Em manutenção</span><strong id="indManut">0</strong></div><div class="kpi"><span>Custo médio</span><strong id="indCustoMed">R$ 0,00</strong></div><div class="kpi"><span>Revisões atrasadas</span><strong id="indAtras">0</strong></div></div>
-<div class="grid"><div class="card"><b>Horas por veículo</b><div class="grafico"><canvas id="graficoHoras"></canvas></div></div><div class="card"><b>Distribuição dos custos</b><div class="grafico"><canvas id="graficoCategorias"></canvas></div></div></div>
+<p class="subtitulo">KPIs de eficiência da manutenção calculados automaticamente.</p>
+<div class="kpis"><div class="kpi"><span>Disponibilidade da frota</span><strong id="indDisp">0%</strong><i>média dos veículos</i></div><div class="kpi"><span>Em manutenção</span><strong id="indManut">0</strong><i>veículos parados</i></div><div class="kpi"><span>Custo médio/veículo</span><strong id="indCustoMed">R$ 0,00</strong><i>custo total / frota</i></div><div class="kpi"><span>Revisões atrasadas</span><strong id="indAtras">0</strong><i>atenção necessária</i></div></div>
+<div class="kpis"><div class="kpi"><span>MTBF (km)</span><strong id="indMTBF">—</strong><i>km entre falhas</i></div><div class="kpi"><span>MTTR (horas)</span><strong id="indMTTR">—</strong><i>tempo médio de reparo</i></div><div class="kpi"><span>Índice preventiva</span><strong id="indPrevIdx">0%</strong><i>preventivas / total</i></div><div class="kpi"><span>Custo por KM</span><strong id="indCustoKm">R$ 0,00</strong><i>custo total / km total</i></div></div>
+<div class="kpis"><div class="kpi"><span>Total de OS</span><strong id="indTotalOS">0</strong><i>registradas</i></div><div class="kpi"><span>Taxa de conclusão</span><strong id="indTaxaConc">0%</strong><i>concluídas / total</i></div><div class="kpi"><span>Veículos ativos</span><strong id="indAtivos">0</strong><i>operando</i></div><div class="kpi"><span>Custo total histórico</span><strong id="indCustoHist">R$ 0,00</strong><i>manutenções concluídas</i></div></div>
+<div class="card" style="margin-bottom:18px"><div class="card-header"><div><b>Análise de custos por tipo</b><div class="subtitulo">Distribuição real dos custos por tipo de manutenção.</div></div></div><div class="grafico"><canvas id="graficoCustosTipo"></canvas></div></div>
+<div class="grid"><div class="card"><b>Horas por veículo</b><div class="grafico"><canvas id="graficoHoras"></canvas></div></div><div class="card"><b>Custo por veículo (top 10)</b><div class="grafico"><canvas id="graficoCustoVeic"></canvas></div></div></div>
 </section>
 <section class="pagina" id="acessos">
 <h1>Usuários e Acessos</h1>
@@ -244,7 +274,7 @@ tr.clicavel:hover{background:#f7faff}
 (function(){
 "use strict";
 var URL_SUPA="https://cqcrreienaqvktgwcmsk.supabase.co";
-var KEY_SUPA="sb_publishable_FZmoi098CgWl0CO96lIHZg__p2xKEk7";
+var KEY_SUPA="sb_publishable_FZmoi098CgWl0C0961lHZg___p2xKEK7";
 var sb=window.supabase.createClient(URL_SUPA,KEY_SUPA);
 var veiculos=[],manutencoes=[],ordensServico=[],usuarios=[];
 var usuarioLogado=null,token="",subs=[];
@@ -366,19 +396,30 @@ window.scrollTo(0,0);
 
 function renderVeiculos(){
 var lista=$("listaVeiculos");if(!lista)return;lista.innerHTML="";
-veiculos.forEach(function(v){
+var busca=($("buscaVeiculos")?$("buscaVeiculos").value:"").toLowerCase();
+var fStatus=$("filtroStatusVeic")?$("filtroStatusVeic").value:"";
+var fTipo=$("filtroTipoVeic")?$("filtroTipoVeic").value:"";
+var filtrados=veiculos.filter(function(v){
+var matchBusca=!busca||(v.id||"").toLowerCase().indexOf(busca)>=0||(v.modelo||"").toLowerCase().indexOf(busca)>=0||(v.placa||"").toLowerCase().indexOf(busca)>=0;
+var matchStatus=!fStatus||v.status===fStatus;
+var matchTipo=!fTipo||v.tipo===fTipo;
+return matchBusca&&matchStatus&&matchTipo;
+});
+filtrados.forEach(function(v){
 var a=alertaVeic(v);
 var cls=v.status==="Operando"?"status-ok":v.status==="Manutenção"?"status-alerta":"status-erro";
 var div=document.createElement("div");div.className="card veiculo";
-div.innerHTML='<div class="veiculo-top"><div><h3>'+escapeHtml(v.id)+'</h3><small>'+escapeHtml(v.modelo)+' • '+escapeHtml(v.placa||"Sem placa")+'</small></div><span class="status '+cls+'">'+escapeHtml(v.status)+'</span></div><div class="dados-veiculo"><div><span>Quilometragem</span><strong>'+Number(v.km).toLocaleString("pt-BR")+' km</strong></div><div><span>Próxima revisão</span><strong>'+Number(v.proxima_revisao_km||0).toLocaleString("pt-BR")+' km</strong></div><div><span>Disponibilidade</span><strong>'+v.disponibilidade+'%</strong></div><div><span>Alerta</span><strong>'+escapeHtml(a.texto)+'</strong></div></div><div style="display:flex;gap:7px;margin-top:15px;flex-wrap:wrap"><button class="btn-secondary btn-edit">️ Editar</button><button class="btn-secondary btn-detalhe">👁️ Detalhes</button><button class="btn-danger btn-exc">🗑️ Excluir</button></div>';
+div.innerHTML='<div class="veiculo-top"><div><h3>'+escapeHtml(v.id)+'</h3><small>'+escapeHtml(v.modelo)+' • '+escapeHtml(v.placa||"Sem placa")+'</small></div><span class="status '+cls+'">'+escapeHtml(v.status)+'</span></div><div class="dados-veiculo"><div><span>Quilometragem</span><strong>'+Number(v.km).toLocaleString("pt-BR")+' km</strong></div><div><span>Próxima revisão</span><strong>'+Number(v.proxima_revisao_km||0).toLocaleString("pt-BR")+' km</strong></div><div><span>Disponibilidade</span><strong>'+v.disponibilidade+'%</strong></div><div><span>Alerta</span><strong>'+escapeHtml(a.texto)+'</strong></div></div><div style="display:flex;gap:7px;margin-top:15px;flex-wrap:wrap"><button class="btn-secondary btn-edit">✏️ Editar</button><button class="btn-secondary btn-detalhe">👁️ Detalhes</button><button class="btn-danger btn-exc">🗑️ Excluir</button></div>';
 div.addEventListener("click",function(e){if(e.target.tagName==="BUTTON")return;abrirVeiculo(v.id)});
 div.querySelector(".btn-edit").addEventListener("click",function(e){e.stopPropagation();editarVeic(v.id)});
 div.querySelector(".btn-detalhe").addEventListener("click",function(e){e.stopPropagation();abrirVeiculo(v.id)});
 div.querySelector(".btn-exc").addEventListener("click",function(e){e.stopPropagation();excluirVeic(v.id)});
 lista.appendChild(div);
 });
+if(!filtrados.length)lista.innerHTML='<div style="text-align:center;padding:40px;color:#718096;grid-column:1/-1">Nenhum veículo encontrado com os filtros aplicados.</div>';
 atualizarResumo();
 }
+
 
 function atualizarResumo(){
 var r=$("resumoFrota"),b=$("resumoAlertasFrota");if(!r||!b)return;
@@ -421,40 +462,128 @@ setTimeout(function(){var btns=document.querySelectorAll(".btn-exc-manut");for(v
 
 function renderOS(){
 var tb=$("tabelaOS");if(!tb)return;
+var busca=($("buscaOS")?$("buscaOS").value:"").toLowerCase();
+var fStatus=$("filtroStatusOS")?$("filtroStatusOS").value:"";
+var fTipo=$("filtroTipoOS")?$("filtroTipoOS").value:"";
+var fPrior=$("filtroPrioridadeOS")?$("filtroPrioridadeOS").value:"";
+var filtradas=ordensServico.filter(function(o){
+var matchBusca=!busca||(o.id||"").toLowerCase().indexOf(busca)>=0||(o.veiculo||"").toLowerCase().indexOf(busca)>=0||(o.servico||"").toLowerCase().indexOf(busca)>=0;
+var matchStatus=!fStatus||o.status===fStatus;
+var matchTipo=!fTipo||o.tipo===fTipo;
+var matchPrior=!fPrior||(o.prioridade||"Média")===fPrior;
+return matchBusca&&matchStatus&&matchTipo&&matchPrior;
+});
 var hoje=new Date();
-tb.innerHTML=ordensServico.slice().reverse().map(function(o){
+tb.innerHTML=filtradas.slice().reverse().map(function(o){
 var prior=o.prioridade||"Média";
-var priorCls=prior==="Urgente"?"status-erro":prior==="Alta"?"status-alerta":prior==="Baixa"?"status-ok":"status-alerta";
 var dataPrev=o.data_prevista?dataBR(o.data_prevista):"—";
 var atrasada=false;
-if(o.data_prevista&&o.status!=="Concluída"){var dp=new Date(o.data_prevista);if(dp<hoje)atrasada=true}
-return"<tr style='"+(atrasada?"background:#fff0f1":"")+"'><td><b>"+escapeHtml(o.id)+"</b><br><small style='color:#a66a00'>"+escapeHtml(prior)+"</small></td><td>"+escapeHtml(o.veiculo)+"</td><td>"+escapeHtml(o.servico)+"</td><td>"+escapeHtml(o.tipo)+"</td><td>"+moeda(o.custo)+"</td><td><span class='status "+(o.status==="Concluída"?"status-ok":o.status==="Em andamento"?"status-alerta":"status-erro")+"'>"+escapeHtml(o.status)+"</span><br><small>Prev: "+dataPrev+"</small></td><td>"+(o.status!=="Concluída"?"<button class='btn-secondary btn-fin-os' data-id='"+o.id+"'>Finalizar</button>":"<small>Finalizada</small>")+"</td></tr>";
-}).join("")||"<tr><td colspan='7'>Nenhuma OS.</td></tr>";
-var ab=0,co=0,cu=0;
-ordensServico.forEach(function(o){if(o.status!=="Concluída")ab++;else co++;cu+=Number(o.custo)||0});
-var concl=ordensServico.filter(function(o){return o.status==="Concluída"&&Number(o.horas)>0});
-var tempoMed=concl.length?(concl.reduce(function(s,o){return s+Number(o.horas)},0)/concl.length):0;
-$("osKpiAb").textContent=ab;$("osKpiConc").textContent=co;$("osKpiCusto").textContent=moeda(cu);$("osKpiTempo").textContent=tempoMed.toFixed(1)+" h";
-setTimeout(function(){var btns=document.querySelectorAll(".btn-fin-os");for(var i=0;i<btns.length;i++){btns[i].addEventListener("click",function(){finalizarOS(this.getAttribute("data-id"))})}},100);
+if(o.data_prevista&&o.status!=="Concluída"&&o.status!=="Cancelada"){var dp=new Date(o.data_prevista);if(dp<hoje)atrasada=true}
+return"<tr style='"+(atrasada?"background:#fff0f1":"")+"'><td><b>"+escapeHtml(o.id)+"</b><br><small style='color:#a66a00'>"+escapeHtml(prior)+"</small></td><td>"+escapeHtml(o.veiculo)+"</td><td>"+escapeHtml(o.servico)+"</td><td>"+escapeHtml(o.tipo)+"</td><td><span class='status "+(prior==="Urgente"?"status-erro":prior==="Alta"?"status-alerta":"status-ok")+"'>"+escapeHtml(prior)+"</span></td><td>"+moeda(o.custo)+"</td><td><span class='status "+(o.status==="Concluída"?"status-ok":o.status==="Cancelada"?"status-erro":o.status==="Em andamento"?"status-alerta":"status-alerta")+"'>"+escapeHtml(o.status)+"</span><br><small>Prev: "+dataPrev+"</small></td><td>"+(o.status==="Aberta"||o.status==="Em andamento"?"<button class='btn-secondary btn-edit-os' data-id='"+o.id+"'>✏️ Editar</button> ":"")+(o.status==="Aberta"||o.status==="Em andamento"?"<button class='btn-secondary btn-iniciar-os' data-id='"+o.id+"'>▶️ Iniciar</button> ":"")+(o.status!=="Concluída"&&o.status!=="Cancelada"?"<button class='btn-secondary btn-fin-os' data-id='"+o.id+"'>✅ Finalizar</button> ":"")+(o.status==="Aberta"?"<button class='btn-danger btn-canc-os' data-id='"+o.id+"'> Cancelar</button>":"<small>—</small>")+"</td></tr>";
+}).join("")||"<tr><td colspan='8'>Nenhuma OS encontrada.</td></tr>";
+var ab=0,co=0,ca=0,cu=0;
+filtradas.forEach(function(o){if(o.status==="Aberta"||o.status==="Em andamento")ab++;if(o.status==="Concluída")co++;if(o.status==="Cancelada")ca++;cu+=Number(o.custo)||0});
+$("osKpiAb").textContent=ab;$("osKpiConc").textContent=co;$("osKpiCanc").textContent=ca;$("osKpiCusto").textContent=moeda(cu);
+setTimeout(function(){
+var btns=document.querySelectorAll(".btn-fin-os");for(var i=0;i<btns.length;i++){btns[i].addEventListener("click",function(){finalizarOS(this.getAttribute("data-id"))})}
+var btns2=document.querySelectorAll(".btn-edit-os");for(var i=0;i<btns2.length;i++){btns2[i].addEventListener("click",function(){editarOS(this.getAttribute("data-id"))})}
+var btns3=document.querySelectorAll(".btn-canc-os");for(var i=0;i<btns3.length;i++){btns3[i].addEventListener("click",function(){cancelarOS(this.getAttribute("data-id"))})}
+var btns4=document.querySelectorAll(".btn-iniciar-os");for(var i=0;i<btns4.length;i++){btns4[i].addEventListener("click",function(){iniciarOS(this.getAttribute("data-id"))})}
+},100);
 }
 
+
 function calcDash(){
-var t=veiculos.length,cu=0,ho=0,di=0;
+var t=veiculos.length,cu=0,ho=0,di=0,kmTotal=0;
 for(var i=0;i<veiculos.length;i++){
 var v=veiculos[i];
 var vc=Number(v.custo);if(!isNaN(vc))cu+=vc;
 var vh=Number(v.horas);if(!isNaN(vh))ho+=vh;
 var vd=Number(v.disponibilidade);if(!isNaN(vd))di+=vd;
+var vk=Number(v.km);if(!isNaN(vk))kmTotal+=vk;
 }
-var cuH=0,hoH=0;
+var cuH=0,hoH=0,totalManut=0,prevCount=0,corrCount=0;
 for(var i=0;i<manutencoes.length;i++){
-var m=manutencoes[i];
+var m=manutencoes[i];totalManut++;
+if(m.tipo==="Preventiva")prevCount++;
+if(m.tipo==="Corretiva")corrCount++;
 if(m.status==="Concluída"){
 var mc=Number(m.custo);if(!isNaN(mc))cuH+=mc;
 var mh=Number(m.horas);if(!isNaN(mh))hoH+=mh;
 }
 }
-return{total:t,custo:cu,horas:ho,disp:t?di/t:0,custoMedio:t?cu/t:0,cuHist:cuH,hoHist:hoH};
+var totalOS=ordensServico.length;
+var osConcl=0,osCanc=0;
+for(var i=0;i<ordensServico.length;i++){if(ordensServico[i].status==="Concluída")osConcl++;if(ordensServico[i].status==="Cancelada")osCanc++;}
+var mtbf=kmTotal/(corrCount||1);
+var mttr=hoH/(totalManut||1);
+var prevIdx=totalManut?(prevCount/totalManut)*100:0;
+var custoKm=kmTotal>0?cu/kmTotal:0;
+var taxaConc=totalOS?(osConcl/totalOS)*100:0;
+var ativos=0;for(var i=0;i<veiculos.length;i++){if(veiculos[i].status==="Operando")ativos++;}
+return{total:t,custo:cu,horas:ho,disp:t?di/t:0,custoMedio:t?cu/t:0,cuHist:cuH,hoHist:hoH,mtbf:mtbf,mttr:mttr,prevIdx:prevIdx,custoKm:custoKm,totalOS:totalOS,taxaConc:taxaConc,ativos:ativos,osCanc:osCanc};
+}
+
+function editarOS(id){
+var o=null;for(var i=0;i<ordensServico.length;i++){if(ordensServico[i].id===id){o=ordensServico[i];break}}
+if(!o)return;
+$("modalTitulo").textContent="Editar OS "+o.id;
+var opts=veiculos.map(function(v){return'<option value="'+v.id+'"'+(v.id===o.veiculo?" selected":"")+' data-km="'+v.km+'">'+v.id+' ('+v.modelo+')</option>'}).join("");
+$("modalConteudo").innerHTML='<div class="form-grid"><div class="campo"><label>Veículo</label><select id="eVeic">'+opts+'</select></div><div class="campo"><label>Tipo</label><select id="eTipo"><option'+(o.tipo==="Preventiva"?" selected":"")+'>Preventiva</option><option'+(o.tipo==="Corretiva"?" selected":"")+'>Corretiva</option><option'+(o.tipo==="Preditiva"?" selected":"")+'>Preditiva</option></select></div><div class="campo"><label>Serviço</label><input id="eServ" value="'+escapeHtml(o.servico||"")+'"></div><div class="campo"><label>Responsável</label><input id="eResp" value="'+escapeHtml(o.responsavel||"")+'"></div><div class="campo"><label>Prioridade</label><select id="ePrior"><option'+((o.prioridade||"Média")==="Baixa"?" selected":"")+'>Baixa</option><option'+((o.prioridade||"Média")==="Média"?" selected":"")+'>Média</option><option'+((o.prioridade||"Média")==="Alta"?" selected":"")+'>Alta</option><option'+((o.prioridade||"Média")==="Urgente"?" selected":"")+'>Urgente</option></select></div><div class="campo"><label>Status</label><select id="eStatus"><option'+(o.status==="Aberta"?" selected":"")+'>Aberta</option><option'+(o.status==="Em andamento"?" selected":"")+'>Em andamento</option><option'+(o.status==="Concluída"?" selected":"")+'>Concluída</option><option'+(o.status==="Cancelada"?" selected":"")+'>Cancelada</option></select></div><div class="campo"><label>Data prevista</label><input id="eDataPrev" type="date" value="'+(o.data_prevista||"")+'"></div><div class="campo"><label>Custo</label><input id="eCusto" type="number" step="0.01" value="'+(o.custo||0)+'"></div><div class="campo"><label>Horas</label><input id="eHoras" type="number" step="0.5" value="'+(o.horas||0)+'"></div><div class="campo"><label>KM atual</label><input id="eKm" type="number" value="'+(o.km_atual||0)+'"></div><div class="campo" style="grid-column:1/-1"><label>Descrição</label><textarea id="eDesc" rows="3" style="width:100%;resize:vertical">'+escapeHtml(o.descricao||"")+'</textarea></div></div><button class="btn" id="btnSalvaEditOS">Salvar alterações</button>';
+$("modal").classList.add("aberto");
+$("btnSalvaEditOS").addEventListener("click",function(){
+var veic=$("eVeic").value,tipo=$("eTipo").value,serv=$("eServ").value.trim(),resp=$("eResp").value.trim(),prior=$("ePrior").value,status=$("eStatus").value,dataPrev=$("eDataPrev").value||null,custo=Number($("eCusto").value)||0,horas=Number($("eHoras").value)||0,km=Number($("eKm").value)||0,desc=$("eDesc").value.trim();
+if(!serv){alert("Informe o serviço.");return}
+syncStatus("Salvando...","#f59e0b");
+sb.from("ordens_servico").update({veiculo:veic,tipo:tipo,servico:serv,responsavel:resp,prioridade:prior,status:status,data_prevista:dataPrev,custo:custo,horas:horas,km_atual:km,descricao:desc}).eq("id",id).then(function(r){
+if(r.error){alert("Erro: "+r.error.message);syncStatus("Erro","#dc3545");return}
+syncStatus("Sincronizado","#13a36a");fecharModal();
+});
+});
+}
+
+function cancelarOS(id){
+var o=null;for(var i=0;i<ordensServico.length;i++){if(ordensServico[i].id===id){o=ordensServico[i];break}}
+if(!o)return;
+if(!confirm("Cancelar a OS "+id+"? Esta ação não pode ser desfeita."))return;
+syncStatus("Cancelando...","#f59e0b");
+sb.from("ordens_servico").update({status:"Cancelada"}).eq("id",id).then(function(r){
+if(r.error){alert("Erro: "+r.error.message);syncStatus("Erro","#dc3545");return}
+syncStatus("Sincronizado","#13a36a");
+});
+}
+
+function iniciarOS(id){
+var o=null;for(var i=0;i<ordensServico.length;i++){if(ordensServico[i].id===id){o=ordensServico[i];break}}
+if(!o)return;
+syncStatus("Iniciando...","#f59e0b");
+sb.from("ordens_servico").update({status:"Em andamento"}).eq("id",id).then(function(r){
+if(r.error){alert("Erro: "+r.error.message);syncStatus("Erro","#dc3545");return}
+syncStatus("Sincronizado","#13a36a");
+});
+}
+
+function renderDash(){
+var d=calcDash();
+$("kpiCustoTotal").textContent=moeda(d.custo);$("kpiCustoMedio").textContent=moeda(d.custoMedio);
+$("kpiHoras").textContent=d.horas.toLocaleString("pt-BR")+" h";$("kpiDisponibilidade").textContent=d.disp.toFixed(1)+"%";
+$("subtituloDashboard").textContent="Visão geral de "+d.total+" veículo(s).";
+$("origemCustoFrota").textContent=moeda(d.custo);$("origemCustoHistorico").textContent=moeda(d.cuHist);
+$("origemHorasFrota").textContent=d.horas.toLocaleString("pt-BR")+" h";$("origemHorasHistorico").textContent=d.hoHist.toLocaleString("pt-BR")+" h";
+$("indDisp").textContent=d.disp.toFixed(1)+"%";$("indCustoMed").textContent=moeda(d.custoMedio);
+var inM=0;for(var i=0;i<veiculos.length;i++){if(veiculos[i].status==="Manutenção")inM++}$("indManut").textContent=inM;
+var atr=0;for(var i=0;i<veiculos.length;i++){if(alertaVeic(veiculos[i]).tipo==="danger")atr++}$("indAtras").textContent=atr;
+$("indMTBF").textContent=d.mtbf>0?Math.round(d.mtbf).toLocaleString("pt-BR")+" km":"—";
+$("indMTTR").textContent=d.mttr>0?d.mttr.toFixed(1)+" h":"—";
+$("indPrevIdx").textContent=d.prevIdx.toFixed(0)+"%";
+$("indCustoKm").textContent="R$ "+d.custoKm.toFixed(4);
+$("indTotalOS").textContent=d.totalOS;
+$("indTaxaConc").textContent=d.taxaConc.toFixed(0)+"%";
+$("indAtivos").textContent=d.ativos;
+$("indCustoHist").textContent=moeda(d.cuHist);
+var itens=veiculos.map(function(v){return{v:v,a:alertaVeic(v)}}).filter(function(x){return x.a.tipo!=="ok"}).sort(function(a,b){return(a.a.tipo==="danger"?0:1)-(b.a.tipo==="danger"?0:1)}).slice(0,5);
+$("dashboardAlertas").innerHTML=itens.length?itens.map(function(x){return"<div class='alerta "+(x.a.tipo==="danger"?"red":"")+"'><b>"+(x.a.tipo==="danger"?"🔴":"🟠")+" "+escapeHtml(x.v.id)+"</b><br>"+escapeHtml(x.a.texto)+"</div>"}).join(""):"<div class='alerta green'><b>🟢 Frota em dia</b></div>";
+atualizarGraficos();
 }
 
 function renderDash(){
@@ -485,11 +614,34 @@ var itens=gerarAlertas();
 box.innerHTML=itens.length?itens.map(function(x){return"<div class='alerta "+(x.nivel==="danger"?"red":"")+"'><b>"+(x.nivel==="danger"?"🔴":"🟠")+" "+escapeHtml(x.veiculo)+"</b><br>"+escapeHtml(x.texto)+"</div>"}).join(""):"<div class='alerta green'><b>🟢 Tudo em dia</b></div>";
 }
 
-var gCusto=null,gStatus=null,gHoras=null,gCat=null,gVeic=null;
+var gCusto=null,gStatus=null,gHoras=null,gCat=null,gVeic=null,gCustosTipo=null,gCustoVeic=null;
 function atualizarGraficos(){
-if(gCusto){gCusto.data.datasets[0].data=[0,0,0,0,0,veiculos.reduce(function(s,v){return s+(Number(v.custo)||0)},0)];gCusto.update()}
+var cores=["#ff6b00","#ffb300","#13a36a","#0d6efd","#dc3545","#6f42c1","#0ea5e9","#f43f5e"];
+if(gCusto){
+var meses={},labels=[],dados=[];
+for(var i=0;i<ordensServico.length;i++){var o=ordensServico[i];if(o.status==="Concluída"&&o.custo){var mes=(o.concluida_em||o.criada_em||"").slice(0,7);if(mes){if(!meses[mes])meses[mes]=0;meses[mes]+=Number(o.custo)||0}}}
+for(var i=0;i<manutencoes.length;i++){var m=manutencoes[i];if(m.status==="Concluída"&&m.custo){var mes2=(m.data||"").slice(0,7);if(mes2){if(!meses[mes2])meses[mes2]=0;meses[mes2]+=Number(m.custo)||0}}}
+var ord=Object.keys(meses).sort();
+labels=ord.map(function(m){return m.slice(5)+"/"+m.slice(2,4)});dados=ord.map(function(m){return meses[m]});
+gCusto.data.labels=labels;gCusto.data.datasets[0].data=dados;gCusto.update()
+}
 if(gStatus){var st=["Operando","Manutenção","Parado","Baixado"];gStatus.data.datasets[0].data=st.map(function(s){return veiculos.filter(function(v){return v.status===s}).length});gStatus.update()}
 if(gHoras&&veiculos.length){gHoras.data.labels=veiculos.map(function(v){return v.id});gHoras.data.datasets[0].data=veiculos.map(function(v){return v.horas});gHoras.update()}
+if(gCustosTipo){
+var custoTipo={};
+for(var i=0;i<ordensServico.length;i++){var o=ordensServico[i];if(o.status==="Concluída"){var tp=o.tipo||"Outro";if(!custoTipo[tp])custoTipo[tp]=0;custoTipo[tp]+=Number(o.custo)||0}}
+for(var i=0;i<manutencoes.length;i++){var m=manutencoes[i];if(m.status==="Concluída"&&m.custo){var tp2=m.tipo||"Outro";if(!custoTipo[tp2])custoTipo[tp2]=0;custoTipo[tp2]+=Number(m.custo)||0}}
+var arr=[];for(var k in custoTipo)arr.push({l:k,v:custoTipo[k]});arr.sort(function(a,b){return b.v-a.v});
+gCustosTipo.data.labels=arr.map(function(x){return x.l});gCustosTipo.data.datasets[0].data=arr.map(function(x){return x.v});gCustosTipo.data.datasets[0].backgroundColor=cores.slice(0,arr.length);gCustosTipo.update()
+}
+if(gCustoVeic){
+var custoVeic={};
+for(var i=0;i<ordensServico.length;i++){var o=ordensServico[i];if(o.status==="Concluída"){var vv=o.veiculo||"?";if(!custoVeic[vv])custoVeic[vv]=0;custoVeic[vv]+=Number(o.custo)||0}}
+for(var i=0;i<manutencoes.length;i++){var m=manutencoes[i];if(m.custo){var vv2=m.veiculo||"?";if(!custoVeic[vv2])custoVeic[vv2]=0;custoVeic[vv2]+=Number(m.custo)||0}}
+var arr2=[];for(var k in custoVeic)arr2.push({l:k,v:custoVeic[k]});arr2.sort(function(a,b){return b.v-a.v});
+var top=arr2.slice(0,10);
+gCustoVeic.data.labels=top.map(function(x){return x.l});gCustoVeic.data.datasets[0].data=top.map(function(x){return x.v});gCustoVeic.data.datasets[0].backgroundColor=cores.slice(0,top.length);gCustoVeic.update()
+}
 }
 
 function renderUsuarios(){
@@ -547,7 +699,7 @@ $("modalTitulo").textContent="Editar veículo";
 $("modalConteudo").innerHTML='<div class="form-grid"><div class="campo"><label>Modelo</label><input id="vMod" value="'+escapeHtml(v.modelo)+'"></div><div class="campo"><label>Placa</label><input id="vPlaca" value="'+escapeHtml(v.placa||"")+'"></div><div class="campo"><label>Tipo</label><select id="vTipo"><option'+(v.tipo==="Truck"?" selected":"")+'>Truck</option><option'+(v.tipo==="Delivery"?" selected":"")+'>Delivery</option><option'+(v.tipo==="Carreta"?" selected":"")+'>Carreta</option><option'+(v.tipo==="Van"?" selected":"")+'>Van</option><option'+(v.tipo==="Utilitário"?" selected":"")+'>Utilitário</option></select></div><div class="campo"><label>Ano</label><input id="vAno" type="number" value="'+v.ano+'"></div><div class="campo"><label>KM</label><input id="vKm" type="number" value="'+v.km+'"></div><div class="campo"><label>Custo</label><input id="vCusto" type="number" value="'+v.custo+'"></div><div class="campo"><label>Horas</label><input id="vHoras" type="number" value="'+v.horas+'"></div><div class="campo"><label>Disponibilidade</label><input id="vDisp" type="number" value="'+v.disponibilidade+'"></div><div class="campo"><label>Status</label><select id="vSt"><option'+(v.status==="Operando"?" selected":"")+'>Operando</option><option'+(v.status==="Manutenção"?" selected":"")+'>Manutenção</option><option'+(v.status==="Parado"?" selected":"")+'>Parado</option><option'+(v.status==="Baixado"?" selected":"")+'>Baixado</option></select></div><div class="campo"><label>Próx. revisão KM</label><input id="vProxKm" type="number" value="'+(v.proxima_revisao_km||0)+'"></div><div class="campo"><label>Próx. revisão data</label><input id="vProxData" type="date" value="'+(v.proxima_revisao_data||"")+'"></div><div class="campo"><label>Combustível</label><input id="vComb" value="'+escapeHtml(v.combustivel||"")+'"></div></div><button class="btn-primary" id="btnSalvaVeic">Salvar alterações</button>';
 $("modal").classList.add("aberto");
 $("btnSalvaVeic").addEventListener("click",function(){
-var mod=$("vMod").value.trim(),placa=$("vPlaca").value.trim().toUpperCase(),tipo=$("vTipo").value,ano=Number($("vAno").value)||2024,km=Number($("vKm").value)||0,custo=Number($("vCusto").value)||0,horas=Number($("vHoras").value)||0,disp=Number($("vDisp").value)||100,st=$("vSt").value,proxKm=Number($("vProxKm").value)||0,proxData=$("vProxData").value,comb=$("vComb").value.trim();
+var mod=$("vMod").value.trim(),placa=$("vPlaca").value.trim().toUpperCase(),tipo=$("vTipo").value,ano=Number($("vAno").value)||2024,km=Number($("vKm").value)||0,custo=Number($("vCusto").value)||0,horas=Number($("vHoras").value)||0,disp=Number($("vDisp").value)||100,st=$("vSt").value,proxKm=Number($("vProxKm").value)||0,proxData=$("vProxData").value||null,comb=$("vComb").value.trim();
 if(!mod){alert("Informe o modelo.");return}
 syncStatus("Salvando...","#f59e0b");
 sb.from("veiculos").update({modelo:mod,placa:placa,tipo:tipo,ano:ano,km:km,custo:custo,horas:horas,disponibilidade:disp,status:st,proxima_revisao_km:proxKm,proxima_revisao_data:proxData,combustivel:comb}).eq("id",id).then(function(r){
@@ -649,6 +801,17 @@ $("btnNovoVeic").addEventListener("click",novoVeiculo);
 $("btnNovaManut").addEventListener("click",novaManutencao);
 $("btnNovaOS").addEventListener("click",novaOS);
 $("btnCadUsuario").addEventListener("click",cadUsuario);
+// Filtros veículos
+$("buscaVeiculos").addEventListener("input",renderVeiculos);
+$("filtroStatusVeic").addEventListener("change",renderVeiculos);
+$("filtroTipoVeic").addEventListener("change",renderVeiculos);
+$("btnLimparFiltrosVeic").addEventListener("click",function(){$("buscaVeiculos").value="";$("filtroStatusVeic").value="";$("filtroTipoVeic").value="";renderVeiculos()});
+// Filtros OS
+$("buscaOS").addEventListener("input",renderOS);
+$("filtroStatusOS").addEventListener("change",renderOS);
+$("filtroTipoOS").addEventListener("change",renderOS);
+$("filtroPrioridadeOS").addEventListener("change",renderOS);
+$("btnLimparFiltrosOS").addEventListener("click",function(){$("buscaOS").value="";$("filtroStatusOS").value="";$("filtroTipoOS").value="";$("filtroPrioridadeOS").value="";renderOS()});
 $("btnLimparBusca").addEventListener("click",function(){$("buscaUsuarios").value="";renderUsuarios()});
 $("novoPerfil").addEventListener("change",aplicarPermissoesPerfil);
 $("btnVerTodosAlertas").addEventListener("click",function(){abrirPagina("alertas")});
@@ -696,10 +859,12 @@ gStatus=new Chart($("graficoStatus"),{type:"doughnut",data:{labels:["Operando","
 gHoras=new Chart($("graficoHoras"),{type:"bar",data:{labels:[],datasets:[{data:[],backgroundColor:"#126cff"}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}}}});
 gCat=new Chart($("graficoCategorias"),{type:"doughnut",data:{labels:["Peças","Mão de obra","Pneus","Lubrificantes","Outros"],datasets:[{data:[42,25,16,10,7],backgroundColor:["#126cff","#13a36a","#f59e0b","#8b5cf6","#94a3b8"],borderWidth:0}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:"bottom"}}}});
 gVeic=new Chart($("graficoVeiculo"),{type:"line",data:{labels:["Mar","Abr","Mai","Jun","Jul","Ago"],datasets:[{data:[1100,1800,1300,2400,1900,0],borderColor:"#126cff",backgroundColor:"rgba(18,108,255,.12)",fill:true,tension:.4}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}}}});
+if(document.getElementById("graficoCustosTipo")){gCustosTipo=new Chart($("graficoCustosTipo"),{type:"doughnut",data:{labels:[],datasets:[{data:[],backgroundColor:["#ff6b00","#ffb300","#13a36a","#0d6efd"],borderWidth:0}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:"bottom"}}}})}
+if(document.getElementById("graficoCustoVeic")){gCustoVeic=new Chart($("graficoCustoVeic"),{type:"bar",data:{labels:[],datasets:[{data:[],backgroundColor:"#ff6b00",borderRadius:5}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}}}})}
 
 // Inicializar: tentar restaurar sessão
 tentarRestaurarSessao().then(function(ok){if(!ok){$("login").style.display="flex";$("app").style.display="none"}});
 })();
 </script>
-<script>(function(){function c(){var b=a.contentDocument||(a.contentWindow&&a.contentWindow.document);if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a323c29f7fdb64d3',t:'MTc4NzkyNDc2Ng=='};var a=document.createElement('script');a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+<script>(function(){function c(){var b=a.contentDocument||(a.contentWindow&&a.contentWindow.document);if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a324c030dc9ba4fd',t:'MTc4NzkzNTE1Mg=='};var a=document.createElement('script');a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>
