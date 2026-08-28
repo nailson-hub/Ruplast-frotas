@@ -142,7 +142,7 @@ tr.clicavel:hover{background:#f7faff}
 <div class="menu-item" data-pagina="manutencao">🔧 <span>Manutenções</span></div>
 <div class="menu-item" data-pagina="ordens">📋 <span>Ordens de Serviço</span></div>
 <div class="menu-item" data-pagina="indicadores">📈 <span>Indicadores</span></div>
-<div class="menu-item" data-pagina="alertas">️ <span>Alertas</span></div>
+<div class="menu-item" data-pagina="alertas">🔔 <span>Alertas</span></div>
 <div class="menu-item" id="menuAcessos" data-pagina="acessos">👥 <span>Acessos</span></div>
 </div>
 </aside>
@@ -274,7 +274,7 @@ tr.clicavel:hover{background:#f7faff}
 (function(){
 "use strict";
 var URL_SUPA="https://cqcrreienaqvktgwcmsk.supabase.co";
-var KEY_SUPA="sb_publishable_FZmoi098CgWl0CO96lIHZg__p2xKEk7";
+var KEY_SUPA="sb_publishable_FZmoi098CgWl0C0961lHZg___p2xKEK7";
 var sb=window.supabase.createClient(URL_SUPA,KEY_SUPA);
 var veiculos=[],manutencoes=[],ordensServico=[],usuarios=[];
 var usuarioLogado=null,token="",subs=[];
@@ -479,7 +479,7 @@ var prior=o.prioridade||"Média";
 var dataPrev=o.data_prevista?dataBR(o.data_prevista):"—";
 var atrasada=false;
 if(o.data_prevista&&o.status!=="Concluída"&&o.status!=="Cancelada"){var dp=new Date(o.data_prevista);if(dp<hoje)atrasada=true}
-return"<tr style='"+(atrasada?"background:#fff0f1":"")+"'><td><b>"+escapeHtml(o.id)+"</b><br><small style='color:#a66a00'>"+escapeHtml(prior)+"</small></td><td>"+escapeHtml(o.veiculo)+"</td><td>"+escapeHtml(o.servico)+"</td><td>"+escapeHtml(o.tipo)+"</td><td><span class='status "+(prior==="Urgente"?"status-erro":prior==="Alta"?"status-alerta":"status-ok")+"'>"+escapeHtml(prior)+"</span></td><td>"+moeda(o.custo)+"</td><td><span class='status "+(o.status==="Concluída"?"status-ok":o.status==="Cancelada"?"status-erro":o.status==="Em andamento"?"status-alerta":"status-alerta")+"'>"+escapeHtml(o.status)+"</span><br><small>Prev: "+dataPrev+"</small></td><td>"+(o.status==="Aberta"||o.status==="Em andamento"?"<button class='btn-secondary btn-edit-os' data-id='"+o.id+"'>✏️ Editar</button> ":"")+(o.status==="Aberta"||o.status==="Em andamento"?"<button class='btn-secondary btn-iniciar-os' data-id='"+o.id+"'>▶️ Iniciar</button> ":"")+(o.status!=="Concluída"&&o.status!=="Cancelada"?"<button class='btn-secondary btn-fin-os' data-id='"+o.id+"'>✅ Finalizar</button> ":"")+(o.status==="Aberta"?"<button class='btn-danger btn-canc-os' data-id='"+o.id+"'> Cancelar</button>":"<small>—</small>")+"</td></tr>";
+return"<tr style='"+(atrasada?"background:#fff0f1":"")+"'><td><b>"+escapeHtml(o.id)+"</b><br><small style='color:#a66a00'>"+escapeHtml(prior)+"</small></td><td>"+escapeHtml(o.veiculo)+"</td><td>"+escapeHtml(o.servico)+"</td><td>"+escapeHtml(o.tipo)+"</td><td><span class='status "+(prior==="Urgente"?"status-erro":prior==="Alta"?"status-alerta":"status-ok")+"'>"+escapeHtml(prior)+"</span></td><td>"+moeda(o.custo)+"</td><td><span class='status "+(o.status==="Concluída"?"status-ok":o.status==="Cancelada"?"status-erro":o.status==="Em andamento"?"status-alerta":"status-alerta")+"'>"+escapeHtml(o.status)+"</span><br><small>Prev: "+dataPrev+"</small></td><td>"+"<button class='btn-secondary btn-detalhe-os' data-id='"+o.id+"'>👁️</button> "+(o.status==="Aberta"||o.status==="Em andamento"?"<button class='btn-secondary btn-edit-os' data-id='"+o.id+"'>✏️</button> ":"")+(o.status==="Aberta"?"<button class='btn-secondary btn-iniciar-os' data-id='"+o.id+"'>▶️</button> ":"")+(o.status!=="Concluída"&&o.status!=="Cancelada"?"<button class='btn-secondary btn-fin-os' data-id='"+o.id+"'>✅</button> ":"")+(o.status==="Aberta"?"<button class='btn-danger btn-canc-os' data-id='"+o.id+"'></button> <button class='btn-danger btn-exc-os' data-id='"+o.id+"'>🗑️</button>":"")+"</td></tr>";
 }).join("")||"<tr><td colspan='8'>Nenhuma OS encontrada.</td></tr>";
 var ab=0,co=0,ca=0,cu=0;
 filtradas.forEach(function(o){if(o.status==="Aberta"||o.status==="Em andamento")ab++;if(o.status==="Concluída")co++;if(o.status==="Cancelada")ca++;cu+=Number(o.custo)||0});
@@ -489,6 +489,8 @@ var btns=document.querySelectorAll(".btn-fin-os");for(var i=0;i<btns.length;i++)
 var btns2=document.querySelectorAll(".btn-edit-os");for(var i=0;i<btns2.length;i++){btns2[i].addEventListener("click",function(){editarOS(this.getAttribute("data-id"))})}
 var btns3=document.querySelectorAll(".btn-canc-os");for(var i=0;i<btns3.length;i++){btns3[i].addEventListener("click",function(){cancelarOS(this.getAttribute("data-id"))})}
 var btns4=document.querySelectorAll(".btn-iniciar-os");for(var i=0;i<btns4.length;i++){btns4[i].addEventListener("click",function(){iniciarOS(this.getAttribute("data-id"))})}
+var btns5=document.querySelectorAll(".btn-exc-os");for(var i=0;i<btns5.length;i++){btns5[i].addEventListener("click",function(){excluirOS(this.getAttribute("data-id"))})}
+var btns6=document.querySelectorAll(".btn-detalhe-os");for(var i=0;i<btns6.length;i++){btns6[i].addEventListener("click",function(){verDetalhesOS(this.getAttribute("data-id"))})}
 },100);
 }
 
@@ -561,6 +563,59 @@ sb.from("ordens_servico").update({status:"Em andamento"}).eq("id",id).then(funct
 if(r.error){alert("Erro: "+r.error.message);syncStatus("Erro","#dc3545");return}
 syncStatus("Sincronizado","#13a36a");
 });
+}
+
+function excluirOS(id){
+var o=null;for(var i=0;i<ordensServico.length;i++){if(ordensServico[i].id===id){o=ordensServico[i];break}}
+if(!o)return;
+if(!confirm("Excluir a OS "+id+"? Esta ação não pode ser desfeita."))return;
+if(o.status==="Em andamento"||o.status==="Concluída"){alert("Não é possível excluir OS em andamento ou já concluída. Cancele-a primeiro se necessário.");return}
+syncStatus("Excluindo...","#f59e0b");
+sb.from("ordens_servico").delete().eq("id",id).then(function(r){
+if(r.error){alert("Erro: "+r.error.message);syncStatus("Erro","#dc3545");return}
+syncStatus("Sincronizado","#13a36a");
+});
+}
+
+function verDetalhesOS(id){
+var o=null;for(var i=0;i<ordensServico.length;i++){if(ordensServico[i].id===id){o=ordensServico[i];break}}
+if(!o)return;
+var prior=o.prioridade||"Média";
+var dataPrev=o.data_prevista?dataBR(o.data_prevista):"—";
+var criada=o.criada_em?dataBR(o.criada_em.slice(0,10)):"—";
+var finalizada=o.concluida_em||o.finalizada_em?dataBR((o.concluida_em||o.finalizada_em).slice(0,10)):"—";
+$("modalTitulo").textContent="Detalhes da OS "+o.id;
+$("modalConteudo").innerHTML='<div style="display:grid;grid-template-columns:1fr 1fr;gap:15px;font-size:14px">'+
+'<div><label style="color:#666;font-size:12px">Identificação</label><br><strong>'+escapeHtml(o.id)+'</strong></div>'+
+'<div><label style="color:#666;font-size:12px">Status</label><br><span class="status '+(o.status==="Concluída"?"status-ok":o.status==="Cancelada"?"status-erro":"status-alerta")+'">'+escapeHtml(o.status)+'</span></div>'+
+'<div><label style="color:#666;font-size:12px">Veículo</label><br><strong>'+escapeHtml(o.veiculo)+'</strong></div>'+
+'<div><label style="color:#666;font-size:12px">Tipo</label><br><strong>'+escapeHtml(o.tipo)+'</strong></div>'+
+'<div style="grid-column:1/-1"><label style="color:#666;font-size:12px">Serviço</label><br><strong>'+escapeHtml(o.servico)+'</strong></div>'+
+(o.descricao?'<div style="grid-column:1/-1"><label style="color:#666;font-size:12px">Descrição</label><br><p style="margin:5px 0;padding:10px;background:#f8f9fa;border-radius:4px">'+escapeHtml(o.descricao)+'</p></div>':'')+
+'<div><label style="color:#666;font-size:12px">Prioridade</label><br><span class="status '+(prior==="Urgente"?"status-erro":prior==="Alta"?"status-alerta":"status-ok")+'">'+escapeHtml(prior)+'</span></div>'+
+'<div><label style="color:#666;font-size:12px">KM Atual</label><br><strong>'+(o.km_atual?Number(o.km_atual).toLocaleString("pt-BR")+" km":"—")+'</strong></div>'+
+'<div><label style="color:#666;font-size:12px">Responsável</label><br><strong>'+escapeHtml(o.responsavel||"—")+'</strong></div>'+
+'<div><label style="color:#666;font-size:12px">Data Prevista</label><br><strong>'+dataPrev+'</strong></div>'+
+'<div><label style="color:#666;font-size:12px">Criada em</label><br><strong>'+criada+'</strong></div>'+
+'<div><label style="color:#666;font-size:12px">Finalizada em</label><br><strong>'+finalizada+'</strong></div>'+
+'<div><label style="color:#666;font-size:12px">Custo</label><br><strong>'+moeda(o.custo)+'</strong></div>'+
+'<div><label style="color:#666;font-size:12px">Horas</label><br><strong>'+(o.horas?o.horas+" h":"—")+'</strong></div>'+
+'</div>'+
+'<div style="margin-top:20px;display:flex;gap:8px;flex-wrap:wrap">'+
+(o.status==="Aberta"||o.status==="Em andamento"?'<button class="btn-secondary" id="btnEditDetOS">✏️ Editar</button>':'')+
+(o.status==="Aberta"||o.status==="Em andamento"?'<button class="btn-secondary" id="btnIniciarDetOS">▶️ Iniciar</button>':'')+
+(o.status!=="Concluída"&&o.status!=="Cancelada"?'<button class="btn-secondary" id="btnFinDetOS">✅ Finalizar</button>':'')+
+(o.status==="Aberta"?'<button class="btn-danger" id="btnCancDetOS"> Cancelar</button>':'')+
+(o.status==="Aberta"?'<button class="btn-danger" id="btnExcDetOS">🗑️ Excluir</button>':'')+
+'</div>';
+$("modal").classList.add("aberto");
+setTimeout(function(){
+var btnEdit=document.getElementById("btnEditDetOS");if(btnEdit)btnEdit.addEventListener("click",function(){fecharModal();editarOS(id)});
+var btnInic=document.getElementById("btnIniciarDetOS");if(btnInic)btnInic.addEventListener("click",function(){fecharModal();iniciarOS(id)});
+var btnFin=document.getElementById("btnFinDetOS");if(btnFin)btnFin.addEventListener("click",function(){fecharModal();finalizarOS(id)});
+var btnCanc=document.getElementById("btnCancDetOS");if(btnCanc)btnCanc.addEventListener("click",function(){fecharModal();cancelarOS(id)});
+var btnExc=document.getElementById("btnExcDetOS");if(btnExc)btnExc.addEventListener("click",function(){fecharModal();excluirOS(id)});
+},100);
 }
 
 function renderDash(){
@@ -866,5 +921,5 @@ if(document.getElementById("graficoCustoVeic")){gCustoVeic=new Chart($("graficoC
 tentarRestaurarSessao().then(function(ok){if(!ok){$("login").style.display="flex";$("app").style.display="none"}});
 })();
 </script>
-<script>(function(){function c(){var b=a.contentDocument||(a.contentWindow&&a.contentWindow.document);if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a324c030dc9ba4fd',t:'MTc4NzkzNTE1Mg=='};var a=document.createElement('script');a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+<script>(function(){function c(){var b=a.contentDocument||(a.contentWindow&&a.contentWindow.document);if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a324e49999dec491',t:'MTc4NzkzNjY0NA=='};var a=document.createElement('script');a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>
