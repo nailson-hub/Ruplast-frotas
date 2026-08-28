@@ -670,7 +670,10 @@ Visão geral calculada automaticamente a partir dos dados cadastrados da frota.
 <b>Alertas de manutenção</b>
 <div class="subtitulo">Revisões calculadas automaticamente por KM e data.</div>
 </div>
+<div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
 <button class="btn" onclick="abrirPagina('alertas')">Ver todos</button>
+<button class="btn" id="btnNotificacoes" type="button" onclick="solicitarNotificacaoNavegador()">🔔 Ativar notificações</button>
+</div>
 </div>
 <div id="dashboardAlertas"></div>
 </div>
@@ -2523,9 +2526,42 @@ function atualizarAlertasInteligentes(){
     return alertas;
 }
 
-function solicitarNotificacaoNavegador(){
-    if(!('Notification' in window)) return;
-    if(Notification.permission==='default') Notification.requestPermission();
+async function solicitarNotificacaoNavegador(){
+    const botao=document.getElementById("btnNotificacoes");
+
+    if(!('Notification' in window)){
+        alert("Este navegador não oferece suporte a notificações.");
+        return;
+    }
+
+    if(!window.isSecureContext){
+        alert("As notificações precisam ser ativadas em uma conexão segura (HTTPS). ");
+        return;
+    }
+
+    if(Notification.permission==='granted'){
+        if(botao) botao.textContent="🔔 Notificações ativas";
+        alert("As notificações já estão ativas.");
+        return;
+    }
+
+    if(Notification.permission==='denied'){
+        if(botao) botao.textContent="🔕 Notificações bloqueadas";
+        alert("As notificações estão bloqueadas no navegador. Permita notificações nas configurações do site e tente novamente.");
+        return;
+    }
+
+    const permissao=await Notification.requestPermission();
+    if(botao){
+        botao.textContent=permissao==='granted'
+            ? "🔔 Notificações ativas"
+            : "🔔 Ativar notificações";
+    }
+
+    if(permissao==='granted'){
+        alert("Notificações ativadas com sucesso!");
+        notificarAlertasCriticos();
+    }
 }
 
 function notificarAlertasCriticos(){
@@ -2962,7 +2998,6 @@ atualizarAlertasInteligentes();
 atualizarManutencoes();
 atualizarOS();
 atualizarAlertasInteligentes();
-solicitarNotificacaoNavegador();
 notificarAlertasCriticos();
 setInterval(()=>{ atualizarAlertasInteligentes(); notificarAlertasCriticos(); }, 60000);
 
