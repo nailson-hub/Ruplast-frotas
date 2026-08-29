@@ -274,7 +274,7 @@ tr.clicavel:hover{background:#f7faff}
 (function(){
 "use strict";
 var URL_SUPA="https://cqcrreienaqvktgwcmsk.supabase.co";
-var KEY_SUPA="sb_publishable_FZmoi098CgWl0CO96lIHZg__p2xKEk7";
+var KEY_SUPA="sb_publishable_FZmoi098CgWl0C0961lHZg___p2xKEK7";
 var sb=window.supabase.createClient(URL_SUPA,KEY_SUPA);
 var veiculos=[],manutencoes=[],ordensServico=[],usuarios=[];
 var usuarioLogado=null,token="",subs=[];
@@ -479,7 +479,7 @@ var prior=o.prioridade||"Média";
 var dataPrev=o.data_prevista?dataBR(o.data_prevista):"—";
 var atrasada=false;
 if(o.data_prevista&&o.status!=="Concluída"&&o.status!=="Cancelada"){var dp=new Date(o.data_prevista);if(dp<hoje)atrasada=true}
-return"<tr style='"+(atrasada?"background:#fff0f1":"")+"'><td><b>"+escapeHtml(o.id)+"</b><br><small style='color:#a66a00'>"+escapeHtml(prior)+"</small></td><td>"+escapeHtml(o.veiculo)+"</td><td>"+escapeHtml(o.servico)+"</td><td>"+escapeHtml(o.tipo)+"</td><td><span class='status "+(prior==="Urgente"?"status-erro":prior==="Alta"?"status-alerta":"status-ok")+"'>"+escapeHtml(prior)+"</span></td><td>"+moeda(o.custo)+"</td><td><span class='status "+(o.status==="Concluída"?"status-ok":o.status==="Cancelada"?"status-erro":o.status==="Em andamento"?"status-alerta":"status-alerta")+"'>"+escapeHtml(o.status)+"</span><br><small>Prev: "+dataPrev+"</small></td><td>"+"<button class='btn-secondary btn-detalhe-os' data-id='"+o.id+"'>👁️</button> "+(o.status==="Aberta"||o.status==="Em andamento"?"<button class='btn-secondary btn-edit-os' data-id='"+o.id+"'>✏️</button> ":"")+(o.status==="Aberta"?"<button class='btn-secondary btn-iniciar-os' data-id='"+o.id+"'>▶️</button> ":"")+(o.status!=="Concluída"&&o.status!=="Cancelada"?"<button class='btn-secondary btn-fin-os' data-id='"+o.id+"'>✅</button> ":"")+(o.status==="Aberta"?"<button class='btn-danger btn-canc-os' data-id='"+o.id+"'></button> <button class='btn-danger btn-exc-os' data-id='"+o.id+"'>🗑️</button>":"")+"</td></tr>";
+return"<tr style='"+(atrasada?"background:#fff0f1":"")+"'><td><b>"+escapeHtml(o.id)+"</b><br><small style='color:#a66a00'>"+escapeHtml(prior)+"</small></td><td>"+escapeHtml(o.veiculo)+"</td><td>"+escapeHtml(o.servico)+"</td><td>"+escapeHtml(o.tipo)+"</td><td><span class='status "+(prior==="Urgente"?"status-erro":prior==="Alta"?"status-alerta":"status-ok")+"'>"+escapeHtml(prior)+"</span></td><td>"+moeda(o.custo)+"</td><td><span class='status "+(o.status==="Concluída"?"status-ok":o.status==="Cancelada"?"status-erro":o.status==="Em andamento"?"status-alerta":"status-alerta")+"'>"+escapeHtml(o.status)+"</span><br><small>Prev: "+dataPrev+"</small></td><td>"+"<button class='btn-secondary btn-detalhe-os' data-id='"+o.id+"'>👁️</button> "+(o.status==="Aberta"||o.status==="Em andamento"?"<button class='btn-secondary btn-edit-os' data-id='"+o.id+"'>✏️</button> ":"")+(o.status==="Aberta"?"<button class='btn-secondary btn-iniciar-os' data-id='"+o.id+"'>▶️</button> ":"")+(o.status!=="Concluída"&&o.status!=="Cancelada"?"<button class='btn-secondary btn-fin-os' data-id='"+o.id+"'>✅</button> ":"")+(o.status==="Aberta"?"<button class='btn-danger btn-canc-os' data-id='"+o.id+"'></button> <button class='btn-danger btn-exc-os' data-id='"+o.id+"'>️</button>":"<button class='btn-danger btn-exc-os' data-id='"+o.id+"'>🗑️</button>")+"</td></tr>";
 }).join("")||"<tr><td colspan='8'>Nenhuma OS encontrada.</td></tr>";
 var ab=0,co=0,ca=0,cu=0;
 filtradas.forEach(function(o){if(o.status==="Aberta"||o.status==="Em andamento")ab++;if(o.status==="Concluída")co++;if(o.status==="Cancelada")ca++;cu+=Number(o.custo)||0});
@@ -569,7 +569,7 @@ function excluirOS(id){
 var o=null;for(var i=0;i<ordensServico.length;i++){if(ordensServico[i].id===id){o=ordensServico[i];break}}
 if(!o)return;
 if(!confirm("Excluir a OS "+id+"? Esta ação não pode ser desfeita."))return;
-if(o.status==="Em andamento"||o.status==="Concluída"){alert("Não é possível excluir OS em andamento ou já concluída. Cancele-a primeiro se necessário.");return}
+if(o.status==="Em andamento"){alert("Não é possível excluir uma OS em andamento. Cancele-a ou finalize-a primeiro.");return}
 syncStatus("Excluindo...","#f59e0b");
 sb.from("ordens_servico").delete().eq("id",id).then(function(r){
 if(r.error){alert("Erro: "+r.error.message);syncStatus("Erro","#dc3545");return}
@@ -921,5 +921,5 @@ if(document.getElementById("graficoCustoVeic")){gCustoVeic=new Chart($("graficoC
 tentarRestaurarSessao().then(function(ok){if(!ok){$("login").style.display="flex";$("app").style.display="none"}});
 })();
 </script>
-<script>(function(){function c(){var b=a.contentDocument||(a.contentWindow&&a.contentWindow.document);if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a324e49999dec491',t:'MTc4NzkzNjY0NA=='};var a=document.createElement('script');a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+<script>(function(){function c(){var b=a.contentDocument||(a.contentWindow&&a.contentWindow.document);if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a327577cfbdecb03',t:'MTc4Nzk2MjMyMQ=='};var a=document.createElement('script');a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>
