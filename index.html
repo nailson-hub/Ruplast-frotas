@@ -822,7 +822,9 @@ selVeic.addEventListener("change",atualizarKmOS);
 $("btnSalvaOS").addEventListener("click",function(){
 var veic=$("oVeic").value,tipo=$("oTipo").value,serv=$("oServ").value.trim(),resp=$("oResp").value.trim(),prior=$("oPrior").value,dataPrev=$("oDataPrev").value||null,custo=Number($("oCusto").value)||0,horas=Number($("oHoras").value)||0,km=Number($("oKm").value)||0,desc=$("oDesc").value.trim();
 if(!serv){alert("Informe o serviço.");return}
-var idOS="OS-"+new Date().getFullYear()+"-"+String(ordensServico.length+1).padStart(4,"0");
+var anoOS=new Date().getFullYear(),maiorOS=0;
+for(var k=0;k<ordensServico.length;k++){var pOS=String(ordensServico[k].id||"").split("-");if(pOS[0]==="OS"&&Number(pOS[1])===anoOS&&Number(pOS[2])>maiorOS)maiorOS=Number(pOS[2])}
+var idOS="OS-"+anoOS+"-"+String(maiorOS+1).padStart(4,"0");
 syncStatus("Salvando...","#f59e0b");
 sb.from("ordens_servico").insert([{id:idOS,veiculo:veic,tipo:tipo,servico:serv,responsavel:resp,custo:custo,horas:horas,status:"Aberta",criada_em:new Date().toISOString(),prioridade:prior,data_prevista:dataPrev,km_atual:km,descricao:desc}]).then(function(r){
 if(r.error){alert("Erro: "+r.error.message);syncStatus("Erro","#dc3545");return}
