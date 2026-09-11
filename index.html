@@ -435,20 +435,29 @@ var v=null;for(var i=0;i<veiculos.length;i++){if(veiculos[i].id===id){v=veiculos
 if(!v)return;
 abrirPagina("detalhe");
 $("detalheTitulo").textContent=v.id;
-$("detalheCusto").textContent=moeda(v.custo);
+$("detalheCusto").textContent = moeda(
+  custoOSConcluidasVeiculo(v.id)
+);
 $("detalheHoras").textContent=v.horas+" h";
 $("detalheKm").textContent=Number(v.km).toLocaleString("pt-BR")+" km";
 $("detalheDisponibilidade").textContent=v.disponibilidade+"%";
 $("dadosDetalhe").innerHTML="<b>Modelo:</b> "+v.modelo+"<br><b>Tipo:</b> "+v.tipo+"<br><b>Ano:</b> "+v.ano+"<br><b>KM:</b> "+Number(v.km).toLocaleString("pt-BR")+" km<br><b>Placa:</b> "+escapeHtml(v.placa||"Não informada")+"<br><b>Combustível:</b> "+escapeHtml(v.combustivel||"-")+"<br><b>Centro de custo:</b> "+escapeHtml(v.centro_custo||"-")+"<br><b>Responsável:</b> "+escapeHtml(v.responsavel||"-")+"<br><b>Última revisão:</b> "+dataBR(v.ultima_revisao)+"<br><b>Próxima revisão KM:</b> "+Number(v.proxima_revisao_km||0).toLocaleString("pt-BR")+" km<br><b>Próxima revisão data:</b> "+dataBR(v.proxima_revisao_data)+"<br><b>Status:</b> "+v.status+"<br><b>Disponibilidade:</b> "+v.disponibilidade+"%<br><b>Alerta:</b> "+alertaVeic(v).texto;
-var hist=manutencoes.filter(function(m){return m.veiculo===id}).sort(function(a,b){return new Date(b.data)-new Date(a.data)});
+var hist = manutencoes.filter(function(m) {
+  return m.veiculo === id && m.tipo === "Preventiva";
+}).sort(function(a, b) {
+  return new Date(b.data) - new Date(a.data);
+});
 var tb=$("tabelaHistoricoVeiculo");
 tb.innerHTML=hist.length?hist.map(function(m){return"<tr><td>"+dataBR(m.data)+"</td><td>"+escapeHtml(m.tipo)+"</td><td>"+escapeHtml(m.servico)+"</td><td>"+m.horas+" h</td><td>"+moeda(m.custo)+"</td><td><span class='status "+(m.status==="Concluída"?"status-ok":"status-alerta")+"'>"+escapeHtml(m.status)+"</span></td></tr>"}).join(""):"<tr><td colspan='6'>Nenhuma manutenção.</td></tr>";
 }
 
 function renderTabelaTop(){
 var tb=$("tabelaTop");if(!tb)return;
-var ord=veiculos.slice().sort(function(a,b){return Number(b.custo)-Number(a.custo)}).slice(0,5);
-tb.innerHTML=ord.map(function(v){return"<tr><td><b>"+v.id+"</b><br><small>"+v.modelo+"</small></td><td>"+v.tipo+"</td><td>"+moeda(v.custo)+"</td><td>"+v.horas+" h</td><td><span class='status "+(v.status==="Operando"?"status-ok":"status-alerta")+"'>"+v.status+"</span></td></tr>"}).join("");
+var ord = veiculos.slice().sort(function(a, b) {
+  return custoOSConcluidasVeiculo(b.id) -
+         custoOSConcluidasVeiculo(a.id);
+}).slice(0, 5);
+tb.innerHTML=ord.map(function(v){return"<tr><td><b>"+v.id+"</b><br><small>"+v.modelo+"</small></td><td>"+v.tipo+"</td><td>"+moeda(custoOSConcluidasVeiculo(v.id))+"</td><td>"+v.horas+" h</td><td><span class='status "+(v.status==="Operando"?"status-ok":"status-alerta")+"'>"+v.status+"</span></td></tr>"}).join("");
 }
 
 function renderManut(){
@@ -494,12 +503,31 @@ var btns6=document.querySelectorAll(".btn-detalhe-os");for(var i=0;i<btns6.lengt
 },100);
 }
 
+function custoOSConcluidasVeiculo(veiculoId) {
+  var id = String(veiculoId == null ? "" : veiculoId).trim();
 
+  if (!id) return 0;
+
+  return ordensServico.reduce(function(total, os) {
+    var idVeiculoOS = String(
+      os.veiculo == null ? "" : os.veiculo
+    ).trim();
+
+    // Considera somente OS concluídas deste veículo.
+    if (idVeiculoOS !== id || os.status !== "Concluída") {
+      return total;
+    }
+
+    var custo = Number(os.custo);
+
+    return Number.isFinite(custo) ? total + custo : total;
+  }, 0);
+}
 function calcDash(){
 var t=veiculos.length,cu=0,ho=0,di=0,kmTotal=0;
 for(var i=0;i<veiculos.length;i++){
 var v=veiculos[i];
-var vc=Number(v.custo);if(!isNaN(vc))cu+=vc;
+cu += custoOSConcluidasVeiculo(v.id);
 var vh=Number(v.horas);if(!isNaN(vh))ho+=vh;
 var vd=Number(v.disponibilidade);if(!isNaN(vd))di+=vd;
 var vk=Number(v.km);if(!isNaN(vk))kmTotal+=vk;
