@@ -735,8 +735,6 @@ $("dashboardAlertas").innerHTML=itens.length?itens.map(function(x){return"<div c
 atualizarGraficos();
 }
 
-
-
 function gerarAlertas(){
 var res=[];
 veiculos.forEach(function(v){var a=alertaVeic(v);if(a.tipo!=="ok")res.push({nivel:a.tipo,veiculo:v.id,texto:a.texto});if(v.status==="Manutenção")res.push({nivel:"warning",veiculo:v.id,texto:"Em manutenção"});if(v.status==="Parado")res.push({nivel:"danger",veiculo:v.id,texto:"Parado"})});
