@@ -533,22 +533,10 @@ var vd=Number(v.disponibilidade);if(!isNaN(vd))di+=vd;
 var vk=Number(v.km);if(!isNaN(vk))kmTotal+=vk;
 }
 
-// CORREÇÃO: Calcular histórico a partir de ordens_servico (dados reais de 2026)
+// Calcular histórico APENAS de ordens_servico concluídas (evita duplicidade)
 var cuH=0,hoH=0,totalManut=0,prevCount=0,corrCount=0;
 
-// Contar de manutencoes (se houver registros)
-for(var i=0;i<manutencoes.length;i++){
-var m=manutencoes[i];
-if(m.status==="Concluída"){
-totalManut++;
-if(m.tipo==="Preventiva")prevCount++;
-if(m.tipo==="Corretiva")corrCount++;
-var mc=Number(m.custo);if(!isNaN(mc))cuH+=mc;
-var mh=Number(m.horas);if(!isNaN(mh))hoH+=mh;
-}
-}
-
-// Contar de ordens_servico concluídas (fonte principal dos dados)
+// Contar APENAS de ordens_servico concluídas
 for(var i=0;i<ordensServico.length;i++){
 var o=ordensServico[i];
 if(o.status==="Concluída"){
@@ -568,13 +556,13 @@ if(ordensServico[i].status==="Cancelada")osCanc++;
 }
 
 // Cálculos dos indicadores
-var mtbf=kmTotal/(corrCount||1);
+var mtbf=corrCount>0?kmTotal/corrCount:0;
 var mttr=totalManut>0?hoH/totalManut:0;
-var prevIdx=totalManut?(prevCount/totalManut)*100:0;
+var prevIdx=totalManut>0?(prevCount/totalManut)*100:0;
 var custoKm=kmTotal>0?cu/kmTotal:0;
-var taxaConc=totalOS?(osConcl/totalOS)*100:0;
+var taxaConc=totalOS>0?(osConcl/totalOS)*100:0;
 
-// CORREÇÃO: Contar veículos ativos (Operando OU em Manutenção)
+// Contar veículos ativos (Operando OU em Manutenção)
 var ativos=0;
 for(var i=0;i<veiculos.length;i++){
 if(veiculos[i].status==="Operando"||veiculos[i].status==="Manutenção")ativos++;
@@ -597,27 +585,6 @@ taxaConc:taxaConc,
 ativos:ativos,
 osCanc:osCanc
 };
-}
-var cuH=0,hoH=0,totalManut=0,prevCount=0,corrCount=0;
-for(var i=0;i<manutencoes.length;i++){
-var m=manutencoes[i];totalManut++;
-if(m.tipo==="Preventiva")prevCount++;
-if(m.tipo==="Corretiva")corrCount++;
-if(m.status==="Concluída"){
-var mc=Number(m.custo);if(!isNaN(mc))cuH+=mc;
-var mh=Number(m.horas);if(!isNaN(mh))hoH+=mh;
-}
-
-var totalOS=ordensServico.length;
-var osConcl=0,osCanc=0;
-for(var i=0;i<ordensServico.length;i++){if(ordensServico[i].status==="Concluída")osConcl++;if(ordensServico[i].status==="Cancelada")osCanc++;}
-var mtbf=kmTotal/(corrCount||1);
-var mttr=hoH/(totalManut||1);
-var prevIdx=totalManut?(prevCount/totalManut)*100:0;
-var custoKm=kmTotal>0?cu/kmTotal:0;
-var taxaConc=totalOS?(osConcl/totalOS)*100:0;
-var ativos=0;for(var i=0;i<veiculos.length;i++){if(veiculos[i].status==="Operando")ativos++;}
-return{total:t,custo:cu,horas:ho,disp:t?di/t:0,custoMedio:t?cu/t:0,cuHist:cuH,hoHist:hoH,mtbf:mtbf,mttr:mttr,prevIdx:prevIdx,custoKm:custoKm,totalOS:totalOS,taxaConc:taxaConc,ativos:ativos,osCanc:osCanc};
 }
  
 function editarOS(id){
