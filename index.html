@@ -532,6 +532,72 @@ var vh=Number(v.horas);if(!isNaN(vh))ho+=vh;
 var vd=Number(v.disponibilidade);if(!isNaN(vd))di+=vd;
 var vk=Number(v.km);if(!isNaN(vk))kmTotal+=vk;
 }
+
+// CORREÇÃO: Calcular histórico a partir de ordens_servico (dados reais de 2026)
+var cuH=0,hoH=0,totalManut=0,prevCount=0,corrCount=0;
+
+// Contar de manutencoes (se houver registros)
+for(var i=0;i<manutencoes.length;i++){
+var m=manutencoes[i];
+if(m.status==="Concluída"){
+totalManut++;
+if(m.tipo==="Preventiva")prevCount++;
+if(m.tipo==="Corretiva")corrCount++;
+var mc=Number(m.custo);if(!isNaN(mc))cuH+=mc;
+var mh=Number(m.horas);if(!isNaN(mh))hoH+=mh;
+}
+}
+
+// Contar de ordens_servico concluídas (fonte principal dos dados)
+for(var i=0;i<ordensServico.length;i++){
+var o=ordensServico[i];
+if(o.status==="Concluída"){
+totalManut++;
+if(o.tipo==="Preventiva")prevCount++;
+if(o.tipo==="Corretiva")corrCount++;
+cuH+=Number(o.custo)||0;
+hoH+=Number(o.horas)||0;
+}
+}
+
+var totalOS=ordensServico.length;
+var osConcl=0,osCanc=0;
+for(var i=0;i<ordensServico.length;i++){
+if(ordensServico[i].status==="Concluída")osConcl++;
+if(ordensServico[i].status==="Cancelada")osCanc++;
+}
+
+// Cálculos dos indicadores
+var mtbf=kmTotal/(corrCount||1);
+var mttr=totalManut>0?hoH/totalManut:0;
+var prevIdx=totalManut?(prevCount/totalManut)*100:0;
+var custoKm=kmTotal>0?cu/kmTotal:0;
+var taxaConc=totalOS?(osConcl/totalOS)*100:0;
+
+// CORREÇÃO: Contar veículos ativos (Operando OU em Manutenção)
+var ativos=0;
+for(var i=0;i<veiculos.length;i++){
+if(veiculos[i].status==="Operando"||veiculos[i].status==="Manutenção")ativos++;
+}
+
+return{
+total:t,
+custo:cu,
+horas:ho,
+disp:t?di/t:0,
+custoMedio:t?cu/t:0,
+cuHist:cuH,
+hoHist:hoH,
+mtbf:mtbf,
+mttr:mttr,
+prevIdx:prevIdx,
+custoKm:custoKm,
+totalOS:totalOS,
+taxaConc:taxaConc,
+ativos:ativos,
+osCanc:osCanc
+};
+}
 var cuH=0,hoH=0,totalManut=0,prevCount=0,corrCount=0;
 for(var i=0;i<manutencoes.length;i++){
 var m=manutencoes[i];totalManut++;
@@ -669,20 +735,7 @@ $("dashboardAlertas").innerHTML=itens.length?itens.map(function(x){return"<div c
 atualizarGraficos();
 }
 
-function renderDash(){
-var d=calcDash();
-$("kpiCustoTotal").textContent=moeda(d.custo);$("kpiCustoMedio").textContent=moeda(d.custoMedio);
-$("kpiHoras").textContent=d.horas.toLocaleString("pt-BR")+" h";$("kpiDisponibilidade").textContent=d.disp.toFixed(1)+"%";
-$("subtituloDashboard").textContent="Visão geral de "+d.total+" veículo(s).";
-$("origemCustoFrota").textContent=moeda(d.custo);$("origemCustoHistorico").textContent=moeda(d.cuHist);
-$("origemHorasFrota").textContent=d.horas.toLocaleString("pt-BR")+" h";$("origemHorasHistorico").textContent=d.hoHist.toLocaleString("pt-BR")+" h";
-$("indDisp").textContent=d.disp.toFixed(1)+"%";$("indCustoMed").textContent=moeda(d.custoMedio);
-var inM=0;veiculos.forEach(function(v){if(v.status==="Manutenção")inM++});$("indManut").textContent=inM;
-var atr=0;veiculos.forEach(function(v){if(alertaVeic(v).tipo==="danger")atr++});$("indAtras").textContent=atr;
-var itens=veiculos.map(function(v){return{v:v,a:alertaVeic(v)}}).filter(function(x){return x.a.tipo!=="ok"}).sort(function(a,b){return(a.a.tipo==="danger"?0:1)-(b.a.tipo==="danger"?0:1)}).slice(0,5);
-$("dashboardAlertas").innerHTML=itens.length?itens.map(function(x){return"<div class='alerta "+(x.a.tipo==="danger"?"red":"")+"'><b>"+(x.a.tipo==="danger"?"🔴":"🟠")+" "+escapeHtml(x.v.id)+"</b><br>"+escapeHtml(x.a.texto)+"</div>"}).join(""):"<div class='alerta green'><b>🟢 Frota em dia</b></div>";
-atualizarGraficos();
-}
+
 
 function gerarAlertas(){
 var res=[];
