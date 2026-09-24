@@ -607,7 +607,7 @@ if(m.status==="Concluída"){
 var mc=Number(m.custo);if(!isNaN(mc))cuH+=mc;
 var mh=Number(m.horas);if(!isNaN(mh))hoH+=mh;
 }
-}
+
 var totalOS=ordensServico.length;
 var osConcl=0,osCanc=0;
 for(var i=0;i<ordensServico.length;i++){if(ordensServico[i].status==="Concluída")osConcl++;if(ordensServico[i].status==="Cancelada")osCanc++;}
@@ -619,7 +619,7 @@ var taxaConc=totalOS?(osConcl/totalOS)*100:0;
 var ativos=0;for(var i=0;i<veiculos.length;i++){if(veiculos[i].status==="Operando")ativos++;}
 return{total:t,custo:cu,horas:ho,disp:t?di/t:0,custoMedio:t?cu/t:0,cuHist:cuH,hoHist:hoH,mtbf:mtbf,mttr:mttr,prevIdx:prevIdx,custoKm:custoKm,totalOS:totalOS,taxaConc:taxaConc,ativos:ativos,osCanc:osCanc};
 }
-
+ 
 function editarOS(id){
 var o=null;for(var i=0;i<ordensServico.length;i++){if(ordensServico[i].id===id){o=ordensServico[i];break}}
 if(!o)return;
