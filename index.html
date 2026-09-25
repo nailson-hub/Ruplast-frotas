@@ -948,7 +948,22 @@ $("modalConteudo").innerHTML='<div class="campo"><label>Senha atual</label><inpu
 $("modal").classList.add("aberto");
 $("btnSalvaSenha").addEventListener("click",function(){
 var atual=$("sAtual").value,nova=$("sNova").value,conf=$("sConf").value;
-if(atual!==usuarioLogado.senha){alert("Senha atual incorreta.");return}
+const { data: usuarioBanco, error: erroBusca } = await sb
+  .from("usuarios")
+  .select("senha")
+  .eq("id", usuarioLogado.id)
+  .single();
+
+if (erroBusca || !usuarioBanco) {
+  console.error(erroBusca);
+  alert("Não foi possível validar a senha atual.");
+  return;
+}
+
+if (atual !== usuarioBanco.senha) {
+  alert("Senha atual incorreta.");
+  return;
+}
 if(nova.length<6){alert("Mínimo 6 caracteres.");return}
 if(nova!==conf){alert("Senhas não conferem.");return}
 sb.from("usuarios").update({senha:nova}).eq("id",usuarioLogado.id).then(function(r){
