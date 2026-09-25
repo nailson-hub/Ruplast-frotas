@@ -964,6 +964,7 @@ if (atual !== usuarioBanco.senha) {
   alert("Senha atual incorreta.");
   return;
 }
+  
 if(nova.length<6){alert("Mínimo 6 caracteres.");return}
 if(nova!==conf){alert("Senhas não conferem.");return}
 sb.from("usuarios").update({senha:nova}).eq("id",usuarioLogado.id).then(function(r){
