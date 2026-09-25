@@ -729,11 +729,43 @@ gCusto.data.labels=labels;gCusto.data.datasets[0].data=dados;gCusto.update()
 if(gStatus){var st=["Operando","Manutenção","Parado","Baixado"];gStatus.data.datasets[0].data=st.map(function(s){return veiculos.filter(function(v){return v.status===s}).length});gStatus.update()}
 if(gHoras&&veiculos.length){gHoras.data.labels=veiculos.map(function(v){return v.id});gHoras.data.datasets[0].data=veiculos.map(function(v){return v.horas});gHoras.update()}
 if(gCustosTipo){
-var custoTipo={};
-for(var i=0;i<ordensServico.length;i++){var o=ordensServico[i];if(o.status==="Concluída"){var tp=o.tipo||"Outro";if(!custoTipo[tp])custoTipo[tp]=0;custoTipo[tp]+=Number(o.custo)||0}}
-for(var i=0;i<manutencoes.length;i++){var m=manutencoes[i];if(m.status==="Concluída"&&m.custo){var tp2=m.tipo||"Outro";if(!custoTipo[tp2])custoTipo[tp2]=0;custoTipo[tp2]+=Number(m.custo)||0}}
-var arr=[];for(var k in custoTipo)arr.push({l:k,v:custoTipo[k]});arr.sort(function(a,b){return b.v-a.v});
-gCustosTipo.data.labels=arr.map(function(x){return x.l});gCustosTipo.data.datasets[0].data=arr.map(function(x){return x.v});gCustosTipo.data.datasets[0].backgroundColor=cores.slice(0,arr.length);gCustosTipo.update()
+  var custoCorretiva = 0;
+  var custoPreventiva = 0;
+
+  // Corretivas: somente OS corretivas concluídas
+  for(var i = 0; i < ordensServico.length; i++){
+    var o = ordensServico[i];
+
+    if(
+      o.status === "Concluída" &&
+      o.tipo === "Corretiva" &&
+      o.custo
+    ){
+      custoCorretiva += Number(o.custo || 0);
+    }
+  }
+
+  // Preventivas: somente manutenções preventivas concluídas
+  for(var j = 0; j < manutencoes.length; j++){
+    var m = manutencoes[j];
+
+    if(
+      m.status === "Concluída" &&
+      m.tipo === "Preventiva" &&
+      m.custo
+    ){
+      custoPreventiva += Number(m.custo || 0);
+    }
+  }
+
+  gCustosTipo.data.labels = ["Corretiva", "Preventiva"];
+
+  gCustosTipo.data.datasets[0].data = [
+    custoCorretiva,
+    custoPreventiva
+  ];
+
+  gCustosTipo.update();
 }
 if(gCustoVeic){
 var custoVeic={};
