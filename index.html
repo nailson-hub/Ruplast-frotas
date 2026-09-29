@@ -206,7 +206,7 @@ tr.clicavel:hover{background:#f7faff}
     <button class="btn-outline" id="btnHistoricoAnos">📅 Histórico</button>
     <button class="btn-outline" id="btnGerarRelatorio">📄 Gerar relatório</button>
     <button class="btn-outline" id="btnBaixarRelatorio">⬇️ Baixar relatório</button>
-    <button class="btn-fechar-ano" id="btnFecharAno">🔒 Fechar ano</button>
+    <button class="btn-fechar-ano" id="btnFecharAno">🔒 Fechar ano</button><button class="btn-outline" id="btnReabrirAno" style="display:none">🔓 Reabrir ano</button>
   </div>
 </div>
 
@@ -339,7 +339,7 @@ tr.clicavel:hover{background:#f7faff}
 var URL_SUPA="https://cqcrreienaqvktgwcmsk.supabase.co";
 var KEY_SUPA="sb_publishable_FZmoi098CgWl0CO96lIHZg__p2xKEk7";
 var sb=window.supabase.createClient(URL_SUPA,KEY_SUPA);
-var veiculos=[],manutencoes=[],ordensServico=[],usuarios=[];
+var veiculos=[],manutencoes=[],ordensServico=[],usuarios=[],fechamentosAnuais=[];
 var usuarioLogado=null,token="",subs=[];
 var perfisDisponiveis={dashboard:"Ver Dashboard",veiculos:"Ver veículos",veiculos_editar:"Cadastrar/editar veículos",veiculos_excluir:"Excluir veículos",manutencao:"Ver manutenções",manutencao_editar:"Registrar/editar manutenção",ordens:"Ver Ordens de Serviço",ordens_criar:"Criar Ordens de Serviço",ordens_finalizar:"Finalizar Ordens de Serviço",indicadores:"Ver indicadores",alertas:"Ver alertas",acessos:"Gerenciar usuários e acessos"};
 var perfis={Administrador:Object.keys(perfisDisponiveis),Gestor:["dashboard","veiculos","veiculos_editar","manutencao","manutencao_editar","ordens","ordens_criar","ordens_finalizar","indicadores","alertas"],Operador:["dashboard","veiculos","manutencao","manutencao_editar","ordens","ordens_criar","alertas"],Consulta:["dashboard","veiculos","indicadores","alertas"]};
@@ -363,6 +363,7 @@ try{
 var a=await sb.from("veiculos").select("*").order("id");if(a.error)throw a.error;veiculos=a.data||[];
 var b=await sb.from("manutencoes").select("*").order("data",{ascending:false});if(b.error)throw b.error;manutencoes=b.data||[];
 var c=await sb.from("ordens_servico").select("*").order("criada_em",{ascending:false});if(c.error)throw c.error;ordensServico=c.data||[];
+var d=await sb.from("fechamentos_anuais").select("*").order("ano",{ascending:false});if(d.error)throw d.error;fechamentosAnuais=d.data||[];
 syncStatus("Sincronizado","#13a36a");
 }catch(e){console.error(e);syncStatus("Erro","#dc3545")}
 hideLoad();
@@ -370,7 +371,7 @@ hideLoad();
 
 function ativarRealtime(){
 subs.forEach(function(s){try{s.unsubscribe()}catch(e){}});subs=[];
-["veiculos","manutencoes","ordens_servico","usuarios"].forEach(function(tbl){
+["veiculos","manutencoes","ordens_servico","usuarios","fechamentos_anuais"].forEach(function(tbl){
 var ch=sb.channel(tbl+"_rt").on("postgres_changes",{event:"*",schema:"public",table:tbl},function(p){handleRT(tbl,p)}).subscribe();
 subs.push(ch);
 });
@@ -383,8 +384,9 @@ if(tbl==="veiculos")veiculos.push(normalizarVeic(nw));
 else if(tbl==="manutencoes")manutencoes.push(nw);
 else if(tbl==="ordens_servico")ordensServico.push(nw);
 else if(tbl==="usuarios")usuarios.push(nw);
+else if(tbl==="fechamentos_anuais")fechamentosAnuais.push(nw);
 }else if(ev==="UPDATE"){
-var arr=tbl==="veiculos"?veiculos:tbl==="manutencoes"?manutencoes:tbl==="ordens_servico"?ordensServico:tbl==="usuarios"?usuarios:[];
+var arr=tbl==="veiculos"?veiculos:tbl==="manutencoes"?manutencoes:tbl==="ordens_servico"?ordensServico:tbl==="usuarios"?usuarios:tbl==="fechamentos_anuais"?fechamentosAnuais:[];
 var idx=-1;for(var i=0;i<arr.length;i++){if(arr[i].id===nw.id){idx=i;break}}
 if(idx>=0){if(tbl==="veiculos")arr[idx]=normalizarVeic(nw);else arr[idx]=nw}
 }else if(ev==="DELETE"){
@@ -393,6 +395,7 @@ if(tbl==="veiculos")veiculos=veiculos.filter(function(x){return x.id!==id2});
 else if(tbl==="manutencoes")manutencoes=manutencoes.filter(function(x){return x.id!==id2});
 else if(tbl==="ordens_servico")ordensServico=ordensServico.filter(function(x){return x.id!==id2});
 else if(tbl==="usuarios")usuarios=usuarios.filter(function(x){return x.id!==id2});
+else if(tbl==="fechamentos_anuais")fechamentosAnuais=fechamentosAnuais.filter(function(x){return x.ano!==id2});
 }
 renderizarTudo();
 }
@@ -841,9 +844,12 @@ aplicarVariacao("compHorasVar",pctVar(a.horas,b.horas),"vs. "+comp);
 aplicarVariacao("compOSVar",pctVar(a.os,b.os),"vs. "+comp);
 $("resCustoAno").textContent=moeda(a.custo);$("resOSAno").textContent=a.os.toLocaleString("pt-BR");
 $("resHorasAno").textContent=a.horas.toLocaleString("pt-BR")+" h";$("resPrevAno").textContent=a.prevIdx.toFixed(1)+"%";$("resMedioAno").textContent=moeda(a.custoMedio);
-var fechado=localStorage.getItem("ruplast_ano_fechado_"+ano)==="1";
+var fechamento=fechamentosAnuais.find(function(f){return Number(f.ano)===ano;});
+var fechado=!!fechamento && String(fechamento.status||"Fechado")!=="Aberto";
 $("badgeAnoFechado").style.display=fechado?"inline-flex":"none";
-$("statusFechamentoAno").textContent=fechado?"🔒 O ano "+ano+" está marcado como fechado neste navegador.":"Ano "+ano+" em aberto.";
+$("btnFecharAno").style.display=fechado?"none":"inline-block";
+$("btnReabrirAno").style.display=fechado?"inline-block":"none";
+$("statusFechamentoAno").textContent=fechado?"🔒 O ano "+ano+" está fechado no Supabase. Você pode reabri-lo se precisar corrigir algum lançamento.":(fechamento?"🔓 O ano "+ano+" foi reaberto e está disponível para alterações.":"Ano "+ano+" em aberto.");
 atualizarGraficoAnual(a,b);
 renderTopAno(a);
 }
@@ -919,14 +925,36 @@ anos.forEach(function(ano){var d=dadosAno(ano),f=localStorage.getItem("ruplast_a
 html+="</tbody></table></div>";
 $("modalTitulo").textContent="Histórico anual";$("modalConteudo").innerHTML=html;$("modal").classList.add("aberto");
 }
-function fecharAnoSelecionado(){
+async function fecharAnoSelecionado(){
 var ano=Number($("dashboardAno").value)||new Date().getFullYear();
-if(localStorage.getItem("ruplast_ano_fechado_"+ano)==="1"){alert("O ano "+ano+" já está fechado neste navegador.");return}
+var jaFechado=fechamentosAnuais.some(function(f){return Number(f.ano)===ano && String(f.status||"Fechado")!=="Aberto";});
+if(jaFechado){alert("O ano "+ano+" já está fechado. Se precisar alterar algum lançamento, use o botão Reabrir ano.");return}
 var d=dadosAno(ano);
-if(!confirm("Fechar o ano "+ano+"?\n\nCusto: "+moeda(d.custo)+"\nOS concluídas: "+d.os+"\n\nO fechamento poderá ser consultado no histórico."))return;
-localStorage.setItem("ruplast_ano_fechado_"+ano,"1");
+if(!confirm("Fechar o ano "+ano+"?\n\nCusto: "+moeda(d.custo)+"\nOS concluídas: "+d.os+"\nHoras: "+d.horas+" h\n\nO fechamento será salvo no Supabase e ficará disponível no computador e no celular."))return;
+syncStatus("Fechando ano...","#f59e0b");
+var r=await sb.from("fechamentos_anuais").insert([{ano:ano,fechado_por:usuarioLogado?usuarioLogado.id:null,custo_total:d.custo,horas_total:d.horas,os_concluidas:d.os,status:"Fechado",reaberto_em:null,reaberto_por:null}]).select().single();
+if(r.error){syncStatus("Erro","#dc3545");if(r.error.code==="23505")alert("O ano "+ano+" já foi fechado por outro acesso.");else alert("Não foi possível fechar o ano: "+r.error.message);return}
+fechamentosAnuais.push(r.data);
+syncStatus("Sincronizado","#13a36a");
 renderDashboardAnual();
-alert("Ano "+ano+" marcado como fechado.");
+historicoAnos();
+alert("Ano "+ano+" fechado com sucesso e sincronizado.");
+}
+
+async function reabrirAnoSelecionado(){
+var ano=Number($("dashboardAno").value)||new Date().getFullYear();
+var fechamento=fechamentosAnuais.find(function(f){return Number(f.ano)===ano;});
+if(!fechamento || String(fechamento.status||"Fechado")==="Aberto"){alert("O ano "+ano+" já está aberto.");return}
+if(!confirm("Reabrir o ano "+ano+"?\n\nIsso permitirá corrigir ou incluir lançamentos desse período. Depois, você poderá fechá-lo novamente."))return;
+syncStatus("Reabrindo ano...","#f59e0b");
+var r=await sb.from("fechamentos_anuais").update({status:"Aberto",reaberto_em:new Date().toISOString(),reaberto_por:usuarioLogado?usuarioLogado.id:null}).eq("ano",ano).select().single();
+if(r.error){syncStatus("Erro","#dc3545");alert("Não foi possível reabrir o ano: "+r.error.message);return}
+var idx=fechamentosAnuais.findIndex(function(f){return Number(f.ano)===ano;});
+if(idx>=0)fechamentosAnuais[idx]=r.data;
+syncStatus("Sincronizado","#13a36a");
+renderDashboardAnual();
+historicoAnos();
+alert("Ano "+ano+" reaberto com sucesso. As alterações podem ser feitas normalmente.");
 }
 
 function renderAlertas(){
@@ -1181,6 +1209,7 @@ $("btnHistoricoAnos").addEventListener("click",historicoAnos);
 $("btnGerarRelatorio").addEventListener("click",gerarRelatorio);
 $("btnBaixarRelatorio").addEventListener("click",baixarRelatorio);
 $("btnFecharAno").addEventListener("click",fecharAnoSelecionado);
+$("btnReabrirAno").addEventListener("click",reabrirAnoSelecionado);
 aplicarPermissoesPerfil();
 
 function novoVeiculo(){
