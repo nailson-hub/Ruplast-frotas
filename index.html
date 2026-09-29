@@ -464,7 +464,16 @@ else if(tbl==="fechamentos_anuais")fechamentosAnuais=fechamentosAnuais.filter(fu
 renderizarTudo();
 }
 
-function renderizarTudo(){renderVeiculos();renderTabelaTop();renderManut();renderOS();renderDash();renderAlertas();renderUsuarios()}
+function renderizarTudo(){
+  renderVeiculos();
+  renderTabelaTop();
+  renderManut();
+  renderOS();
+  renderDash();
+  renderIndicadores();
+  renderAlertas();
+  renderUsuarios();
+}
 
 function salvarSessao(){
 if(!usuarioLogado)return;
@@ -521,6 +530,7 @@ $(""+id).classList.add("active");
 $("titulo").textContent={dashboard:"Dashboard",veiculos:"Veículos",detalhe:"Detalhes",manutencao:"Manutenções",ordens:"Ordens de Serviço",indicadores:"Indicadores",alertas:"Alertas",acessos:"Usuários e Acessos"}[id]||id;
 var itens=document.querySelectorAll(".menu-item");for(var i=0;i<itens.length;i++){itens[i].classList.toggle("active",itens[i].getAttribute("data-pagina")===id)}
 if(id==="acessos")renderUsuarios();
+if(id==="indicadores")renderIndicadores();
 window.scrollTo(0,0);
 }
 
@@ -633,6 +643,17 @@ var btns6=document.querySelectorAll(".btn-detalhe-os");for(var i=0;i<btns6.lengt
 },100);
 }
 
+function statusNormalizado(v){
+  return String(v==null?"":v).trim().normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase();
+}
+function osConcluida(o){
+  return statusNormalizado(o&&o.status)==="concluida";
+}
+function anoDataSegura(v){
+  var s=String(v==null?"":v);
+  var m=s.match(/(\d{4})-(\d{2})-(\d{2})/);
+  return m?Number(m[1]):0;
+}
 function custoOSConcluidasVeiculo(veiculoId) {
   var id = String(veiculoId == null ? "" : veiculoId).trim();
 
@@ -644,7 +665,7 @@ function custoOSConcluidasVeiculo(veiculoId) {
     ).trim();
 
     // Considera somente OS concluídas deste veículo.
-    if (idVeiculoOS !== id || os.status !== "Concluída") {
+    if (idVeiculoOS !== id || !osConcluida(os)) {
       return total;
     }
 
@@ -669,7 +690,7 @@ var cuH=0,hoH=0,totalManut=0,prevCount=0,corrCount=0;
 // Contar APENAS de ordens_servico concluídas
 for(var i=0;i<ordensServico.length;i++){
 var o=ordensServico[i];
-if(o.status==="Concluída"){
+if(osConcluida(o)){
 totalManut++;
 if(o.tipo==="Preventiva")prevCount++;
 if(o.tipo==="Corretiva")corrCount++;
@@ -681,7 +702,7 @@ hoH+=Number(o.horas)||0;
 var totalOS=ordensServico.length;
 var osConcl=0,osCanc=0;
 for(var i=0;i<ordensServico.length;i++){
-if(ordensServico[i].status==="Concluída")osConcl++;
+if(osConcluida(ordensServico[i]))osConcl++;
 if(ordensServico[i].status==="Cancelada")osCanc++;
 }
 
@@ -837,6 +858,62 @@ renderDashboardAnual();
 atualizarGraficos();
 }
 
+function renderIndicadores(){
+  try{
+    // Indicadores independentes do Dashboard: sempre calculados diretamente
+    // dos dados já carregados do Supabase.
+    var totalV=veiculos.length;
+    var dispSum=0, kmTotal=0, ativos=0, emManut=0, atrasadas=0;
+    veiculos.forEach(function(v){
+      var d=Number(v.disponibilidade);
+      if(isFinite(d)) dispSum+=d;
+      var km=Number(v.km);
+      if(isFinite(km)) kmTotal+=km;
+      if(v.status==="Operando") ativos++;
+      if(v.status==="Manutenção") emManut++;
+      if(typeof alertaVeic==="function" && alertaVeic(v).tipo==="danger") atrasadas++;
+    });
+
+    var concl=ordensServico.filter(osConcluida);
+    var totalOS=ordensServico.length;
+    var custoHist=0, horasHist=0, preventivas=0, corretivas=0;
+    concl.forEach(function(o){
+      custoHist += Number(o.custo)||0;
+      horasHist += Number(o.horas)||0;
+      var tipo=statusNormalizado(o.tipo);
+      if(tipo==="preventiva") preventivas++;
+      if(tipo==="corretiva") corretivas++;
+    });
+
+    var disponibilidade=totalV?dispSum/totalV:0;
+    var custoMedio=totalV?custoHist/totalV:0;
+    var taxaConc=totalOS?(concl.length/totalOS)*100:0;
+    var indicePrev=concl.length?(preventivas/concl.length)*100:0;
+    var custoKm=kmTotal?custoHist/kmTotal:0;
+    var mtbf=corretivas?kmTotal/corretivas:0;
+    var mttr=concl.length?horasHist/concl.length:0;
+
+    var set=function(id,val){var e=$(id);if(e)e.textContent=val;};
+    set("indDisp",disponibilidade.toFixed(1)+"%");
+    set("indManut",String(emManut));
+    set("indCustoMed",moeda(custoMedio));
+    set("indAtras",String(atrasadas));
+    set("indMTBF",mtbf>0?Math.round(mtbf).toLocaleString("pt-BR")+" km":"—");
+    set("indMTTR",mttr>0?mttr.toFixed(1)+" h":"—");
+    set("indPrevIdx",indicePrev.toFixed(1)+"%");
+    set("indCustoKm",moeda(custoKm));
+    set("indTotalOS",String(totalOS));
+    set("indTaxaConc",taxaConc.toFixed(1)+"%");
+    set("indAtivos",String(ativos));
+    set("indCustoHist",moeda(custoHist));
+
+    // Atualiza os gráficos dos indicadores mesmo quando a página é aberta diretamente.
+    atualizarGraficos();
+  }catch(e){
+    console.error("Erro ao calcular indicadores:",e);
+  }
+}
+
 function gerarAlertas(){
 var res=[];
 veiculos.forEach(function(v){var a=alertaVeic(v);if(a.tipo!=="ok")res.push({nivel:a.tipo,veiculo:v.id,texto:a.texto});if(v.status==="Manutenção")res.push({nivel:"warning",veiculo:v.id,texto:"Em manutenção"});if(v.status==="Parado")res.push({nivel:"danger",veiculo:v.id,texto:"Parado"})});
@@ -848,23 +925,26 @@ function dataOS(o){
 return o && (o.concluida_em||o.finalizada_em||o.criada_em||"");
 }
 function anoDoOS(o){
-var d=dataOS(o);return d?Number(String(d).slice(0,4)):0;
+  return anoDataSegura(dataOS(o));
 }
 function dadosAno(ano){
-var custo=0,horas=0,os=0,prev=0,corr=0;
+var alvo=Number(ano),custo=0,horas=0,os=0,prev=0,corr=0;
 var porVeiculo={};
 for(var i=0;i<ordensServico.length;i++){
-var o=ordensServico[i];
-if(o.status!=="Concluída" || anoDoOS(o)!==Number(ano))continue;
-var c=Number(o.custo)||0,h=Number(o.horas)||0,v=o.veiculo||"—";
-custo+=c;horas+=h;os++;
-if(o.tipo==="Preventiva")prev++;
-if(o.tipo==="Corretiva")corr++;
-if(!porVeiculo[v])porVeiculo[v]={custo:0,horas:0};
-porVeiculo[v].custo+=c;porVeiculo[v].horas+=h;
+  var o=ordensServico[i];
+  if(!osConcluida(o))continue;
+  var data=o.finalizada_em||o.concluida_em||o.criada_em||"";
+  if(anoDataSegura(data)!==alvo)continue;
+  var c=Number(o.custo)||0,h=Number(o.horas)||0,v=o.veiculo||"—";
+  custo+=c;horas+=h;os++;
+  if(statusNormalizado(o.tipo)==="preventiva")prev++;
+  if(statusNormalizado(o.tipo)==="corretiva")corr++;
+  if(!porVeiculo[v])porVeiculo[v]={custo:0,horas:0};
+  porVeiculo[v].custo+=c;porVeiculo[v].horas+=h;
 }
-return{ano:Number(ano),custo:custo,horas:horas,os:os,prev:prev,corr:corr,prevIdx:os?(prev/os)*100:0,custoMedio:veiculos.length?custo/veiculos.length:0,porVeiculo:porVeiculo};
+return{ano:alvo,custo:custo,horas:horas,os:os,prev:prev,corr:corr,prevIdx:os?(prev/os)*100:0,custoMedio:veiculos.length?custo/veiculos.length:0,porVeiculo:porVeiculo};
 }
+
 function anosDisponiveis(){
 var set={};
 var atual=new Date().getFullYear();set[atual]=true;set[atual-1]=true;
@@ -875,7 +955,7 @@ return arr;
 }
 function inicializarSeletorAnos(){
 var s=$("dashboardAno"),c=$("dashboardAnoComparacao");if(!s||!c)return;
-var anos=anosDisponiveis(),anoAtual=Number(s.value)||new Date().getFullYear(),anoComp=Number(c.value)||anoAtual-1;
+var anos=anosDisponiveis(),anoAtual=Number(s.value)||new Date().getFullYear(),anoComp=Number(c.value)||anoAtual-1;if(anoComp===anoAtual)anoComp=anoAtual-1;
 function opts(sel,valor){
 sel.innerHTML=anos.map(function(a){return"<option value='"+a+"'"+(a===valor?" selected":"")+">"+a+"</option>"}).join("");
 }
@@ -896,6 +976,7 @@ el.textContent=(valor===0?"0":sinal+valor.toFixed(1))+"% "+unidade;
 function renderDashboardAnual(){
 var s=$("dashboardAno"),c=$("dashboardAnoComparacao");if(!s||!c)return;
 var ano=Number(s.value)||new Date().getFullYear(),comp=Number(c.value)||ano-1;
+if(comp===ano){comp=ano-1;c.value=String(comp);}
 var a=dadosAno(ano),b=dadosAno(comp);
 $("labelAnoAtual1").textContent=ano;$("labelAnoAnterior1").textContent=comp;
 $("labelAnoAtual2").textContent=ano;$("labelAnoAnterior2").textContent=comp;
@@ -935,8 +1016,8 @@ var atual=[],anterior=[];
 for(var m=1;m<=12;m++){
 var sa=0,sb=0;
 ordensServico.forEach(function(o){
-if(o.status!=="Concluída")return;
-var d=dataOS(o),yy=Number(String(d).slice(0,4)),mm=Number(String(d).slice(5,7));
+if(!osConcluida(o))return;
+var d=dataOS(o),yy=anoDataSegura(d),mm=Number(String(d).slice(5,7));
 if(mm!==m)return;
 if(yy===a.ano)sa+=Number(o.custo)||0;
 if(yy===b.ano)sb+=Number(o.custo)||0;
@@ -1044,7 +1125,7 @@ function atualizarGraficos(){
 var cores=["#ff6b00","#ffb300","#13a36a","#0d6efd","#dc3545","#6f42c1","#0ea5e9","#f43f5e"];
 if(gCusto){
 var meses={},labels=[],dados=[];
-for(var i=0;i<ordensServico.length;i++){var o=ordensServico[i];if(o.status==="Concluída"&&o.custo){var mes=(o.concluida_em||o.criada_em||"").slice(0,7);if(mes){if(!meses[mes])meses[mes]=0;meses[mes]+=Number(o.custo)||0}}}
+for(var i=0;i<ordensServico.length;i++){var o=ordensServico[i];if(osConcluida(o)&&o.custo){var mes=(o.concluida_em||o.criada_em||"").slice(0,7);if(mes){if(!meses[mes])meses[mes]=0;meses[mes]+=Number(o.custo)||0}}}
 for(var i=0;i<manutencoes.length;i++){var m=manutencoes[i];if(m.status==="Concluída"&&m.custo){var mes2=(m.data||"").slice(0,7);if(mes2){if(!meses[mes2])meses[mes2]=0;meses[mes2]+=Number(m.custo)||0}}}
 var ord=Object.keys(meses).sort();
 labels=ord.map(function(m){return m.slice(5)+"/"+m.slice(2,4)});dados=ord.map(function(m){return meses[m]});
@@ -1061,7 +1142,7 @@ if(gCustosTipo){
     var o = ordensServico[i];
 
     if(
-      o.status === "Concluída" &&
+      osConcluida(o) &&
       o.tipo === "Corretiva" &&
       o.custo
     ){
@@ -1093,7 +1174,7 @@ if(gCustosTipo){
 }
 if(gCustoVeic){
 var custoVeic={};
-for(var i=0;i<ordensServico.length;i++){var o=ordensServico[i];if(o.status==="Concluída"){var vv=o.veiculo||"?";if(!custoVeic[vv])custoVeic[vv]=0;custoVeic[vv]+=Number(o.custo)||0}}
+for(var i=0;i<ordensServico.length;i++){var o=ordensServico[i];if(osConcluida(o)){var vv=o.veiculo||"?";if(!custoVeic[vv])custoVeic[vv]=0;custoVeic[vv]+=Number(o.custo)||0}}
 for(var i=0;i<manutencoes.length;i++){var m=manutencoes[i];if(m.custo){var vv2=m.veiculo||"?";if(!custoVeic[vv2])custoVeic[vv2]=0;custoVeic[vv2]+=Number(m.custo)||0}}
 var arr2=[];for(var k in custoVeic)arr2.push({l:k,v:custoVeic[k]});arr2.sort(function(a,b){return b.v-a.v});
 var top=arr2.slice(0,10);
