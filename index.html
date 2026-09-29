@@ -147,6 +147,25 @@ tr.clicavel:hover{background:#f7faff}
 .loading-overlay{position:fixed;inset:0;background:rgba(7,24,45,.7);display:flex;align-items:center;justify-content:center;z-index:200;flex-direction:column;gap:12px;color:#fff;font-size:14px}
 .loading-spinner{width:40px;height:40px;border:4px solid rgba(255,255,255,.2);border-top-color:#126cff;border-radius:50%;animation:spin 1s linear infinite}
 @keyframes spin{to{transform:rotate(360deg)}}
+
+/* === Dashboard visual de referência Ruplast === */
+body{background:#f4f8fc;color:#08264b}
+.sidebar{width:225px;background:linear-gradient(180deg,#06213e 0%,#061b34 100%);padding:18px 10px}
+.marca{padding:0 9px 20px;border-bottom:1px solid rgba(255,255,255,.12)}
+.marca-icon{width:38px;height:38px;border-radius:8px;background:#087cff;box-shadow:0 6px 14px rgba(0,102,255,.28)}
+.marca strong{font-size:19px;letter-spacing:.2px}.marca small{font-size:8px}
+.menu{margin-top:18px}.menu-item{display:flex;align-items:center;gap:10px;padding:10px 12px;margin:3px 0;color:#d8e5f5;border-radius:7px;font-size:12px}.menu-item:first-letter{font-size:15px}.menu-item:hover,.menu-item.active{background:#0c5fc5;color:#fff}
+.main{margin-left:225px}.topbar{height:58px;padding:0 22px;background:#fff}.conteudo{padding:20px 24px}
+.usuario-topo{position:relative}.avatar{width:30px;height:30px;background:#0c70dd;color:#fff;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700}
+.hero-dashboard{display:flex;align-items:center;gap:12px;margin:0 0 14px}.hero-dashboard h1{font-size:25px;margin:0;color:#092b52}.hero-icon{width:38px;height:38px;border-radius:11px;background:#092d58;color:#fff;display:flex;align-items:center;justify-content:center}.hero-icon svg{width:25px;height:25px}.hero-dashboard .subtitulo{margin-top:2px;color:#5c7592}
+.ref-toolbar{margin:0 0 10px;border-radius:8px;padding:10px 12px;border:1px solid #e1ebf5;box-shadow:0 3px 12px rgba(22,66,110,.05)}
+.ref-toolbar .dashboard-filtros{gap:9px}.ref-toolbar .dashboard-filtros .campo{min-width:132px}.ref-toolbar .dashboard-filtros select{height:35px;padding:7px 10px;border-radius:6px}.ref-toolbar .dashboard-filtros label{font-size:9px;margin-bottom:3px;color:#5c7592}.ref-primary,.ref-btn,.ref-close,.ref-reopen{height:35px;padding:8px 12px;border-radius:6px;font-size:11px}.ref-primary{background:#0876ef}.ref-btn{color:#0870e8;border-color:#cfe0f3}.ref-close{background:#fff;border-color:#ff7d86;color:#e33c45}.ref-reopen{border-color:#61c99a;color:#07915c}.refresh-only{min-width:35px;padding:7px}.ref-status{display:none}
+.ref-kpis{grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:10px}.ref-kpi{padding:12px 14px;border:1px solid #e2ebf5;border-radius:8px;box-shadow:0 3px 10px rgba(22,66,110,.05)}.ref-kpi-head{display:flex;align-items:center;gap:8px}.ref-kpi .titulo{font-weight:700;color:#173a60}.ref-icon{width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-size:15px;font-weight:700}.ref-icon.blue{background:#0a76ed}.ref-icon.green{background:#13a47a}.ref-kpi .comparativo-valores{margin:8px 0 6px;gap:25px}.ref-kpi .comparativo-valor strong{font-size:15px;color:#082c54}.ref-kpi .comparativo-valor small{font-size:9px}.ref-kpi .variacao{font-size:10px;padding-top:6px}.ref-compat,.ref-compat-hide{display:none!important}
+.ref-main-grid{display:grid;grid-template-columns:1.6fr .92fr .8fr;gap:10px;margin-bottom:10px}.ref-chart-card,.ref-summary,.ref-alerts,.ref-status-card,.ref-top-card{border:1px solid #e2ebf5;border-radius:8px;box-shadow:0 3px 10px rgba(22,66,110,.05);padding:12px}.ref-chart-card .card-header,.ref-summary .card-header,.ref-alerts .card-header,.ref-status-card .card-header,.ref-top-card .card-header{margin-bottom:8px}.ref-chart-card .card-header b,.ref-summary .card-header b,.ref-alerts .card-header b,.ref-status-card .card-header b,.ref-top-card .card-header b{font-size:12px;color:#123a65}.ref-bar-chart{height:245px}.ref-legend{display:flex;gap:12px;font-size:9px;color:#68809b}.dot{display:inline-block;width:7px;height:7px;border-radius:50%;margin-right:3px}.blue-dot{background:#0878ee}.green-dot{background:#16a477}
+.ref-summary{grid-column:2}.ref-summary-list{display:flex;flex-direction:column}.ref-summary-list>div{display:grid;grid-template-columns:24px 1fr auto auto;align-items:center;gap:6px;padding:6px 0;border-bottom:1px solid #edf2f7;font-size:9px;color:#57708e}.ref-summary-list>div:last-child{border-bottom:0}.ref-summary-list strong{font-size:10px;color:#12385f}.ref-summary-list em{font-style:normal;color:#e53c44;font-size:9px}.ref-mini{width:22px;height:22px;border-radius:50%;background:#eaf3ff;color:#0a72e7;display:flex;align-items:center;justify-content:center}.ref-alerts{grid-column:3}.ref-badge{display:inline-flex;align-items:center;justify-content:center;background:#f34b55;color:#fff;border-radius:50%;font-size:8px;width:16px;height:16px}.ref-link{border:0;background:none;color:#0870e8;font-size:9px;cursor:pointer}.ref-alert-list{min-height:120px}.ref-alert-list .alerta{padding:9px;margin:5px 0;border:1px solid #f5c5c8;border-left:3px solid #f0444d;background:#fff;border-radius:7px;font-size:9px}.ref-alert-list .alerta:not(.red){border-color:#f4d28b;border-left-color:#f4a400}.ref-notify{width:100%;border:0;background:#0876ef;color:#fff;border-radius:6px;padding:8px;font-size:10px;font-weight:700;cursor:pointer}
+.ref-bottom-grid{display:grid;grid-template-columns:1.25fr .85fr 1fr;gap:10px}.ref-line-chart{height:170px}.ref-status-wrap{display:flex;align-items:center;gap:10px;height:170px}.ref-donut{width:150px;height:150px;position:relative;display:flex;align-items:center;justify-content:center;flex-direction:column}.ref-donut canvas{position:absolute;inset:0;width:150px!important;height:150px!important}.ref-donut strong{font-size:20px;color:#123a65;z-index:1}.ref-donut small{font-size:9px;color:#6c8299;z-index:1}.ref-status-list{flex:1;font-size:9px;color:#56708e}.ref-status-list div{display:grid;grid-template-columns:9px 1fr auto auto;gap:5px;align-items:center;margin:11px 0}.ref-status-list i{width:8px;height:8px;border-radius:50%}.status-green{background:#13a47a}.status-yellow{background:#f5ad16}.status-red{background:#f0444d}.ref-status-list strong{color:#173a60}.ref-status-list span{color:#6d839a}.ref-top-card .ref-table{max-height:170px}.ref-top-card th{font-size:8px;color:#6b829a;padding:5px}.ref-top-card td{font-size:9px;padding:7px 5px;color:#173a60}.ref-top-card td:nth-child(3),.ref-top-card td:nth-child(4){text-align:right}.ref-top-card .status{font-size:8px}
+@media(max-width:1200px){.ref-main-grid{grid-template-columns:1.4fr 1fr}.ref-alerts{grid-column:1 / -1}.ref-bottom-grid{grid-template-columns:1fr 1fr}.ref-top-card{grid-column:1 / -1}.ref-kpis{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:700px){.main{margin-left:65px}.sidebar{width:65px}.marca strong,.marca small,.menu-item span{display:none}.ref-kpis,.ref-main-grid,.ref-bottom-grid{grid-template-columns:1fr}.ref-summary,.ref-alerts,.ref-top-card{grid-column:auto}.dashboard-filtros,.dashboard-acoes{width:100%}}
 </style>
 </head>
 <body>
@@ -193,55 +212,65 @@ tr.clicavel:hover{background:#f7faff}
 </header>
 <div class="conteudo">
 <section class="pagina active" id="dashboard">
-<h1>Dashboard da Frota</h1>
-<p class="subtitulo" id="subtituloDashboard">Visão geral calculada automaticamente a partir dos dados cadastrados da frota.</p>
+<div class="hero-dashboard">
+  <div class="hero-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="1.8"/><circle cx="8" cy="8" r="1"/><circle cx="16" cy="8" r="1"/><circle cx="8" cy="16" r="1"/><circle cx="16" cy="16" r="1"/><path d="M12 5v3M12 16v3M5 12h3M16 12h3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></div>
+  <div><h1>Dashboard da Frota</h1><p class="subtitulo" id="subtituloDashboard">Visão geral da sua frota e desempenho operacional</p></div>
+</div>
 
-<div class="dashboard-toolbar">
+<div class="dashboard-toolbar ref-toolbar">
   <div class="dashboard-filtros">
     <div class="campo"><label>Período</label><select id="dashboardAno"></select></div>
     <div class="campo"><label>Comparar com</label><select id="dashboardAnoComparacao"></select></div>
-    <button class="btn-primary" id="btnCompararAnos">↔ Comparar períodos</button>
+    <button class="btn-primary ref-primary" id="btnCompararAnos"><span class="ico">▣</span> Comparar períodos</button>
   </div>
   <div class="dashboard-acoes">
-    <button class="btn-outline" id="btnHistoricoAnos">📅 Histórico</button>
-    <button class="btn-outline" id="btnGerarRelatorio">📄 Gerar relatório</button>
-    <button class="btn-outline" id="btnBaixarRelatorio">⬇️ Baixar relatório</button>
-    <button class="btn-fechar-ano" id="btnFecharAno">🔒 Fechar ano</button><button class="btn-outline" id="btnReabrirAno" style="display:none">🔓 Reabrir ano</button>
+    <button class="btn-outline ref-btn" id="btnHistoricoAnos"><span class="ico">▣</span> Histórico</button>
+    <button class="btn-outline ref-btn" id="btnGerarRelatorio"><span class="ico">▤</span> Gerar relatório</button>
+    <button class="btn-outline ref-btn" id="btnBaixarRelatorio"><span class="ico">↓</span> Baixar relatório</button>
+    <button class="btn-outline ref-btn refresh-only" id="btnAtualizarDados"><span class="ico">↻</span></button>
+    <button class="btn-fechar-ano ref-close" id="btnFecharAno"><span class="ico">▣</span> Fechar ano</button>
+    <button class="btn-outline ref-reopen" id="btnReabrirAno" style="display:none"><span class="ico">▣</span> Reabrir ano</button>
   </div>
 </div>
+<div id="statusFechamentoAno" class="status-fechamento ref-status"></div>
 
-<div id="statusFechamentoAno" class="status-fechamento"></div>
-
-<div class="comparativo-kpis">
-  <div class="comparativo-card"><div class="titulo">Custo total de manutenção</div><div class="comparativo-valores"><div class="comparativo-valor"><small id="labelAnoAtual1">Ano atual</small><strong id="compCustoAtual">R$ 0,00</strong></div><div class="comparativo-valor"><small id="labelAnoAnterior1">Ano anterior</small><strong id="compCustoAnterior">R$ 0,00</strong></div></div><div id="compCustoVar" class="variacao neutra">Sem comparação</div></div>
-  <div class="comparativo-card"><div class="titulo">Custo médio / veículo</div><div class="comparativo-valores"><div class="comparativo-valor"><small id="labelAnoAtual2">Ano atual</small><strong id="compMedioAtual">R$ 0,00</strong></div><div class="comparativo-valor"><small id="labelAnoAnterior2">Ano anterior</small><strong id="compMedioAnterior">R$ 0,00</strong></div></div><div id="compMedioVar" class="variacao neutra">Sem comparação</div></div>
-  <div class="comparativo-card"><div class="titulo">Horas de manutenção</div><div class="comparativo-valores"><div class="comparativo-valor"><small id="labelAnoAtual3">Ano atual</small><strong id="compHorasAtual">0 h</strong></div><div class="comparativo-valor"><small id="labelAnoAnterior3">Ano anterior</small><strong id="compHorasAnterior">0 h</strong></div></div><div id="compHorasVar" class="variacao neutra">Sem comparação</div></div>
-  <div class="comparativo-card"><div class="titulo">Ordens concluídas</div><div class="comparativo-valores"><div class="comparativo-valor"><small id="labelAnoAtual4">Ano atual</small><strong id="compOSAtual">0</strong></div><div class="comparativo-valor"><small id="labelAnoAnterior4">Ano anterior</small><strong id="compOSAnterior">0</strong></div></div><div id="compOSVar" class="variacao neutra">Sem comparação</div></div>
+<div class="comparativo-kpis ref-kpis">
+  <div class="comparativo-card ref-kpi"><div class="ref-kpi-head"><span class="ref-icon blue">⚒</span><div class="titulo">Custo total de manutenção</div></div><div class="comparativo-valores"><div class="comparativo-valor"><small id="labelAnoAnterior1">2025</small><strong id="compCustoAnterior">R$ 0,00</strong></div><div class="comparativo-valor"><small id="labelAnoAtual1">2026</small><strong id="compCustoAtual">R$ 0,00</strong></div></div><div id="compCustoVar" class="variacao neutra">Sem comparação</div></div>
+  <div class="comparativo-card ref-kpi"><div class="ref-kpi-head"><span class="ref-icon green">▤</span><div class="titulo">Custo médio / veículo</div></div><div class="comparativo-valores"><div class="comparativo-valor"><small id="labelAnoAnterior2">2025</small><strong id="compMedioAnterior">R$ 0,00</strong></div><div class="comparativo-valor"><small id="labelAnoAtual2">2026</small><strong id="compMedioAtual">R$ 0,00</strong></div></div><div id="compMedioVar" class="variacao neutra">Sem comparação</div></div>
+  <div class="comparativo-card ref-kpi"><div class="ref-kpi-head"><span class="ref-icon blue">◷</span><div class="titulo">Horas de manutenção</div></div><div class="comparativo-valores"><div class="comparativo-valor"><small id="labelAnoAnterior3">2025</small><strong id="compHorasAnterior">0 h</strong></div><div class="comparativo-valor"><small id="labelAnoAtual3">2026</small><strong id="compHorasAtual">0 h</strong></div></div><div id="compHorasVar" class="variacao neutra">Sem comparação</div></div>
+  <div class="comparativo-card ref-kpi"><div class="ref-kpi-head"><span class="ref-icon green">✓</span><div class="titulo">Disponibilidade da frota</div></div><div class="comparativo-valores"><div class="comparativo-valor"><small>2025</small><strong id="refDispAnterior">—</strong></div><div class="comparativo-valor"><small id="refDispAno">2026</small><strong id="refDispAtual">—</strong></div></div><div id="refDispVar" class="variacao neutra">—</div></div>
+  <div class="ref-compat" aria-hidden="true"><span id="compOSAtual">0</span><span id="compOSAnterior">0</span><span id="compOSVar">Sem comparação</span></div>
 </div>
 
-<div class="dashboard-grid-2">
-  <div class="card"><div class="card-header"><div><b>Comparativo anual — custos de manutenção</b><div class="subtitulo">Evolução mensal dos anos selecionados.</div></div></div><div class="grafico"><canvas id="graficoCustoAnual"></canvas></div></div>
-  <div class="card"><div class="card-header"><div><b>Resumo do ano selecionado</b><span id="badgeAnoFechado" style="display:none" class="ano-fechado">🔒 Fechado</span></div></div><div class="resumo-ano-list">
-    <div class="resumo-ano-item"><span>Custo total</span><strong id="resCustoAno">R$ 0,00</strong></div>
-    <div class="resumo-ano-item"><span>Ordens concluídas</span><strong id="resOSAno">0</strong></div>
-    <div class="resumo-ano-item"><span>Horas de manutenção</span><strong id="resHorasAno">0 h</strong></div>
-    <div class="resumo-ano-item"><span>Índice de preventiva</span><strong id="resPrevAno">0%</strong></div>
-    <div class="resumo-ano-item"><span>Custo médio / veículo</span><strong id="resMedioAno">R$ 0,00</strong></div>
-  </div></div>
+<div class="ref-main-grid">
+  <div class="card ref-chart-card"><div class="card-header"><div><b>Comparativo anual - Custos de manutenção</b></div><div class="ref-legend"><span><i class="dot blue-dot"></i><span id="legComp">Ano anterior</span></span><span><i class="dot green-dot"></i><span id="legAtual">Ano selecionado</span></span></div></div><div class="grafico ref-bar-chart"><canvas id="graficoCustoAnual"></canvas></div></div>
+  <div class="card ref-summary"><div class="card-header"><b>Resumo do ano selecionado (<span id="refResumoAno">2026</span>)</b></div>
+    <div class="ref-summary-list">
+      <div><span class="ref-mini blue">⚒</span><span>Custo total de manutenção</span><strong id="resCustoAno">R$ 0,00</strong><em id="refResumoCustoVar">—</em></div>
+      <div><span class="ref-mini blue">⚒</span><span>Manutenções realizadas</span><strong id="resOSAno">0</strong><em>—</em></div>
+      <div><span class="ref-mini blue">▤</span><span>Ordens de serviço</span><strong id="refTotalOSAno">0</strong><em>—</em></div>
+      <div><span class="ref-mini blue">◷</span><span>Horas de manutenção</span><strong id="resHorasAno">0 h</strong><em>—</em></div>
+      <div><span class="ref-mini blue">◷</span><span>Horas paradas</span><strong id="refHorasParadas">0 h</strong><em>—</em></div>
+      <div><span class="ref-mini blue">⚙</span><span>Revisões realizadas</span><strong id="refRevisoesRealizadas">0</strong><em>—</em></div>
+      <div><span class="ref-mini blue">⚙</span><span>Manutenções atrasadas</span><strong id="refManutAtrasadas">0</strong><em>—</em></div>
+    </div>
+  </div>
+  <div class="card ref-alerts"><div class="card-header"><b>🔔 Alertas e pendências <span class="ref-badge" id="refAlertCount">0</span></b><button class="ref-link" id="btnVerTodosAlertas">Ver todos</button></div><div id="dashboardAlertas" class="ref-alert-list"></div><button class="ref-notify" id="btnNotificacoes">🔔 Ativar notificações</button></div>
 </div>
 
-<div class="card" style="margin-bottom:20px"><div class="card-header"><div><b>Alertas de manutenção</b><div class="subtitulo">Revisões calculadas automaticamente por KM e data.</div></div><div style="display:flex;gap:8px"><button class="btn" id="btnVerTodosAlertas">Ver todos</button><button class="btn" id="btnNotificacoes">🔔 Ativar notificações</button></div></div><div id="dashboardAlertas"></div></div>
-
-<div class="card" style="margin-bottom:20px"><div class="card-header"><div><b>Origem dos indicadores</b></div></div><div class="dados-veiculo" style="margin-top:10px"><div><span>Custo acumulado da frota</span><strong id="origemCustoFrota">R$ 0,00</strong></div><div><span>Custo no histórico</span><strong id="origemCustoHistorico">R$ 0,00</strong></div><div><span>Horas acumuladas</span><strong id="origemHorasFrota">0 h</strong></div><div><span>Horas do histórico</span><strong id="origemHorasHistorico">0 h</strong></div></div></div>
-
-<div class="grid">
-<div class="card"><div class="card-header"><div><b>Status atual da frota</b></div></div><div class="grafico"><canvas id="graficoStatus"></canvas></div></div>
-<div class="card"><div class="card-header"><div><b>Custo por tipo — ano selecionado</b></div></div><div class="grafico"><canvas id="graficoCustosAno"></canvas></div></div>
+<div class="ref-bottom-grid">
+  <div class="card ref-chart-card"><div class="card-header"><b>Evolução da disponibilidade da frota</b><div class="ref-legend"><span><i class="dot blue-dot"></i> <span id="legDispComp">Ano anterior</span></span><span><i class="dot green-dot"></i> <span id="legDispAtual">Ano selecionado</span></span></div></div><div class="grafico ref-line-chart"><canvas id="graficoDisponibilidadeAno"></canvas></div></div>
+  <div class="card ref-status-card"><div class="card-header"><b>Status da frota</b></div><div class="ref-status-wrap"><div class="ref-donut"><canvas id="graficoStatus"></canvas><strong id="refTotalVeiculos">0</strong><small>veículos</small></div><div class="ref-status-list"><div><i class="status-green"></i> Em operação <strong id="refOpCount">0</strong><span id="refOpPct">0%</span></div><div><i class="status-yellow"></i> Em manutenção <strong id="refManCount">0</strong><span id="refManPct">0%</span></div><div><i class="status-red"></i> Indisponíveis <strong id="refParCount">0</strong><span id="refParPct">0%</span></div></div></div></div>
+  <div class="card ref-top-card"><div class="card-header"><b>Veículos com maior custo de manutenção</b><button class="ref-link" id="btnVerTodosVeic">Ver todos</button></div><div class="tabela ref-table"><table><thead><tr><th>Veículo</th><th>Custo <span id="refTopAno">2026</span></th><th>Custo 2025</th><th>Variação</th></tr></thead><tbody id="tabelaTop"></tbody></table></div></div>
 </div>
 
-<div class="card tabela"><div class="card-header"><div><b>Veículos com maior custo no ano selecionado</b></div><button class="btn" id="btnVerTodosVeic">Ver todos</button></div><table><thead><tr><th>Veículo</th><th>Tipo</th><th>Custo no ano</th><th>Horas</th><th>Status</th></tr></thead><tbody id="tabelaTop"></tbody></table></div>
-
-<div class="card" style="margin-top:18px"><div class="card-header"><div><b>Evolução da disponibilidade</b><div class="subtitulo">O sistema atual possui disponibilidade atual por veículo; histórico anual depende de registros/snapshots históricos.</div></div></div><div class="grafico"><canvas id="graficoDisponibilidadeAno"></canvas></div></div>
+<div class="ref-compat-hide" aria-hidden="true">
+  <span id="badgeAnoFechado"></span><span id="resPrevAno">0%</span><span id="resMedioAno">R$ 0,00</span>
+  <span id="origemCustoFrota">R$ 0,00</span><span id="origemCustoHistorico">R$ 0,00</span><span id="origemHorasFrota">0 h</span><span id="origemHorasHistorico">0 h</span>
+  <canvas id="graficoCustosAno"></canvas>
+  <span id="kpiCustoTotal"></span><span id="kpiCustoMedio"></span><span id="kpiHoras"></span><span id="kpiDisponibilidade"></span>
+  <span id="indDisp"></span><span id="indCustoMed"></span><span id="indManut"></span><span id="indAtras"></span><span id="indMTBF"></span><span id="indMTTR"></span><span id="indPrevIdx"></span><span id="indCustoKm"></span><span id="indTotalOS"></span><span id="indTaxaConc"></span><span id="indAtivos"></span><span id="indCustoHist"></span>
+</div>
 </section>
 <section class="pagina" id="veiculos">
 <h1>Frota Ruplast</h1>
@@ -358,15 +387,50 @@ function normalizarVeic(v){return Object.assign({id:"",modelo:"",tipo:"Truck",an
 async function rpc(nome,p){var r=await sb.rpc(nome,p||{});if(r.error)throw r.error;return r.data}
 
 async function carregarDados(){
-showLoad("Carregando do Supabase...");
+showLoad("Carregando dados da frota...");
+var erros=[];
 try{
-var a=await sb.from("veiculos").select("*").order("id");if(a.error)throw a.error;veiculos=a.data||[];
-var b=await sb.from("manutencoes").select("*").order("data",{ascending:false});if(b.error)throw b.error;manutencoes=b.data||[];
-var c=await sb.from("ordens_servico").select("*").order("criada_em",{ascending:false});if(c.error)throw c.error;ordensServico=c.data||[];
-var d=await sb.from("fechamentos_anuais").select("*").order("ano",{ascending:false});if(d.error)throw d.error;fechamentosAnuais=d.data||[];
-syncStatus("Sincronizado","#13a36a");
-}catch(e){console.error(e);syncStatus("Erro","#dc3545")}
+  var a=await sb.from("veiculos").select("*").order("id");
+  if(a.error){console.error("veiculos:",a.error);erros.push("veiculos");}else{veiculos=(a.data||[]).map(normalizarVeic);}
+}catch(e){console.error("veiculos:",e);erros.push("veiculos");}
+try{
+  var b=await sb.from("manutencoes").select("*").order("data",{ascending:false});
+  if(b.error){console.error("manutencoes:",b.error);erros.push("manutencoes");}else{manutencoes=b.data||[];}
+}catch(e){console.error("manutencoes:",e);erros.push("manutencoes");}
+try{
+  var c=await sb.from("ordens_servico").select("*").order("criada_em",{ascending:false});
+  if(c.error){console.error("ordens_servico:",c.error);erros.push("ordens_servico");}else{ordensServico=c.data||[];}
+}catch(e){console.error("ordens_servico:",e);erros.push("ordens_servico");}
+// O fechamento anual é complementar e nunca pode impedir o carregamento da frota.
+try{
+  var d=await sb.from("fechamentos_anuais").select("*").order("ano",{ascending:false});
+  if(d.error){console.error("fechamentos_anuais:",d.error);fechamentosAnuais=[];}else{fechamentosAnuais=d.data||[];}
+}catch(e){console.error("fechamentos_anuais:",e);fechamentosAnuais=[];}
 hideLoad();
+if(erros.length){
+  syncStatus("Sincronização parcial","#f59e0b");
+  // Se uma falha transitória deixou a tela vazia, tenta novamente sem apagar os dados já carregados.
+  if(veiculos.length===0 && manutencoes.length===0 && ordensServico.length===0){
+    setTimeout(function(){recarregarDadosSilencioso()},1000);
+  }
+}else{
+  syncStatus("Sincronizado","#13a36a");
+}
+}
+
+async function recarregarDadosSilencioso(){
+try{
+  var a=await sb.from("veiculos").select("*").order("id");
+  var b=await sb.from("manutencoes").select("*").order("data",{ascending:false});
+  var c=await sb.from("ordens_servico").select("*").order("criada_em",{ascending:false});
+  if(!a.error)veiculos=(a.data||[]).map(normalizarVeic);
+  if(!b.error)manutencoes=b.data||[];
+  if(!c.error)ordensServico=c.data||[];
+  if(veiculos.length||manutencoes.length||ordensServico.length){
+    syncStatus("Sincronizado","#13a36a");
+    renderizarTudo();
+  }
+}catch(e){console.error("Nova tentativa de sincronização:",e);}
 }
 
 function ativarRealtime(){
@@ -755,6 +819,9 @@ $("origemHorasFrota").textContent=d.horas.toLocaleString("pt-BR")+" h";$("origem
 $("indDisp").textContent=d.disp.toFixed(1)+"%";$("indCustoMed").textContent=moeda(d.custoMedio);
 var inM=0;for(var i=0;i<veiculos.length;i++){if(veiculos[i].status==="Manutenção")inM++}$("indManut").textContent=inM;
 var atr=0;for(var i=0;i<veiculos.length;i++){if(alertaVeic(veiculos[i]).tipo==="danger")atr++}$("indAtras").textContent=atr;
+var totalV=veiculos.length, op=veiculos.filter(function(v){return v.status==="Operando"}).length, man=veiculos.filter(function(v){return v.status==="Manutenção"}).length, par=veiculos.filter(function(v){return v.status!=="Operando"&&v.status!=="Manutenção"}).length;
+if($("refTotalVeiculos")){$("refTotalVeiculos").textContent=totalV;$("refOpCount").textContent=op;$("refManCount").textContent=man;$("refParCount").textContent=par;$("refOpPct").textContent=(totalV?((op/totalV)*100).toFixed(1):0)+"%";$("refManPct").textContent=(totalV?((man/totalV)*100).toFixed(1):0)+"%";$("refParPct").textContent=(totalV?((par/totalV)*100).toFixed(1):0)+"%";}
+if($("refAlertCount"))$("refAlertCount").textContent=gerarAlertas().length;
 $("indMTBF").textContent=d.mtbf>0?Math.round(d.mtbf).toLocaleString("pt-BR")+" km":"—";
 $("indMTTR").textContent=d.mttr>0?d.mttr.toFixed(1)+" h":"—";
 $("indPrevIdx").textContent=d.prevIdx.toFixed(0)+"%";
@@ -844,6 +911,14 @@ aplicarVariacao("compHorasVar",pctVar(a.horas,b.horas),"vs. "+comp);
 aplicarVariacao("compOSVar",pctVar(a.os,b.os),"vs. "+comp);
 $("resCustoAno").textContent=moeda(a.custo);$("resOSAno").textContent=a.os.toLocaleString("pt-BR");
 $("resHorasAno").textContent=a.horas.toLocaleString("pt-BR")+" h";$("resPrevAno").textContent=a.prevIdx.toFixed(1)+"%";$("resMedioAno").textContent=moeda(a.custoMedio);
+if($("refResumoAno"))$("refResumoAno").textContent=ano;if($("refTopAno"))$("refTopAno").textContent=ano;
+var totalOSAno=ordensServico.filter(function(o){return anoDoOS(o)===ano}).length;
+if($("refTotalOSAno"))$("refTotalOSAno").textContent=totalOSAno.toLocaleString("pt-BR");
+if($("refRevisoesRealizadas"))$("refRevisoesRealizadas").textContent=manutencoes.filter(function(m){return Number(String(m.data||"").slice(0,4))===ano && String(m.status||"").toLowerCase().indexOf("concl")>=0}).length.toLocaleString("pt-BR");
+if($("refManutAtrasadas"))$("refManutAtrasadas").textContent=veiculos.filter(function(v){return alertaVeic(v).tipo==="danger"}).length;
+if($("refDispAtual"))$("refDispAtual").textContent=calcDash().disp.toFixed(1)+"%";
+if($("refDispAnterior"))$("refDispAnterior").textContent="—";
+if($("refDispVar"))$("refDispVar").textContent="Sem histórico";
 var fechamento=fechamentosAnuais.find(function(f){return Number(f.ano)===ano;});
 var fechado=!!fechamento && String(fechamento.status||"Fechado")!=="Aberto";
 $("badgeAnoFechado").style.display=fechado?"inline-flex":"none";
@@ -885,13 +960,14 @@ gDisponibilidadeAno.update();
 }
 function renderTopAno(a){
 var tb=$("tabelaTop");if(!tb)return;
-var arr=[];for(var id in a.porVeiculo)arr.push({id:id,custo:a.porVeiculo[id].custo,horas:a.porVeiculo[id].horas});
-arr.sort(function(x,y){return y.custo-x.custo});
-arr=arr.slice(0,5);
+var comp=Number($("dashboardAnoComparacao")&&$("dashboardAnoComparacao").value)||a.ano-1;
+var b=dadosAno(comp),arr=[];for(var id in a.porVeiculo)arr.push({id:id,custo:a.porVeiculo[id].custo,horas:a.porVeiculo[id].horas,anterior:(b.porVeiculo[id]&&b.porVeiculo[id].custo)||0});
+arr.sort(function(x,y){return y.custo-x.custo});arr=arr.slice(0,5);
 tb.innerHTML=arr.length?arr.map(function(x){
-var v=veiculos.find(function(z){return String(z.id)===String(x.id)});
-return"<tr><td><b>"+escapeHtml(x.id)+"</b><br><small>"+escapeHtml(v?v.modelo:"")+"</small></td><td>"+escapeHtml(v?v.tipo:"—")+"</td><td>"+moeda(x.custo)+"</td><td>"+x.horas.toLocaleString("pt-BR")+" h</td><td><span class='status "+(v&&v.status==="Operando"?"status-ok":"status-alerta")+"'>"+escapeHtml(v?v.status:"—")+"</span></td></tr>"
-}).join(""):"<tr><td colspan='5'>Nenhuma OS concluída no ano selecionado.</td></tr>";
+var v=veiculos.find(function(z){return String(z.id)===String(x.id)}),varv=x.anterior?((x.custo-x.anterior)/x.anterior)*100:null;
+var varTxt=varv===null?"—":(varv>=0?"↑ ":"↓ ")+Math.abs(varv).toFixed(1)+"%";
+return"<tr><td><b>"+escapeHtml(x.id)+"</b></td><td>"+moeda(x.custo)+"</td><td>"+moeda(x.anterior)+"</td><td style=\"color:"+(varv!==null&&varv<0?"#07915c":"#e33c45")+";font-weight:700\">"+varTxt+"</td></tr>"
+}).join(""):"<tr><td colspan='4'>Nenhuma OS concluída no ano selecionado.</td></tr>";
 }
 function relatorioAnual(){
 var ano=Number($("dashboardAno").value)||new Date().getFullYear(),comp=Number($("dashboardAnoComparacao").value)||ano-1;
@@ -1208,6 +1284,7 @@ $("dashboardAnoComparacao").addEventListener("change",renderDashboardAnual);
 $("btnHistoricoAnos").addEventListener("click",historicoAnos);
 $("btnGerarRelatorio").addEventListener("click",gerarRelatorio);
 $("btnBaixarRelatorio").addEventListener("click",baixarRelatorio);
+$("btnAtualizarDados").addEventListener("click",async function(){await carregarDados();renderizarTudo();});
 $("btnFecharAno").addEventListener("click",fecharAnoSelecionado);
 $("btnReabrirAno").addEventListener("click",reabrirAnoSelecionado);
 aplicarPermissoesPerfil();
