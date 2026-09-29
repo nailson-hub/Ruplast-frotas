@@ -975,18 +975,21 @@ function dataOS(o){return(o&&(o.finalizada_em||o.concluida_em||o.criada_em))||""
 function anoDoOS(o){var d=anoMesDe(dataOS(o));return d?d.ano:0}
 
 function dadosAno(ano){
-  var alvo=Number(ano),custo=0,horas=0,os=0,prev=0,corr=0,horasCorr=0,porVeiculo={};
+  var alvo=Number(ano),custo=0,horas=0,os=0,prev=0,corr=0,horasParadas=0,porVeiculo={};
   ordensServico.forEach(function(o){
     if(!osConcluida(o))return;
     var d=anoMesDe(dataOS(o));if(!d||d.ano!==alvo)return;
     var c=Number(o.custo)||0,h=Number(o.horas)||0,v=o.veiculo||"—",t=statusNormalizado(o.tipo);
     custo+=c;horas+=h;os++;
-    if(t==="preventiva")prev++;
-    if(t==="corretiva"){corr++;horasCorr+=h}
+    if(t.includes("preventiva")) prev++;
+if(t.includes("corretiva")) {
+    corr++; 
+    horasParadas += h; // Soma apenas as horas de corretivas
+}
     if(!porVeiculo[v])porVeiculo[v]={custo:0,horas:0};
     porVeiculo[v].custo+=c;porVeiculo[v].horas+=h;
   });
-  return{ano:alvo,custo:custo,horas:horas,horasParadas:horasCorr,os:os,prev:prev,corr:corr,
+  return{ano:alvo,custo:custo,horas:horas,horasParadas:horasParadas,os:os,prev:prev,corr:corr,
     prevIdx:os?(prev/os)*100:0,custoMedio:veiculos.length?custo/veiculos.length:0,porVeiculo:porVeiculo};
 }
 
