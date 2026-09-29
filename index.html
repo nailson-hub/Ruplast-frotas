@@ -84,6 +84,35 @@ tr.clicavel:hover{background:#f7faff}
 .modal-box{background:white;border-radius:14px;padding:25px;width:650px;max-width:100%;max-height:90vh;overflow:auto}
 .fechar{float:right;border:0;background:#eee;border-radius:50%;width:30px;height:30px;cursor:pointer}
 @media(max-width:1050px){.kpis{grid-template-columns:repeat(2,1fr)}.grid{grid-template-columns:1fr}.veiculos{grid-template-columns:repeat(2,1fr)}}
+.dashboard-toolbar{display:flex;gap:10px;align-items:flex-end;justify-content:space-between;flex-wrap:wrap;background:#fff;padding:14px 16px;border-radius:12px;box-shadow:0 5px 20px rgba(15,31,52,.07);margin:18px 0}
+.dashboard-filtros{display:flex;gap:10px;align-items:flex-end;flex-wrap:wrap}
+.dashboard-filtros .campo{margin:0;min-width:150px}
+.dashboard-filtros label{display:block;font-size:10px;font-weight:bold;color:#718096;margin-bottom:5px}
+.dashboard-filtros select{width:100%;padding:10px 12px;border:1px solid #dce4ee;border-radius:8px;background:#fff;color:#172033}
+.dashboard-acoes{display:flex;gap:8px;flex-wrap:wrap}
+.btn-outline{border:1px solid #cbd8e8;border-radius:8px;padding:10px 13px;background:#fff;color:#126cff;cursor:pointer;font-weight:bold}
+.btn-outline:hover{background:#f4f8ff}
+.btn-fechar-ano{border:1px solid #f0a0a8;border-radius:8px;padding:10px 13px;background:#fff;color:#c72535;cursor:pointer;font-weight:bold}
+.btn-fechar-ano:hover{background:#fff2f3}
+.comparativo-kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:18px}
+.comparativo-card{background:#fff;border-radius:12px;padding:17px;box-shadow:0 5px 20px rgba(15,31,52,.07)}
+.comparativo-card .titulo{font-size:12px;color:#718096}
+.comparativo-valores{display:flex;align-items:flex-end;gap:18px;margin:8px 0 12px}
+.comparativo-valor small{display:block;color:#718096;font-size:10px;margin-bottom:3px}
+.comparativo-valor strong{font-size:18px}
+.variacao{font-size:11px;font-weight:bold;padding-top:8px;border-top:1px solid #edf1f6}
+.variacao.alta{color:#c72535}.variacao.baixa{color:#087a4b}.variacao.neutra{color:#718096}
+.dashboard-grid-2{display:grid;grid-template-columns:1.65fr 1fr;gap:18px;margin-bottom:18px}
+.resumo-ano-list{display:flex;flex-direction:column;gap:11px}
+.resumo-ano-item{display:flex;justify-content:space-between;gap:10px;align-items:center;padding-bottom:10px;border-bottom:1px solid #edf1f6}
+.resumo-ano-item:last-child{border-bottom:0;padding-bottom:0}
+.resumo-ano-item span{font-size:11px;color:#718096}.resumo-ano-item strong{font-size:13px}
+.ano-fechado{display:inline-flex;align-items:center;gap:5px;padding:4px 8px;border-radius:14px;background:#eef5ff;color:#126cff;font-size:10px;font-weight:bold}
+.status-fechamento{font-size:11px;color:#718096;margin-top:10px}
+.relatorio-modal table{margin-top:10px}
+@media(max-width:900px){.comparativo-kpis{grid-template-columns:repeat(2,1fr)}.dashboard-grid-2{grid-template-columns:1fr}}
+@media(max-width:700px){.comparativo-kpis{grid-template-columns:1fr}.dashboard-toolbar{align-items:stretch}.dashboard-filtros,.dashboard-acoes{width:100%}.dashboard-filtros .campo{flex:1}}
+@media print{body{background:#fff}.sidebar,.topbar,.dashboard-toolbar,.btn,.btn-primary,.btn-outline,.btn-fechar-ano,.menu-item{display:none!important}.main{margin:0}.conteudo{padding:0}.pagina:not(#dashboard){display:none!important}.card,.kpi,.comparativo-card{box-shadow:none;border:1px solid #ddd}}
 @media(max-width:700px){.sidebar{width:65px}.marca strong,.marca small,.menu-item span{display:none}.marca{justify-content:center}.main{margin-left:65px}.conteudo{padding:15px}.kpis,.veiculos{grid-template-columns:1fr}}
 .acesso-grid{display:grid;grid-template-columns:1fr 1.5fr;gap:18px}
 .form-grid{display:grid;grid-template-columns:1fr 1fr;gap:0 15px}
@@ -166,19 +195,53 @@ tr.clicavel:hover{background:#f7faff}
 <section class="pagina active" id="dashboard">
 <h1>Dashboard da Frota</h1>
 <p class="subtitulo" id="subtituloDashboard">Visão geral calculada automaticamente a partir dos dados cadastrados da frota.</p>
-<div class="kpis">
-<div class="kpi"><span>Custo total de manutenção</span><strong id="kpiCustoTotal">R$ 0,00</strong><i>calculado pela frota atual</i></div>
-<div class="kpi"><span>Custo médio / veículo</span><strong id="kpiCustoMedio">R$ 0,00</strong><i>calculado pela frota atual</i></div>
-<div class="kpi"><span>Horas de manutenção</span><strong id="kpiHoras">0 h</strong><i>calculado pela frota atual</i></div>
-<div class="kpi"><span>Disponibilidade da frota</span><strong id="kpiDisponibilidade">0%</strong><i>média dos veículos</i></div>
+
+<div class="dashboard-toolbar">
+  <div class="dashboard-filtros">
+    <div class="campo"><label>Período</label><select id="dashboardAno"></select></div>
+    <div class="campo"><label>Comparar com</label><select id="dashboardAnoComparacao"></select></div>
+    <button class="btn-primary" id="btnCompararAnos">↔ Comparar períodos</button>
+  </div>
+  <div class="dashboard-acoes">
+    <button class="btn-outline" id="btnHistoricoAnos">📅 Histórico</button>
+    <button class="btn-outline" id="btnGerarRelatorio">📄 Gerar relatório</button>
+    <button class="btn-outline" id="btnBaixarRelatorio">⬇️ Baixar relatório</button>
+    <button class="btn-fechar-ano" id="btnFecharAno">🔒 Fechar ano</button>
+  </div>
 </div>
+
+<div id="statusFechamentoAno" class="status-fechamento"></div>
+
+<div class="comparativo-kpis">
+  <div class="comparativo-card"><div class="titulo">Custo total de manutenção</div><div class="comparativo-valores"><div class="comparativo-valor"><small id="labelAnoAtual1">Ano atual</small><strong id="compCustoAtual">R$ 0,00</strong></div><div class="comparativo-valor"><small id="labelAnoAnterior1">Ano anterior</small><strong id="compCustoAnterior">R$ 0,00</strong></div></div><div id="compCustoVar" class="variacao neutra">Sem comparação</div></div>
+  <div class="comparativo-card"><div class="titulo">Custo médio / veículo</div><div class="comparativo-valores"><div class="comparativo-valor"><small id="labelAnoAtual2">Ano atual</small><strong id="compMedioAtual">R$ 0,00</strong></div><div class="comparativo-valor"><small id="labelAnoAnterior2">Ano anterior</small><strong id="compMedioAnterior">R$ 0,00</strong></div></div><div id="compMedioVar" class="variacao neutra">Sem comparação</div></div>
+  <div class="comparativo-card"><div class="titulo">Horas de manutenção</div><div class="comparativo-valores"><div class="comparativo-valor"><small id="labelAnoAtual3">Ano atual</small><strong id="compHorasAtual">0 h</strong></div><div class="comparativo-valor"><small id="labelAnoAnterior3">Ano anterior</small><strong id="compHorasAnterior">0 h</strong></div></div><div id="compHorasVar" class="variacao neutra">Sem comparação</div></div>
+  <div class="comparativo-card"><div class="titulo">Ordens concluídas</div><div class="comparativo-valores"><div class="comparativo-valor"><small id="labelAnoAtual4">Ano atual</small><strong id="compOSAtual">0</strong></div><div class="comparativo-valor"><small id="labelAnoAnterior4">Ano anterior</small><strong id="compOSAnterior">0</strong></div></div><div id="compOSVar" class="variacao neutra">Sem comparação</div></div>
+</div>
+
+<div class="dashboard-grid-2">
+  <div class="card"><div class="card-header"><div><b>Comparativo anual — custos de manutenção</b><div class="subtitulo">Evolução mensal dos anos selecionados.</div></div></div><div class="grafico"><canvas id="graficoCustoAnual"></canvas></div></div>
+  <div class="card"><div class="card-header"><div><b>Resumo do ano selecionado</b><span id="badgeAnoFechado" style="display:none" class="ano-fechado">🔒 Fechado</span></div></div><div class="resumo-ano-list">
+    <div class="resumo-ano-item"><span>Custo total</span><strong id="resCustoAno">R$ 0,00</strong></div>
+    <div class="resumo-ano-item"><span>Ordens concluídas</span><strong id="resOSAno">0</strong></div>
+    <div class="resumo-ano-item"><span>Horas de manutenção</span><strong id="resHorasAno">0 h</strong></div>
+    <div class="resumo-ano-item"><span>Índice de preventiva</span><strong id="resPrevAno">0%</strong></div>
+    <div class="resumo-ano-item"><span>Custo médio / veículo</span><strong id="resMedioAno">R$ 0,00</strong></div>
+  </div></div>
+</div>
+
 <div class="card" style="margin-bottom:20px"><div class="card-header"><div><b>Alertas de manutenção</b><div class="subtitulo">Revisões calculadas automaticamente por KM e data.</div></div><div style="display:flex;gap:8px"><button class="btn" id="btnVerTodosAlertas">Ver todos</button><button class="btn" id="btnNotificacoes">🔔 Ativar notificações</button></div></div><div id="dashboardAlertas"></div></div>
+
 <div class="card" style="margin-bottom:20px"><div class="card-header"><div><b>Origem dos indicadores</b></div></div><div class="dados-veiculo" style="margin-top:10px"><div><span>Custo acumulado da frota</span><strong id="origemCustoFrota">R$ 0,00</strong></div><div><span>Custo no histórico</span><strong id="origemCustoHistorico">R$ 0,00</strong></div><div><span>Horas acumuladas</span><strong id="origemHorasFrota">0 h</strong></div><div><span>Horas do histórico</span><strong id="origemHorasHistorico">0 h</strong></div></div></div>
+
 <div class="grid">
-<div class="card"><div class="card-header"><div><b>Custo de manutenção</b><div class="subtitulo">Últimos 6 meses</div></div></div><div class="grafico"><canvas id="graficoCusto"></canvas></div></div>
-<div class="card"><div class="card-header"><b>Status da frota</b></div><div class="grafico"><canvas id="graficoStatus"></canvas></div></div>
+<div class="card"><div class="card-header"><div><b>Status atual da frota</b></div></div><div class="grafico"><canvas id="graficoStatus"></canvas></div></div>
+<div class="card"><div class="card-header"><div><b>Custo por tipo — ano selecionado</b></div></div><div class="grafico"><canvas id="graficoCustosAno"></canvas></div></div>
 </div>
-<div class="card tabela"><div class="card-header"><div><b>Veículos com maior custo</b></div><button class="btn" id="btnVerTodosVeic">Ver todos</button></div><table><thead><tr><th>Veículo</th><th>Tipo</th><th>Custo</th><th>Horas</th><th>Status</th></tr></thead><tbody id="tabelaTop"></tbody></table></div>
+
+<div class="card tabela"><div class="card-header"><div><b>Veículos com maior custo no ano selecionado</b></div><button class="btn" id="btnVerTodosVeic">Ver todos</button></div><table><thead><tr><th>Veículo</th><th>Tipo</th><th>Custo no ano</th><th>Horas</th><th>Status</th></tr></thead><tbody id="tabelaTop"></tbody></table></div>
+
+<div class="card" style="margin-top:18px"><div class="card-header"><div><b>Evolução da disponibilidade</b><div class="subtitulo">O sistema atual possui disponibilidade atual por veículo; histórico anual depende de registros/snapshots históricos.</div></div></div><div class="grafico"><canvas id="graficoDisponibilidadeAno"></canvas></div></div>
 </section>
 <section class="pagina" id="veiculos">
 <h1>Frota Ruplast</h1>
@@ -683,7 +746,7 @@ function renderDash(){
 var d=calcDash();
 $("kpiCustoTotal").textContent=moeda(d.custo);$("kpiCustoMedio").textContent=moeda(d.custoMedio);
 $("kpiHoras").textContent=d.horas.toLocaleString("pt-BR")+" h";$("kpiDisponibilidade").textContent=d.disp.toFixed(1)+"%";
-$("subtituloDashboard").textContent="Visão geral de "+d.total+" veículo(s).";
+$("subtituloDashboard").textContent="Visão geral de "+d.total+" veículo(s) • análise histórica por ano.";
 $("origemCustoFrota").textContent=moeda(d.custo);$("origemCustoHistorico").textContent=moeda(d.cuHist);
 $("origemHorasFrota").textContent=d.horas.toLocaleString("pt-BR")+" h";$("origemHorasHistorico").textContent=d.hoHist.toLocaleString("pt-BR")+" h";
 $("indDisp").textContent=d.disp.toFixed(1)+"%";$("indCustoMed").textContent=moeda(d.custoMedio);
@@ -699,6 +762,8 @@ $("indAtivos").textContent=d.ativos;
 $("indCustoHist").textContent=moeda(d.cuHist);
 var itens=veiculos.map(function(v){return{v:v,a:alertaVeic(v)}}).filter(function(x){return x.a.tipo!=="ok"}).sort(function(a,b){return(a.a.tipo==="danger"?0:1)-(b.a.tipo==="danger"?0:1)}).slice(0,5);
 $("dashboardAlertas").innerHTML=itens.length?itens.map(function(x){return"<div class='alerta "+(x.a.tipo==="danger"?"red":"")+"'><b>"+(x.a.tipo==="danger"?"🔴":"🟠")+" "+escapeHtml(x.v.id)+"</b><br>"+escapeHtml(x.a.texto)+"</div>"}).join(""):"<div class='alerta green'><b>🟢 Frota em dia</b></div>";
+inicializarSeletorAnos();
+renderDashboardAnual();
 atualizarGraficos();
 }
 
@@ -709,13 +774,168 @@ ordensServico.filter(function(o){return o.status!=="Concluída"}).forEach(functi
 return res.sort(function(a,b){return(a.nivel==="danger"?0:1)-(b.nivel==="danger"?0:1)});
 }
 
+function dataOS(o){
+return o && (o.concluida_em||o.finalizada_em||o.criada_em||"");
+}
+function anoDoOS(o){
+var d=dataOS(o);return d?Number(String(d).slice(0,4)):0;
+}
+function dadosAno(ano){
+var custo=0,horas=0,os=0,prev=0,corr=0;
+var porVeiculo={};
+for(var i=0;i<ordensServico.length;i++){
+var o=ordensServico[i];
+if(o.status!=="Concluída" || anoDoOS(o)!==Number(ano))continue;
+var c=Number(o.custo)||0,h=Number(o.horas)||0,v=o.veiculo||"—";
+custo+=c;horas+=h;os++;
+if(o.tipo==="Preventiva")prev++;
+if(o.tipo==="Corretiva")corr++;
+if(!porVeiculo[v])porVeiculo[v]={custo:0,horas:0};
+porVeiculo[v].custo+=c;porVeiculo[v].horas+=h;
+}
+return{ano:Number(ano),custo:custo,horas:horas,os:os,prev:prev,corr:corr,prevIdx:os?(prev/os)*100:0,custoMedio:veiculos.length?custo/veiculos.length:0,porVeiculo:porVeiculo};
+}
+function anosDisponiveis(){
+var set={};
+var atual=new Date().getFullYear();set[atual]=true;set[atual-1]=true;
+ordensServico.forEach(function(o){var a=anoDoOS(o);if(a)set[a]=true});
+manutencoes.forEach(function(m){var a=Number(String(m.data||"").slice(0,4));if(a)set[a]=true});
+var arr=Object.keys(set).map(Number).sort(function(a,b){return b-a});
+return arr;
+}
+function inicializarSeletorAnos(){
+var s=$("dashboardAno"),c=$("dashboardAnoComparacao");if(!s||!c)return;
+var anos=anosDisponiveis(),anoAtual=Number(s.value)||new Date().getFullYear(),anoComp=Number(c.value)||anoAtual-1;
+function opts(sel,valor){
+sel.innerHTML=anos.map(function(a){return"<option value='"+a+"'"+(a===valor?" selected":"")+">"+a+"</option>"}).join("");
+}
+opts(s,anos.indexOf(anoAtual)>=0?anoAtual:anos[0]);
+opts(c,anos.indexOf(anoComp)>=0?anoComp:(anos[1]||anos[0]));
+}
+function pctVar(a,b){
+if(!b)return null;
+return((a-b)/b)*100;
+}
+function aplicarVariacao(id,valor,unidade){
+var el=$(id);if(!el)return;
+if(valor===null||!isFinite(valor)){el.className="variacao neutra";el.textContent="Sem histórico para comparação";return}
+var sinal=valor>0?"+":"",classe=valor>0?"alta":valor<0?"baixa":"neutra";
+el.className="variacao "+classe;
+el.textContent=(valor===0?"0":sinal+valor.toFixed(1))+"% "+unidade;
+}
+function renderDashboardAnual(){
+var s=$("dashboardAno"),c=$("dashboardAnoComparacao");if(!s||!c)return;
+var ano=Number(s.value)||new Date().getFullYear(),comp=Number(c.value)||ano-1;
+var a=dadosAno(ano),b=dadosAno(comp);
+$("labelAnoAtual1").textContent=ano;$("labelAnoAnterior1").textContent=comp;
+$("labelAnoAtual2").textContent=ano;$("labelAnoAnterior2").textContent=comp;
+$("labelAnoAtual3").textContent=ano;$("labelAnoAnterior3").textContent=comp;
+$("labelAnoAtual4").textContent=ano;$("labelAnoAnterior4").textContent=comp;
+$("compCustoAtual").textContent=moeda(a.custo);$("compCustoAnterior").textContent=moeda(b.custo);
+$("compMedioAtual").textContent=moeda(a.custoMedio);$("compMedioAnterior").textContent=moeda(b.custoMedio);
+$("compHorasAtual").textContent=a.horas.toLocaleString("pt-BR")+" h";$("compHorasAnterior").textContent=b.horas.toLocaleString("pt-BR")+" h";
+$("compOSAtual").textContent=a.os.toLocaleString("pt-BR");$("compOSAnterior").textContent=b.os.toLocaleString("pt-BR");
+aplicarVariacao("compCustoVar",pctVar(a.custo,b.custo),"vs. "+comp);
+aplicarVariacao("compMedioVar",pctVar(a.custoMedio,b.custoMedio),"vs. "+comp);
+aplicarVariacao("compHorasVar",pctVar(a.horas,b.horas),"vs. "+comp);
+aplicarVariacao("compOSVar",pctVar(a.os,b.os),"vs. "+comp);
+$("resCustoAno").textContent=moeda(a.custo);$("resOSAno").textContent=a.os.toLocaleString("pt-BR");
+$("resHorasAno").textContent=a.horas.toLocaleString("pt-BR")+" h";$("resPrevAno").textContent=a.prevIdx.toFixed(1)+"%";$("resMedioAno").textContent=moeda(a.custoMedio);
+var fechado=localStorage.getItem("ruplast_ano_fechado_"+ano)==="1";
+$("badgeAnoFechado").style.display=fechado?"inline-flex":"none";
+$("statusFechamentoAno").textContent=fechado?"🔒 O ano "+ano+" está marcado como fechado neste navegador.":"Ano "+ano+" em aberto.";
+atualizarGraficoAnual(a,b);
+renderTopAno(a);
+}
+function atualizarGraficoAnual(a,b){
+if(!gCustoAnual)return;
+var labels=["Jan","Fev","Mar","Abr","Mai","Jun","Jul","Ago","Set","Out","Nov","Dez"];
+var atual=[],anterior=[];
+for(var m=1;m<=12;m++){
+var sa=0,sb=0;
+ordensServico.forEach(function(o){
+if(o.status!=="Concluída")return;
+var d=dataOS(o),yy=Number(String(d).slice(0,4)),mm=Number(String(d).slice(5,7));
+if(mm!==m)return;
+if(yy===a.ano)sa+=Number(o.custo)||0;
+if(yy===b.ano)sb+=Number(o.custo)||0;
+});
+atual.push(sa);anterior.push(sb);
+}
+gCustoAnual.data.labels=labels;
+gCustoAnual.data.datasets[0].label=String(b.ano);gCustoAnual.data.datasets[0].data=anterior;
+gCustoAnual.data.datasets[1].label=String(a.ano);gCustoAnual.data.datasets[1].data=atual;
+gCustoAnual.update();
+if(gCustosAno){
+gCustosAno.data.labels=["Preventiva","Corretiva"];
+gCustosAno.data.datasets[0].data=[a.prev?a.custo*(a.prev/a.os):0,a.corr?a.custo*(a.corr/a.os):0];
+gCustosAno.update();
+}
+if(gDisponibilidadeAno){
+gDisponibilidadeAno.data.labels=["Disponibilidade atual"];
+gDisponibilidadeAno.data.datasets[0].data=[calcDash().disp];
+gDisponibilidadeAno.update();
+}
+}
+function renderTopAno(a){
+var tb=$("tabelaTop");if(!tb)return;
+var arr=[];for(var id in a.porVeiculo)arr.push({id:id,custo:a.porVeiculo[id].custo,horas:a.porVeiculo[id].horas});
+arr.sort(function(x,y){return y.custo-x.custo});
+arr=arr.slice(0,5);
+tb.innerHTML=arr.length?arr.map(function(x){
+var v=veiculos.find(function(z){return String(z.id)===String(x.id)});
+return"<tr><td><b>"+escapeHtml(x.id)+"</b><br><small>"+escapeHtml(v?v.modelo:"")+"</small></td><td>"+escapeHtml(v?v.tipo:"—")+"</td><td>"+moeda(x.custo)+"</td><td>"+x.horas.toLocaleString("pt-BR")+" h</td><td><span class='status "+(v&&v.status==="Operando"?"status-ok":"status-alerta")+"'>"+escapeHtml(v?v.status:"—")+"</span></td></tr>"
+}).join(""):"<tr><td colspan='5'>Nenhuma OS concluída no ano selecionado.</td></tr>";
+}
+function relatorioAnual(){
+var ano=Number($("dashboardAno").value)||new Date().getFullYear(),comp=Number($("dashboardAnoComparacao").value)||ano-1;
+var a=dadosAno(ano),b=dadosAno(comp);
+return{ano:ano,comparacao:comp,dados:a,anterior:b,geradoEm:new Date().toLocaleString("pt-BR")};
+}
+function gerarRelatorio(){
+var r=relatorioAnual();
+var html="<!DOCTYPE html><html lang='pt-BR'><head><meta charset='utf-8'><title>Relatório Ruplast "+r.ano+"</title><style>body{font-family:Arial;padding:30px;color:#172033}h1{color:#09213d}table{width:100%;border-collapse:collapse;margin-top:20px}th,td{padding:9px;border-bottom:1px solid #ddd;text-align:left;font-size:12px}.box{display:inline-block;width:30%;vertical-align:top;padding:15px;border:1px solid #ddd;margin:5px;border-radius:8px}</style></head><body><h1>Ruplast — Relatório de Gestão da Frota</h1><p>Período: <b>"+r.ano+"</b> • Comparação: <b>"+r.comparacao+"</b> • Gerado em "+r.geradoEm+"</p><div class='box'><b>Custo "+r.ano+"</b><br>"+moeda(r.dados.custo)+"</div><div class='box'><b>Horas "+r.ano+"</b><br>"+r.dados.horas.toLocaleString("pt-BR")+" h</div><div class='box'><b>OS concluídas</b><br>"+r.dados.os+"</div><h2>Comparativo</h2><table><tr><th>Indicador</th><th>"+r.ano+"</th><th>"+r.comparacao+"</th></tr><tr><td>Custo total</td><td>"+moeda(r.dados.custo)+"</td><td>"+moeda(r.anterior.custo)+"</td></tr><tr><td>Custo médio / veículo</td><td>"+moeda(r.dados.custoMedio)+"</td><td>"+moeda(r.anterior.custoMedio)+"</td></tr><tr><td>Horas</td><td>"+r.dados.horas+" h</td><td>"+r.anterior.horas+" h</td></tr><tr><td>OS concluídas</td><td>"+r.dados.os+"</td><td>"+r.anterior.os+"</td></tr></table><p style='margin-top:30px;color:#718096'>Observação: os custos históricos são calculados pelas Ordens de Serviço concluídas. A disponibilidade exibida no Dashboard é o valor atual cadastrado por veículo.</p></body></html>";
+var w=window.open("","_blank");if(!w){alert("Permita pop-ups para gerar o relatório.");return}w.document.write(html);w.document.close();w.focus();setTimeout(function(){w.print()},300);
+}
+function baixarRelatorio(){
+var r=relatorioAnual(),rows=[
+["Ruplast - Relatório de Gestão da Frota"],
+["Ano selecionado",r.ano],
+["Ano de comparação",r.comparacao],
+["Indicador",String(r.ano),String(r.comparacao)],
+["Custo total",r.dados.custo,r.anterior.custo],
+["Custo médio por veículo",r.dados.custoMedio,r.anterior.custoMedio],
+["Horas de manutenção",r.dados.horas,r.anterior.horas],
+["OS concluídas",r.dados.os,r.anterior.os],
+["Índice de preventiva",r.dados.prevIdx.toFixed(2)+"%",r.anterior.prevIdx.toFixed(2)+"%"]
+];
+var csv=rows.map(function(row){return row.map(function(v){return'"'+String(v).replace(/"/g,'""')+'"'}).join(";")}).join("\r\n");
+var blob=new Blob(["\ufeff"+csv],{type:"text/csv;charset=utf-8"});
+var a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download="relatorio-ruplast-"+r.ano+".csv";document.body.appendChild(a);a.click();document.body.removeChild(a);setTimeout(function(){URL.revokeObjectURL(a.href)},500);
+}
+function historicoAnos(){
+var anos=anosDisponiveis(),html="<p>Histórico disponível com base nos registros cadastrados:</p><div class='tabela'><table><thead><tr><th>Ano</th><th>Custo</th><th>Horas</th><th>OS concluídas</th><th>Status</th></tr></thead><tbody>";
+anos.forEach(function(ano){var d=dadosAno(ano),f=localStorage.getItem("ruplast_ano_fechado_"+ano)==="1";html+="<tr><td><b>"+ano+"</b></td><td>"+moeda(d.custo)+"</td><td>"+d.horas.toLocaleString("pt-BR")+" h</td><td>"+d.os+"</td><td>"+(f?"🔒 Fechado":"Aberto")+"</td></tr>"});
+html+="</tbody></table></div>";
+$("modalTitulo").textContent="Histórico anual";$("modalConteudo").innerHTML=html;$("modal").classList.add("aberto");
+}
+function fecharAnoSelecionado(){
+var ano=Number($("dashboardAno").value)||new Date().getFullYear();
+if(localStorage.getItem("ruplast_ano_fechado_"+ano)==="1"){alert("O ano "+ano+" já está fechado neste navegador.");return}
+var d=dadosAno(ano);
+if(!confirm("Fechar o ano "+ano+"?\n\nCusto: "+moeda(d.custo)+"\nOS concluídas: "+d.os+"\n\nO fechamento poderá ser consultado no histórico."))return;
+localStorage.setItem("ruplast_ano_fechado_"+ano,"1");
+renderDashboardAnual();
+alert("Ano "+ano+" marcado como fechado.");
+}
+
 function renderAlertas(){
 var box=$("listaAlertas");if(!box)return;
 var itens=gerarAlertas();
 box.innerHTML=itens.length?itens.map(function(x){return"<div class='alerta "+(x.nivel==="danger"?"red":"")+"'><b>"+(x.nivel==="danger"?"🔴":"🟠")+" "+escapeHtml(x.veiculo)+"</b><br>"+escapeHtml(x.texto)+"</div>"}).join(""):"<div class='alerta green'><b>🟢 Tudo em dia</b></div>";
 }
 
-var gCusto=null,gStatus=null,gHoras=null,gCat=null,gVeic=null,gCustosTipo=null,gCustoVeic=null;
+var gCusto=null,gStatus=null,gHoras=null,gCat=null,gVeic=null,gCustosTipo=null,gCustoVeic=null,gCustoAnual=null,gCustosAno=null,gDisponibilidadeAno=null;
 function atualizarGraficos(){
 var cores=["#ff6b00","#ffb300","#13a36a","#0d6efd","#dc3545","#6f42c1","#0ea5e9","#f43f5e"];
 if(gCusto){
@@ -954,6 +1174,13 @@ $("novoPerfil").addEventListener("change",aplicarPermissoesPerfil);
 $("btnVerTodosAlertas").addEventListener("click",function(){abrirPagina("alertas")});
 $("btnVerTodosVeic").addEventListener("click",function(){abrirPagina("veiculos")});
 $("btnNotificacoes").addEventListener("click",function(){if("Notification"in window){Notification.requestPermission().then(function(p){alert(p==="granted"?"Notificações ativadas!":"Bloqueadas.")})}else{alert("Navegador não suporta.")}});
+$("btnCompararAnos").addEventListener("click",renderDashboardAnual);
+$("dashboardAno").addEventListener("change",renderDashboardAnual);
+$("dashboardAnoComparacao").addEventListener("change",renderDashboardAnual);
+$("btnHistoricoAnos").addEventListener("click",historicoAnos);
+$("btnGerarRelatorio").addEventListener("click",gerarRelatorio);
+$("btnBaixarRelatorio").addEventListener("click",baixarRelatorio);
+$("btnFecharAno").addEventListener("click",fecharAnoSelecionado);
 aplicarPermissoesPerfil();
 
 function novoVeiculo(){
@@ -1074,13 +1301,16 @@ function alterarSenhaModal(){
 }
 
 // Gráficos
-gCusto=new Chart($("graficoCusto"),{type:"bar",data:{labels:["Mar","Abr","Mai","Jun","Jul","Ago"],datasets:[{data:[0,0,0,0,0,0],backgroundColor:"#126cff",borderRadius:5}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}}}});
-gStatus=new Chart($("graficoStatus"),{type:"doughnut",data:{labels:["Operando","Manutenção","Parado","Baixado"],datasets:[{data:[0,0,0,0],backgroundColor:["#13a36a","#f59e0b","#dc3545","#94a3b8"],borderWidth:0}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:"bottom"}}}});
-gHoras=new Chart($("graficoHoras"),{type:"bar",data:{labels:[],datasets:[{data:[],backgroundColor:"#126cff"}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}}}});
-gCat=new Chart($("graficoCategorias"),{type:"doughnut",data:{labels:["Peças","Mão de obra","Pneus","Lubrificantes","Outros"],datasets:[{data:[42,25,16,10,7],backgroundColor:["#126cff","#13a36a","#f59e0b","#8b5cf6","#94a3b8"],borderWidth:0}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:"bottom"}}}});
-gVeic=new Chart($("graficoVeiculo"),{type:"line",data:{labels:["Mar","Abr","Mai","Jun","Jul","Ago"],datasets:[{data:[1100,1800,1300,2400,1900,0],borderColor:"#126cff",backgroundColor:"rgba(18,108,255,.12)",fill:true,tension:.4}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}}}});
+if(document.getElementById("graficoCusto"))gCusto=new Chart($("graficoCusto"),{type:"bar",data:{labels:[],datasets:[{data:[],backgroundColor:"#126cff",borderRadius:5}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}}}});
+if(document.getElementById("graficoStatus"))gStatus=new Chart($("graficoStatus"),{type:"doughnut",data:{labels:["Operando","Manutenção","Parado","Baixado"],datasets:[{data:[0,0,0,0],backgroundColor:["#13a36a","#f59e0b","#dc3545","#94a3b8"],borderWidth:0}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:"bottom"}}}});
+if(document.getElementById("graficoHoras"))gHoras=new Chart($("graficoHoras"),{type:"bar",data:{labels:[],datasets:[{data:[],backgroundColor:"#126cff"}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}}}});
+if(document.getElementById("graficoCategorias"))gCat=new Chart($("graficoCategorias"),{type:"doughnut",data:{labels:["Peças","Mão de obra","Pneus","Lubrificantes","Outros"],datasets:[{data:[42,25,16,10,7],backgroundColor:["#126cff","#13a36a","#f59e0b","#8b5cf6","#94a3b8"],borderWidth:0}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:"bottom"}}}});
+if(document.getElementById("graficoVeiculo"))gVeic=new Chart($("graficoVeiculo"),{type:"line",data:{labels:["Mar","Abr","Mai","Jun","Jul","Ago"],datasets:[{data:[1100,1800,1300,2400,1900,0],borderColor:"#126cff",backgroundColor:"rgba(18,108,255,.12)",fill:true,tension:.4}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}}}});
 if(document.getElementById("graficoCustosTipo")){gCustosTipo=new Chart($("graficoCustosTipo"),{type:"doughnut",data:{labels:[],datasets:[{data:[],backgroundColor:["#ff6b00","#ffb300","#13a36a","#0d6efd"],borderWidth:0}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:"bottom"}}}})}
 if(document.getElementById("graficoCustoVeic")){gCustoVeic=new Chart($("graficoCustoVeic"),{type:"bar",data:{labels:[],datasets:[{data:[],backgroundColor:"#ff6b00",borderRadius:5}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}}}})}
+if(document.getElementById("graficoCustoAnual")){gCustoAnual=new Chart($("graficoCustoAnual"),{type:"bar",data:{labels:["Jan","Fev","Mar","Abr","Mai","Jun","Jul","Ago","Set","Out","Nov","Dez"],datasets:[{label:"Ano anterior",data:[],backgroundColor:"#126cff",borderRadius:4},{label:"Ano selecionado",data:[],backgroundColor:"#13a36a",borderRadius:4}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:"top"}},scales:{y:{beginAtZero:true}}}})}
+if(document.getElementById("graficoCustosAno")){gCustosAno=new Chart($("graficoCustosAno"),{type:"doughnut",data:{labels:["Preventiva","Corretiva"],datasets:[{data:[0,0],backgroundColor:["#13a36a","#ff6b00"],borderWidth:0}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:"bottom"}}}})}
+if(document.getElementById("graficoDisponibilidadeAno")){gDisponibilidadeAno=new Chart($("graficoDisponibilidadeAno"),{type:"doughnut",data:{labels:["Disponível","Indisponível"],datasets:[{data:[0,100],backgroundColor:["#13a36a","#e5eaf0"],borderWidth:0}]},options:{responsive:true,maintainAspectRatio:false,cutout:"72%",plugins:{legend:{position:"bottom"}}}})}
 
 // Inicializar: tentar restaurar sessão
 tentarRestaurarSessao().then(function(ok){if(!ok){$("login").style.display="flex";$("app").style.display="none"}});
