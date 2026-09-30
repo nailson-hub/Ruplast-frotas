@@ -712,48 +712,12 @@ function abrirVeiculo(id){
    MANUTENÇÕES
 ===================================================== */
 function renderManut(){
-  var tb=$("tabelaManutencoes");
-  if(!tb)return;
-
-  // Exibe somente manutenções registradas diretamente nesta página.
-  // Registros antigos criados automaticamente por OS ficam fora.
-  var lista=manutencoes
-    .filter(function(m){
-      return !manutencaoGeradaPorOS(m);
-    })
-    .slice()
-    .sort(function(a,b){
-      return String(b.data||"").localeCompare(String(a.data||""));
-    });
-
-  tb.innerHTML=lista.map(function(m){
-    return "<tr>"+
-      "<td>"+escapeHtml(m.veiculo)+"</td>"+
-      "<td>"+escapeHtml(m.tipo)+"</td>"+
-      "<td>"+escapeHtml(m.servico)+"</td>"+
-      "<td>"+dataBR(m.data)+"</td>"+
-      "<td>"+moeda(m.custo)+"</td>"+
-      "<td><span class='status "+
-        (m.status==="Concluída"?"status-ok":"status-alerta")+
-        "'>"+escapeHtml(m.status)+"</span></td>"+
-      "<td><button class='btn-secondary btn-exc-manut' data-id='"+
-        escapeHtml(m.id)+"'>Excluir</button></td>"+
-      "</tr>";
-  }).join("") || "<tr><td colspan='7'>Nenhuma manutenção.</td></tr>";
-
+  var tb=$("tabelaManutencoes");if(!tb)return;
+  var lista=manutencoes.slice().sort(function(a,b){return String(b.data||"").localeCompare(String(a.data||""))});
+  tb.innerHTML=lista.map(function(m){return"<tr><td>"+escapeHtml(m.veiculo)+"</td><td>"+escapeHtml(m.tipo)+"</td><td>"+escapeHtml(m.servico)+"</td><td>"+dataBR(m.data)+"</td><td>"+moeda(m.custo)+"</td><td><span class='status "+(m.status==="Concluída"?"status-ok":"status-alerta")+"'>"+escapeHtml(m.status)+"</span></td><td><button class='btn-secondary btn-exc-manut' data-id='"+escapeHtml(m.id)+"'>Excluir</button></td></tr>"}).join("")||"<tr><td colspan='7'>Nenhuma manutenção.</td></tr>";
   var prev=0,corr=0,and=0,custo=0;
-
-  lista.forEach(function(m){
-    if(m.tipo==="Preventiva")prev++;
-    if(m.tipo==="Corretiva")corr++;
-    if(m.status!=="Concluída")and++;
-    custo+=Number(m.custo)||0;
-  });
-
-  setText("manKpiPrev",prev);
-  setText("manKpiCorr",corr);
-  setText("manKpiAnd",and);
-  setText("manKpiCusto",moeda(custo));
+  manutencoes.forEach(function(m){if(m.tipo==="Preventiva")prev++;if(m.tipo==="Corretiva")corr++;if(m.status!=="Concluída")and++;custo+=Number(m.custo)||0});
+  setText("manKpiPrev",prev);setText("manKpiCorr",corr);setText("manKpiAnd",and);setText("manKpiCusto",moeda(custo));
 }
 
 /* =====================================================
@@ -899,22 +863,23 @@ async function finalizarOS(id){
     }).eq("id", id);
     
     // 2. Prepara a data com segurança
-var dataProx = (o.proxima_revisao_data && o.proxima_revisao_data.length >= 8) ? o.proxima_revisao_data : null;
-
-// 3. Registra no histórico
-await sb.from("manutencoes").insert([{
-    id: "MAN-" + Date.now(),
-    veiculo: o.veiculo,
-    tipo: o.tipo,
-    servico: o.servico,
-    data: new Date().toISOString().slice(0,10),
-    custo: o.custo || 0,
-    horas: o.horas || 0,
-    status: "Concluída",
-    oficina: o.responsavel || "N/A",
-    proxima_revisao_km: 0,
-    proxima_revisao_data: dataProx,
-}]);
+    var dataProx = (o.proxima_revisao_data && o.proxima_revisao_data.length >= 8) ? o.proxima_revisao_data : null;
+    
+    // 3. Registra no histórico
+    await sb.from("manutencoes").insert([{
+        id: "MAN-" + Date.now(),
+        veiculo: o.veiculo,
+        tipo: o.tipo,
+        servico: o.servico,
+        data: new Date().toISOString().slice(0,10),
+        custo: o.custo || 0,
+        horas: o.horas || 0,
+        status: "Concluída",
+        oficina: o.responsavel || "N/A",
+        proxima_revisao_km: 0,
+        proxima_revisao_data: dataProx,
+        observacoes: "Finalizado via OS " + o.id
+    }]);
 
     // 4. Atualiza o veículo
     var v = veiculos.find(function(veic) { return veic.id === o.veiculo });
