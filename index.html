@@ -712,12 +712,48 @@ function abrirVeiculo(id){
    MANUTENÇÕES
 ===================================================== */
 function renderManut(){
-  var tb=$("tabelaManutencoes");if(!tb)return;
-  var lista=manutencoes.slice().sort(function(a,b){return String(b.data||"").localeCompare(String(a.data||""))});
-  tb.innerHTML=lista.map(function(m){return"<tr><td>"+escapeHtml(m.veiculo)+"</td><td>"+escapeHtml(m.tipo)+"</td><td>"+escapeHtml(m.servico)+"</td><td>"+dataBR(m.data)+"</td><td>"+moeda(m.custo)+"</td><td><span class='status "+(m.status==="Concluída"?"status-ok":"status-alerta")+"'>"+escapeHtml(m.status)+"</span></td><td><button class='btn-secondary btn-exc-manut' data-id='"+escapeHtml(m.id)+"'>Excluir</button></td></tr>"}).join("")||"<tr><td colspan='7'>Nenhuma manutenção.</td></tr>";
+  var tb=$("tabelaManutencoes");
+  if(!tb)return;
+
+  // Exibe somente manutenções registradas diretamente nesta página.
+  // Registros antigos criados automaticamente por OS ficam fora.
+  var lista=manutencoes
+    .filter(function(m){
+      return !manutencaoGeradaPorOS(m);
+    })
+    .slice()
+    .sort(function(a,b){
+      return String(b.data||"").localeCompare(String(a.data||""));
+    });
+
+  tb.innerHTML=lista.map(function(m){
+    return "<tr>"+
+      "<td>"+escapeHtml(m.veiculo)+"</td>"+
+      "<td>"+escapeHtml(m.tipo)+"</td>"+
+      "<td>"+escapeHtml(m.servico)+"</td>"+
+      "<td>"+dataBR(m.data)+"</td>"+
+      "<td>"+moeda(m.custo)+"</td>"+
+      "<td><span class='status "+
+        (m.status==="Concluída"?"status-ok":"status-alerta")+
+        "'>"+escapeHtml(m.status)+"</span></td>"+
+      "<td><button class='btn-secondary btn-exc-manut' data-id='"+
+        escapeHtml(m.id)+"'>Excluir</button></td>"+
+      "</tr>";
+  }).join("") || "<tr><td colspan='7'>Nenhuma manutenção.</td></tr>";
+
   var prev=0,corr=0,and=0,custo=0;
-  manutencoes.forEach(function(m){if(m.tipo==="Preventiva")prev++;if(m.tipo==="Corretiva")corr++;if(m.status!=="Concluída")and++;custo+=Number(m.custo)||0});
-  setText("manKpiPrev",prev);setText("manKpiCorr",corr);setText("manKpiAnd",and);setText("manKpiCusto",moeda(custo));
+
+  lista.forEach(function(m){
+    if(m.tipo==="Preventiva")prev++;
+    if(m.tipo==="Corretiva")corr++;
+    if(m.status!=="Concluída")and++;
+    custo+=Number(m.custo)||0;
+  });
+
+  setText("manKpiPrev",prev);
+  setText("manKpiCorr",corr);
+  setText("manKpiAnd",and);
+  setText("manKpiCusto",moeda(custo));
 }
 
 /* =====================================================
