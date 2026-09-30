@@ -845,26 +845,28 @@ function verDetalhesOS(id){
 
 async function finalizarOS(id){
     if(!temPerm("ordens_finalizar")) return;
+    
     var o = null;
     for(var i = 0; i < ordensServico.length; i++){
         if(ordensServico[i].id === id){ o = ordensServico[i]; break; }
     }
     if(!o) return;
+    
     if(!confirm("Finalizar OS " + id + "?")) return;
     
     syncStatus("Finalizando...", "#f59e0b");
     
-    // 1. Atualiza a OS
+    // 1. Atualiza a OS no Supabase
     await sb.from("ordens_servico").update({
         status: "Concluída", 
         finalizada_em: new Date().toISOString()
     }).eq("id", id);
     
-    // 2. Prepara a data com segurança (Se não existir, vira null)
+    // 2. Prepara a data com segurança
     var dataProx = (o.proxima_revisao_data && o.proxima_revisao_data.length >= 8) ? o.proxima_revisao_data : null;
     
-    // 3. Registra no histórico com valores seguros
-    var { error: erroManut } = await sb.from("manutencoes").insert([{
+    // 3. Registra no histórico
+    await sb.from("manutencoes").insert([{
         id: "MAN-" + Date.now(),
         veiculo: o.veiculo,
         tipo: o.tipo,
@@ -875,14 +877,9 @@ async function finalizarOS(id){
         status: "Concluída",
         oficina: o.responsavel || "N/A",
         proxima_revisao_km: 0,
-        proxima_revisao_data: dataProx, // Aqui tratamos para null se estiver vazio
+        proxima_revisao_data: dataProx,
         observacoes: "Finalizado via OS " + o.id
     }]);
-
-    if (erroManut) {
-        console.error("Erro ao inserir manutenção:", erroManut);
-        alert("OS finalizada, mas houve um erro ao registrar no histórico: " + erroManut.message);
-    }
 
     // 4. Atualiza o veículo
     var v = veiculos.find(function(veic) { return veic.id === o.veiculo });
@@ -893,9 +890,12 @@ async function finalizarOS(id){
         }).eq("id", o.veiculo);
     }
     
+    // --- MUDANÇA AQUI: Em vez de recarregar a página, atualizamos os dados silenciosamente ---
+    await carregarDados(); 
+    renderizarTudo(); 
     syncStatus("Sincronizado", "#13a36a");
-    alert("OS finalizada com sucesso!");
-    location.reload(); // Recarrega para garantir que os dados atualizem
+    
+    // Agora o sistema permanece na mesma tela, com a tabela atualizada!
 }
 
 function novaOS(){
