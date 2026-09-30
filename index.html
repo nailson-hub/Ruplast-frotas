@@ -851,7 +851,19 @@ async function finalizarOS(id){
   syncStatus("Finalizando...","#f59e0b");
   var r1=await sb.from("ordens_servico").update({status:"Concluída",finalizada_em:new Date().toISOString()}).eq("id",id);
   if(r1.error){alert("Erro ao finalizar: "+r1.error.message);syncStatus("Erro","#dc3545");return}
-  var r2=await sb.from("manutencoes").insert([{id:"MAN-"+Date.now(),veiculo:o.veiculo,tipo:o.tipo,servico:o.servico,data:hojeISO(),custo:o.custo,horas:o.horas,status:"Concluída",oficina:o.responsavel||"",proxima_revisao_km:0,proxima_revisao_data:"",observacoes:""}]);
+  var r2=await sb.from("manutencoes").insert([{
+    id: "MAN-"+Date.now(),
+    veiculo: o.veiculo,
+    tipo: o.tipo,
+    servico: o.servico,
+    data: new Date().toISOString().slice(0,10),
+    custo: o.custo,
+    horas: o.horas,
+    status: "Concluída",
+    oficina: o.responsavel||"",
+    proxima_revisao_km: 0,
+    proxima_revisao_data: null, // MUDOU DE "" PARA null AQUI
+    observacoes:""}]);
   if(r2.error){console.error("manutencoes:",r2.error);alert("OS finalizada, mas não foi possível registrar no histórico de manutenções: "+r2.error.message)}
   var v=achar(veiculos,o.veiculo);
   if(v){
