@@ -862,24 +862,7 @@ async function finalizarOS(id){
         finalizada_em: new Date().toISOString()
     }).eq("id", id);
     
-    // 2. Prepara a data com segurança
-    var dataProx = (o.proxima_revisao_data && o.proxima_revisao_data.length >= 8) ? o.proxima_revisao_data : null;
     
-    // 3. Registra no histórico
-    await sb.from("manutencoes").insert([{
-        id: "MAN-" + Date.now(),
-        veiculo: o.veiculo,
-        tipo: o.tipo,
-        servico: o.servico,
-        data: new Date().toISOString().slice(0,10),
-        custo: o.custo || 0,
-        horas: o.horas || 0,
-        status: "Concluída",
-        oficina: o.responsavel || "N/A",
-        proxima_revisao_km: 0,
-        proxima_revisao_data: dataProx,
-        observacoes: "Finalizado via OS " + o.id
-    }]);
 
     // 4. Atualiza o veículo
     var v = veiculos.find(function(veic) { return veic.id === o.veiculo });
