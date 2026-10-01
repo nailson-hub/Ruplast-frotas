@@ -408,6 +408,23 @@ function achar(lista,id){for(var i=0;i<lista.length;i++){if(String(lista[i].id)=
 function statusNormalizado(v){return String(v==null?"":v).trim().normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase()}
 function osConcluida(o){return statusNormalizado(o&&o.status)==="concluida"}
 function osCancelada(o){return statusNormalizado(o&&o.status)==="cancelada"}
+  // ===== DISPONIBILIDADE AUTOMÁTICA (OS "Em andamento" como fonte da verdade) =====
+function veiculoEmManutencao(idVeiculo){
+  var id=String(idVeiculo==null?"":idVeiculo).trim();
+  if(!id)return false;
+  return ordensServico.some(function(o){
+    return String(o.veiculo==null?"":o.veiculo).trim()===id && o.status==="Em andamento";
+  });
+}
+// OPÇÃO B: OS em andamento força "Manutenção"; sem OS, respeita o status manual
+function statusEfetivo(v){
+  if(veiculoEmManutencao(v.id)) return "Manutenção";
+  return v.status || "Operando";
+}
+// Disponibilidade calculada (não editável): 0% se há OS em andamento, senão 100%
+function disponibilidadeCalculada(v){
+  return veiculoEmManutencao(v.id) ? 0 : 100;
+}
 
 // Ano/mês respeitando o fuso local (OS finalizada às 22h de 31/12 não vira ano seguinte)
 function anoMesDe(v){
@@ -648,9 +665,10 @@ function renderVeiculos(){
   });
   filtrados.forEach(function(v){
     var a=alertaVeic(v);
-    var cls=v.status==="Operando"?"status-ok":v.status==="Manutenção"?"status-alerta":"status-erro";
+    var stEf=statusEfetivo(v);
+var cls=stEf==="Operando"?"status-ok":stEf==="Manutenção"?"status-alerta":"status-erro";
     var div=document.createElement("div");div.className="card veiculo";
-    div.innerHTML='<div class="veiculo-top"><div><h3>'+escapeHtml(v.id)+'</h3><small>'+escapeHtml(v.modelo)+' • '+escapeHtml(v.placa||"Sem placa")+'</small></div><span class="status '+cls+'">'+escapeHtml(v.status)+'</span></div><div class="dados-veiculo"><div><span>Quilometragem</span><strong>'+Number(v.km).toLocaleString("pt-BR")+' km</strong></div><div><span>Próxima revisão</span><strong>'+Number(v.proxima_revisao_km||0).toLocaleString("pt-BR")+' km</strong></div><div><span>Disponibilidade</span><strong>'+escapeHtml(v.disponibilidade)+'%</strong></div><div><span>Alerta</span><strong>'+escapeHtml(a.texto)+'</strong></div></div><div style="display:flex;gap:7px;margin-top:15px;flex-wrap:wrap"><button class="btn-secondary btn-edit">✏️ Editar</button><button class="btn-secondary btn-detalhe">👁️ Detalhes</button><button class="btn-danger btn-exc">🗑️ Excluir</button></div>';
+    div.innerHTML='<div class="veiculo-top"><div><h3>'+escapeHtml(v.id)+'</h3><small>'+escapeHtml(v.modelo)+' • '+escapeHtml(v.placa||"Sem placa")+'</small></div><span class="status '+cls+'">'+escapeHtml(stEf)+'</span></div><div class="dados-veiculo"><div><span>Quilometragem</span><strong>'+Number(v.km).toLocaleString("pt-BR")+' km</strong></div><div><span>Próxima revisão</span><strong>'+Number(v.proxima_revisao_km||0).toLocaleString("pt-BR")+' km</strong></div><div><span>Disponibilidade</span><strong>'+escapeHtml(v.disponibilidade)+'%</strong></div><div><span>Alerta</span><strong>'+escapeHtml(a.texto)+'</strong></div></div><div style="display:flex;gap:7px;margin-top:15px;flex-wrap:wrap"><button class="btn-secondary btn-edit">✏️ Editar</button><button class="btn-secondary btn-detalhe">👁️ Detalhes</button><button class="btn-danger btn-exc">🗑️ Excluir</button></div>';
     div.addEventListener("click",function(e){if(e.target.tagName==="BUTTON")return;abrirVeiculo(v.id)});
     div.querySelector(".btn-edit").addEventListener("click",function(e){e.stopPropagation();editarVeic(v.id)});
     div.querySelector(".btn-detalhe").addEventListener("click",function(e){e.stopPropagation();abrirVeiculo(v.id)});
@@ -688,7 +706,7 @@ function abrirVeiculo(id){
   setText("detalheCusto",moeda(custoOSConcluidasVeiculo(v.id)));
   setText("detalheHoras",v.horas+" h");
   setText("detalheKm",Number(v.km).toLocaleString("pt-BR")+" km");
-  setText("detalheDisponibilidade",v.disponibilidade+"%");
+  setText("detalheDisponibilidade",disponibilidadeCalculada(v)+"%");
   $("dadosDetalhe").innerHTML="<b>Modelo:</b> "+escapeHtml(v.modelo)+"<br><b>Tipo:</b> "+escapeHtml(v.tipo)+"<br><b>Ano:</b> "+escapeHtml(v.ano)+"<br><b>KM:</b> "+Number(v.km).toLocaleString("pt-BR")+" km<br><b>Placa:</b> "+escapeHtml(v.placa||"Não informada")+"<br><b>Combustível:</b> "+escapeHtml(v.combustivel||"-")+"<br><b>Centro de custo:</b> "+escapeHtml(v.centro_custo||"-")+"<br><b>Responsável:</b> "+escapeHtml(v.responsavel||"-")+"<br><b>Última revisão:</b> "+dataBR(v.ultima_revisao)+"<br><b>Próxima revisão KM:</b> "+Number(v.proxima_revisao_km||0).toLocaleString("pt-BR")+" km<br><b>Próxima revisão data:</b> "+dataBR(v.proxima_revisao_data)+"<br><b>Status:</b> "+escapeHtml(v.status)+"<br><b>Disponibilidade:</b> "+escapeHtml(v.disponibilidade)+"%<br><b>Alerta:</b> "+escapeHtml(alertaVeic(v).texto);
 
   var hist=manutencoes.filter(function(m){return m.veiculo===id&&m.tipo==="Preventiva"}).sort(function(a,b){return new Date(b.data)-new Date(a.data)});
@@ -1150,8 +1168,8 @@ function gerarAlertas(){
 function renderDash(){
   setText("subtituloDashboard","Visão geral de "+veiculos.length+" veículo(s) • análise histórica por ano.");
   var totalV=veiculos.length,
-      op=veiculos.filter(function(v){return v.status==="Operando"}).length,
-      man=veiculos.filter(function(v){return v.status==="Manutenção"}).length,
+      op=veiculos.filter(function(v){return statusEfetivo(v)==="Operando"}).length,
+      man=veiculos.filter(function(v){return statusEfetivo(v)==="Manutenção"}).length,
       par=totalV-op-man;
   function pct(n){return(totalV?(n/totalV)*100:0).toFixed(1)+"%"}
   setText("refTotalVeiculos",totalV);
@@ -1424,8 +1442,8 @@ function renderAlertas(){
 function atualizarGraficos(){
   var cores=["#ff6b00","#ffb300","#13a36a","#0d6efd","#dc3545","#6f42c1","#0ea5e9","#f43f5e","#94a3b8","#f59e0b"];
   if(gStatus){
-    var opS=veiculos.filter(function(v){return v.status==="Operando"}).length,
-        manS=veiculos.filter(function(v){return v.status==="Manutenção"}).length;
+    var opS=veiculos.filter(function(v){return statusEfetivo(v)==="Operando"}).length,
+        manS=veiculos.filter(function(v){return statusEfetivo(v)==="Manutenção"}).length;
     gStatus.data.datasets[0].data=[opS,manS,veiculos.length-opS-manS];
     gStatus.update();
   }
