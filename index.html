@@ -1091,6 +1091,15 @@ function dispMes(ano,mes){
   var hoje=new Date();
   if(ano>hoje.getFullYear()||(ano===hoje.getFullYear()&&mes>hoje.getMonth()+1))return null;
   var nV=veiculos.length;if(!nV)return null;
+  var mesAtual=(ano===hoje.getFullYear()&&mes===hoje.getMonth()+1);
+
+  // MÊS ATUAL: usa a mesma lógica do donut (veículos sem OS em andamento)
+  if(mesAtual){
+    var emManut=veiculos.filter(function(v){return veiculoEmManutencao(v.id)}).length;
+    return Math.max(0,Math.min(100,100*(nV-emManut)/nV));
+  }
+
+  // MESES PASSADOS: cálculo histórico por horas das OS concluídas
   var paradas=0;
   ordensServico.forEach(function(o){
     if(!osConcluida(o))return;
