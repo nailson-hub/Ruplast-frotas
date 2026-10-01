@@ -707,7 +707,7 @@ function abrirVeiculo(id){
   setText("detalheHoras",v.horas+" h");
   setText("detalheKm",Number(v.km).toLocaleString("pt-BR")+" km");
   setText("detalheDisponibilidade",disponibilidadeCalculada(v)+"%");
-  $("dadosDetalhe").innerHTML="<b>Modelo:</b> "+escapeHtml(v.modelo)+"<br><b>Tipo:</b> "+escapeHtml(v.tipo)+"<br><b>Ano:</b> "+escapeHtml(v.ano)+"<br><b>KM:</b> "+Number(v.km).toLocaleString("pt-BR")+" km<br><b>Placa:</b> "+escapeHtml(v.placa||"Não informada")+"<br><b>Combustível:</b> "+escapeHtml(v.combustivel||"-")+"<br><b>Centro de custo:</b> "+escapeHtml(v.centro_custo||"-")+"<br><b>Responsável:</b> "+escapeHtml(v.responsavel||"-")+"<br><b>Última revisão:</b> "+dataBR(v.ultima_revisao)+"<br><b>Próxima revisão KM:</b> "+Number(v.proxima_revisao_km||0).toLocaleString("pt-BR")+" km<br><b>Próxima revisão data:</b> "+dataBR(v.proxima_revisao_data)+"<br><b>Status:</b> "+escapeHtml(v.status)+"<br><b>Disponibilidade:</b> "+escapeHtml(v.disponibilidade)+"%<br><b>Alerta:</b> "+escapeHtml(alertaVeic(v).texto);
+  $("dadosDetalhe").innerHTML="<b>Modelo:</b> "+escapeHtml(v.modelo)+"<br><b>Tipo:</b> "+escapeHtml(v.tipo)+"<br><b>Ano:</b> "+escapeHtml(v.ano)+"<br><b>KM:</b> "+Number(v.km).toLocaleString("pt-BR")+" km<br><b>Placa:</b> "+escapeHtml(v.placa||"Não informada")+"<br><b>Combustível:</b> "+escapeHtml(v.combustivel||"-")+"<br><b>Centro de custo:</b> "+escapeHtml(v.centro_custo||"-")+"<br><b>Responsável:</b> "+escapeHtml(v.responsavel||"-")+"<br><b>Última revisão:</b> "+dataBR(v.ultima_revisao)+"<br><b>Próxima revisão KM:</b> "+Number(v.proxima_revisao_km||0).toLocaleString("pt-BR")+" km<br><b>Próxima revisão data:</b> "+dataBR(v.proxima_revisao_data)+"<br><b>Status:</b> "+escapeHtml(v.status)+"<br><b>Disponibilidade:</b> "+disponibilidadeCalculada(v)+"%<br><b>Alerta:</b> "+escapeHtml(alertaVeic(v).texto);
 
   var hist=manutencoes.filter(function(m){return m.veiculo===id&&m.tipo==="Preventiva"}).sort(function(a,b){return new Date(b.data)-new Date(a.data)});
   $("tabelaHistoricoVeiculo").innerHTML=hist.length?hist.map(function(m){return"<tr><td>"+dataBR(m.data)+"</td><td>"+escapeHtml(m.tipo)+"</td><td>"+escapeHtml(m.servico)+"</td><td>"+escapeHtml(m.horas)+" h</td><td>"+moeda(m.custo)+"</td><td><span class='status "+(m.status==="Concluída"?"status-ok":"status-alerta")+"'>"+escapeHtml(m.status)+"</span></td></tr>"}).join(""):"<tr><td colspan='6'>Nenhuma manutenção.</td></tr>";
@@ -1417,10 +1417,10 @@ function renderIndicadores(){
     var totalV=veiculos.length;
     var dispSum=0,kmTotal=0,ativos=0,emManut=0,atrasadas=0;
     veiculos.forEach(function(v){
-      var d=Number(v.disponibilidade);if(isFinite(d))dispSum+=d;
+      var d=disponibilidadeCalculada(v);if(isFinite(d))dispSum+=d;
       var km=Number(v.km);if(isFinite(km))kmTotal+=km;
-      if(v.status==="Operando")ativos++;
-      if(v.status==="Manutenção")emManut++;
+      if(statusEfetivo(v)==="Operando")ativos++;
+if(statusEfetivo(v)==="Manutenção")emManut++;
       if(alertaVeic(v).tipo==="danger")atrasadas++;
     });
     var concl=ordensServico.filter(osConcluida);
