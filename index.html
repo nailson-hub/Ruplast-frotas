@@ -1091,13 +1091,40 @@ function dispMes(ano,mes){
   var hoje=new Date();
   if(ano>hoje.getFullYear()||(ano===hoje.getFullYear()&&mes>hoje.getMonth()+1))return null;
   var nV=veiculos.length;if(!nV)return null;
-  var mesAtual=(ano===hoje.getFullYear()&&mes===hoje.getMonth()+1);
 
-  // MÊS ATUAL: usa a mesma lógica do donut (veículos sem OS em andamento)
-  if(mesAtual){
-    var emManut=veiculos.filter(function(v){return veiculoEmManutencao(v.id)}).length;
-    return Math.max(0,Math.min(100,100*(nV-emManut)/nV));
-  }
+  // Janela do mês: dia 1 até o último dia (ou até agora, se for o mês atual)
+  var inicioMes=new Date(ano,mes-1,1,0,0,0);
+  var fimMes=new Date(ano,mes,0,23,59,59);
+  if(fimMes>hoje)fimMes=hoje; // mês atual não conta o futuro
+
+  var msNoMes=fimMes-inicioMes;if(msNoMes<=0)return null;
+  var paradasMs=0;
+
+  ordensServico.forEach(function(o){
+    // Só OS "Em andamento" (atual) ou concluídas (histórico) afetam disponibilidade
+    var ini=new Date(o.criada_em);
+    if(isNaN(ini))return;
+
+    var fim;
+    if(osConcluida(o)&&o.finalizada_em){
+      fim=new Date(o.finalizada_em);        // concluída: período real de parada
+    }else if(o.status==="Em andamento"){
+      fim=hoje;                              // em andamento: parada até agora
+    }else{
+      return;                               // "Aberta"/"Cancelada" não contam
+    }
+    if(isNaN(fim))return;
+
+    // Interseção entre o período da OS e a janela do mês
+    var a=Math.max(ini.getTime(),inicioMes.getTime());
+    var b=Math.min(fim.getTime(),fimMes.getTime());
+    if(b>a)paradasMs+=(b-a);
+  });
+
+  // Disponibilidade = 1 - (horas-veículo paradas / horas-veículo totais)
+  var totalMs=nV*msNoMes;
+  return Math.max(0,Math.min(100,100*(1-paradasMs/totalMs)));
+}
 
   // MESES PASSADOS: cálculo histórico por horas das OS concluídas
   var paradas=0;
