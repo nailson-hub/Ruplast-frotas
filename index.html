@@ -1126,16 +1126,6 @@ function dispMes(ano,mes){
   return Math.max(0,Math.min(100,100*(1-paradasMs/totalMs)));
 }
 
-  // MESES PASSADOS: cálculo histórico por horas das OS concluídas
-  var paradas=0;
-  ordensServico.forEach(function(o){
-    if(!osConcluida(o))return;
-    var d=anoMesDe(dataOS(o));
-    if(d&&d.ano===ano&&d.mes===mes)paradas+=Number(o.horas)||0;
-  });
-  var total=nV*HORAS_OPERACAO_DIA*new Date(ano,mes,0).getDate();
-  return Math.max(0,Math.min(100,100*(1-paradas/total)));
-}
 function dispSerie(ano){
   if(!dadosAno(ano).os)return MESES.map(function(){return null});
   return MESES.map(function(_,i){return dispMes(ano,i+1)});
